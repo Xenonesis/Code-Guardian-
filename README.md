@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🛡️ Code Guardian v0.3
+# 🛡️ Code Guardian v0.35
 
 <p align="center">
   <strong>Next-Generation AI-Powered Security Analysis Platform</strong><br/>
@@ -11,7 +11,7 @@
 
 <!-- Status Badges -->
 <p align="center">
-  <img src="https://img.shields.io/badge/Version-0.3-ff6b6b?style=for-the-badge&logo=rocket&logoColor=white" alt="Version"/>
+  <img src="https://img.shields.io/badge/Version-0.35-ff6b6b?style=for-the-badge&logo=rocket&logoColor=white" alt="Version"/>
   <img src="https://img.shields.io/badge/Status-Production%20Ready-00C851?style=for-the-badge&logo=checkmarx&logoColor=white" alt="Status"/>
   <img src="https://img.shields.io/badge/AI%20Powered-GPT--4%20%7C%20Claude%20%7C%20Gemini-9C27B0?style=for-the-badge&logo=openai&logoColor=white" alt="AI Powered"/>
   <img src="https://img.shields.io/badge/PWA-Ready-FF6F00?style=for-the-badge&logo=pwa&logoColor=white" alt="PWA Ready"/>
@@ -726,7 +726,7 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 See [changelogs.md](./changelogs.md) for complete version history and detailed changes.
 
 <details>
-<summary><strong>Latest Updates (v0.3)</strong></summary>
+<summary><strong>Latest Updates (v0.35)</strong></summary>
 
 - **🔄 Version Reset**: Clean slate for new development cycle
 - **📦 Dependencies**: Updated all dependencies to latest stable versions
