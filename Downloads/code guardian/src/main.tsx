@@ -3,12 +3,8 @@ import { createRoot } from 'react-dom/client';
 import App from './App.tsx';
 // Import base styles first
 import './styles/base.css';
-// Then try importing other styles incrementally
-// import './styles/enhanced-ui.css';
-// import './styles/about-page-enhancements.css';
-// import './styles/sidebar-fix.css';
-// import './styles/sidebar-position-fix.css';
-// import './index.css';
+// Import other styles
+import './styles/background-effects.css';
 
 // Performance monitoring
 if ('performance' in window && 'mark' in window.performance) {
@@ -99,3 +95,6 @@ if (import.meta.env.PROD) {
     // Gracefully handle if web-vitals is not available
   });
 }
+
+// Export for testing purposes
+export default App;

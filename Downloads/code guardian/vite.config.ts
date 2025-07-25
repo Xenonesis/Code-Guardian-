@@ -1,13 +1,33 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react-swc';
 import path from 'path';
+/// <reference types="vitest" />
 
 export default defineConfig({
   plugins: [
     react({
       // React SWC plugin with optimized configuration
+      jsxRuntime: 'automatic'
     })
   ],
+  // Test configuration
+  test: {
+    globals: true,
+    environment: 'jsdom',
+    setupFiles: ['./src/test/setup.ts'],
+    css: true,
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'json', 'html'],
+      exclude: [
+        'node_modules/',
+        'src/test/',
+        '**/*.d.ts',
+        '**/*.config.*',
+        'dist/'
+      ]
+    }
+  },
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
@@ -38,7 +58,7 @@ export default defineConfig({
   // Professional build configuration
   build: {
     target: ['es2020', 'edge88', 'firefox78', 'chrome87', 'safari14'],
-    minify: false,
+    minify: 'terser',
     sourcemap: false,
     chunkSizeWarningLimit: 1000,
     cssCodeSplit: true,
@@ -127,7 +147,7 @@ export default defineConfig({
       }
     },
     // CSS optimization
-    cssMinify: false // Temporarily disabled to troubleshoot CSS loading issues
+    cssMinify: 'lightningcss'
   },
   // Dependency optimization
   optimizeDeps: {
@@ -146,7 +166,7 @@ export default defineConfig({
   },
   // Environment variables
   define: {
-    __APP_VERSION__: JSON.stringify(process.env.npm_package_version || '4.5.0'),
+    __APP_VERSION__: JSON.stringify(process.env.npm_package_version || '0.2.0'),
     __BUILD_TIME__: JSON.stringify(new Date().toISOString())
   },
   // ESBuild configuration

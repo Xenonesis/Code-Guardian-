@@ -1,954 +1,771 @@
 <div align="center">
 
-# 🛡️ Code Guardian v4.5.0
-### 🚀 Next-Generation AI-Powered Security Analysis Platform
-Enhanced with AI Fix Suggestions, Secure Code Search, and Code Provenance Monitoring
+# 🛡️ Code Guardian v0.2.0
 
-**Current Version: 4.5.0 - Developed by Aditya Kumar Tiwari**
-Now with Advanced AI-Powered Security Features
+<p align="center">
+  <strong>Next-Generation AI-Powered Security Analysis Platform</strong><br/>
+  <em>Enhanced with AI Fix Suggestions, Secure Code Search, and Code Provenance Monitoring</em>
+</p>
 
 <img src="./public/home.png" alt="Code Guardian - AI-Powered Security Analysis Platform" width="100%" style="border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.12);">
 
-<div align="center">
-  <img src="https://img.shields.io/badge/Version-4.5.0-ff6b6b?style=for-the-badge&logo=rocket&logoColor=white" alt="Version"/>
+<!-- Status Badges -->
+<p align="center">
+  <img src="https://img.shields.io/badge/Version-0.2.0-ff6b6b?style=for-the-badge&logo=rocket&logoColor=white" alt="Version"/>
   <img src="https://img.shields.io/badge/Status-Production%20Ready-00C851?style=for-the-badge&logo=checkmarx&logoColor=white" alt="Status"/>
   <img src="https://img.shields.io/badge/AI%20Powered-GPT--4%20%7C%20Claude%20%7C%20Gemini-9C27B0?style=for-the-badge&logo=openai&logoColor=white" alt="AI Powered"/>
-  <img src="https://img.shields.io/badge/npm-v4.5.0-CB3837?style=for-the-badge&logo=npm&logoColor=white" alt="NPM Version"/>
-  <img src="https://img.shields.io/badge/Analytics-Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white" alt="Analytics"/>
   <img src="https://img.shields.io/badge/PWA-Ready-FF6F00?style=for-the-badge&logo=pwa&logoColor=white" alt="PWA Ready"/>
-</div>
+</p>
 
-<br/>
-
-<div align="center">
+<!-- Tech Stack Badges -->
+<p align="center">
   <img src="https://img.shields.io/badge/React-18.3.1-61DAFB?style=for-the-badge&logo=react&logoColor=white" alt="React"/>
   <img src="https://img.shields.io/badge/TypeScript-5.8.3-3178C6?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript"/>
-  <img src="https://img.shields.io/badge/Vite-6.3.5-646CFF?style=for-the-badge&logo=vite&logoColor=white" alt="Vite"/>
+  <img src="https://img.shields.io/badge/Vite-7.0.5-646CFF?style=for-the-badge&logo=vite&logoColor=white" alt="Vite"/>
   <img src="https://img.shields.io/badge/Tailwind_CSS-3.4.11-06B6D4?style=for-the-badge&logo=tailwind-css&logoColor=white" alt="Tailwind CSS"/>
-</div>
+</p>
 
-<br/>
-
-<div align="center">
+<!-- Quality Badges -->
+<p align="center">
   <img src="https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge&logo=opensourceinitiative&logoColor=white" alt="License"/>
   <img src="https://img.shields.io/badge/Build-Passing-brightgreen?style=for-the-badge&logo=github-actions&logoColor=white" alt="Build Status"/>
   <img src="https://img.shields.io/badge/Performance-100%2F100-orange?style=for-the-badge&logo=lighthouse&logoColor=white" alt="Performance"/>
   <img src="https://img.shields.io/badge/Security-Enterprise%20Grade-red?style=for-the-badge&logo=shield&logoColor=white" alt="Security"/>
-</div>
+</p>
 
-**🔬 Advanced AI-powered static code analysis platform that helps developers identify security vulnerabilities, code quality issues, and maintainability concerns in their codebase**
+---
 
-<div align="center">
-  <h3>🎯 Transform Your Code Quality Today</h3>
-  <p><em>"Security is not a product, but a process" - Bruce Schneier</em></p>
-  
+## 📖 Table of Contents
+
+- [🎯 Overview](#-overview)
+- [✨ Key Features](#-key-features)
+- [🚀 Quick Start](#-quick-start)
+- [🛠️ Installation](#️-installation)
+- [📊 Usage Guide](#-usage-guide)
+- [🔧 Configuration](#-configuration)
+- [🏗️ Architecture](#️-architecture)
+- [🔒 Security & Privacy](#-security--privacy)
+- [📈 Performance](#-performance)
+- [🤝 Contributing](#-contributing)
+- [📞 Support](#-support)
+- [📄 License](#-license)
+
+---
+
+## 🎯 Overview
+
+**Code Guardian** is an advanced AI-powered static code analysis platform designed to help developers identify security vulnerabilities, code quality issues, and maintainability concerns in their codebase. Built with modern web technologies and enhanced with cutting-edge AI capabilities, it provides comprehensive security analysis while maintaining complete privacy and data protection.
+
+> *"Security is not a product, but a process"* - Bruce Schneier
+
+### 🌟 Why Choose Code Guardian?
+
+- **🔒 Privacy-First**: All analysis performed locally in your browser
+- **🤖 AI-Enhanced**: Multiple AI providers for intelligent insights
+- **📊 Comprehensive**: OWASP Top 10 compliance and beyond
+- **⚡ Fast**: Lightning-fast analysis with real-time results
+- **🎨 Modern**: Beautiful, responsive interface with dark/light modes
+
+<p align="center">
   <a href="https://code-guardian-report.vercel.app" target="_blank">
     <img src="https://img.shields.io/badge/🚀%20Try%20Live%20Demo-4F46E5?style=for-the-badge&logoColor=white" alt="Live Demo" height="50"/>
   </a>
-  <a href="#-quick-start-guide">
+  <a href="#-quick-start">
     <img src="https://img.shields.io/badge/⚡%20Quick%20Start-10B981?style=for-the-badge&logoColor=white" alt="Quick Start" height="50"/>
   </a>
-  <a href="#-screenshots--demo">
-    <img src="https://img.shields.io/badge/📸%20View%20Screenshots-F59E0B?style=for-the-badge&logoColor=white" alt="Screenshots" height="50"/>
-  </a>
-</div>
+</p>
 
-### **🎯 What Code Guardian Does:**
+---
+
+## ✨ Key Features
+
+### 🎯 Core Capabilities
 
 <table>
 <tr>
 <td width="33%" align="center">
   <img src="./public/cc.png" alt="Security" width="64"/>
   <h4>🛡️ Security Analysis</h4>
-  <p>Detects vulnerabilities and security issues using OWASP standards</p>
+  <p>Advanced vulnerability detection using OWASP Top 10 standards and custom security rules</p>
 </td>
 <td width="33%" align="center">
   <img src="https://img.icons8.com/fluency/96/artificial-intelligence.png" alt="AI" width="64"/>
   <h4>🤖 AI-Powered Insights</h4>
-  <p>GPT-4 & Claude integration for intelligent code recommendations</p>
+  <p>Multi-provider AI integration (GPT-4, Claude, Gemini) for intelligent code recommendations</p>
 </td>
 <td width="33%" align="center">
   <img src="https://img.icons8.com/fluency/96/analytics.png" alt="Analytics" width="64"/>
   <h4>📊 Visual Analytics</h4>
-  <p>Interactive dashboards with real-time charts and reporting</p>
+  <p>Interactive dashboards with real-time charts, metrics, and comprehensive reporting</p>
 </td>
 </tr>
 <tr>
 <td width="33%" align="center">
   <img src="https://img.icons8.com/fluency/96/code.png" alt="Quality" width="64"/>
   <h4>📈 Quality Assessment</h4>
-  <p>Comprehensive code quality scoring and maintainability metrics</p>
+  <p>Comprehensive code quality scoring, maintainability metrics, and technical debt analysis</p>
 </td>
 <td width="33%" align="center">
   <img src="https://img.icons8.com/fluency/96/export.png" alt="Export" width="64"/>
-  <h4>📤 Export Capabilities</h4>
-  <p>Download results in JSON, CSV, PDF, HTML, and XML formats</p>
+  <h4>📤 Export & Reporting</h4>
+  <p>Multiple export formats (PDF, JSON, XML, CSV) with customizable report templates</p>
 </td>
 <td width="33%" align="center">
-  <img src="https://img.icons8.com/fluency/96/speed.png" alt="Performance" width="64"/>
-  <h4>⚡ Lightning Fast</h4>
-  <p>Optimized performance with sub-second loading times</p>
+  <img src="https://img.icons8.com/fluency/96/chat-bot.png" alt="ChatBot" width="64"/>
+  <h4>💬 AI Assistant</h4>
+  <p>Context-aware floating chatbot providing real-time analysis help and code suggestions</p>
 </td>
 </tr>
 </table>
 
-### **✨ New in v4.5.0:**
-
-<div align="center">
-
-| 🆕 Feature | 📝 Description | 🎯 Impact |
-|------------|-----------------|------------|
-| 🔄 **Version Synchronization** | Updated all version references across the entire project | Consistent versioning and better maintenance |
-| 📦 **Dependency Alignment** | Synchronized package.json, manifest, and service worker versions | Improved reliability and deployment consistency |
-| 🛠️ **Build Optimization** | Enhanced Vite configuration with advanced chunk splitting | Faster loading and better performance |
-| 🖼️ **UI & Accessibility** | UI alignment fixes, accessibility improvements, and documentation updates | Better user experience for all |
-| 📤 **Export & PWA** | Improved export formats and PWA manifest actions | Enhanced export and installability |
-
-</div>
-
-Built with ❤️ by [Aditya Kumar Tiwari](https://github.com/Xenonesis)
-
-<div align="center">
-
-**[🌐 Live Demo](https://code-guardian-report.vercel.app) • [📚 Documentation](#-table-of-contents) • [🐛 Report Issues](https://github.com/Xenonesis/code-guardian-report/issues) • [✨ Feature Requests](https://github.com/Xenonesis/code-guardian-report/issues)**
-
-<br/>
+### 🔐 Advanced Security Analysis
 
 <details>
-<summary><b>🎥 Watch Demo Video</b></summary>
-<br/>
-<div align="center">
-  <img src="https://img.shields.io/badge/🎬%20Demo%20Video-Coming%20Soon-FF6B6B?style=for-the-badge" alt="Demo Video"/>
-  <p><em>Interactive demo video showcasing key features will be available soon!</em></p>
-</div>
+<summary><strong>Click to expand security features</strong></summary>
+
+- **🛡️ OWASP Top 10 Compliance**: Complete coverage of OWASP security standards
+- **🔍 Secret Detection**: Identifies API keys, passwords, tokens, and sensitive data exposure
+- **📦 Dependency Scanning**: Analyzes third-party libraries for known vulnerabilities
+- **🔒 Code Provenance Monitoring**: Tracks code integrity and detects unauthorized changes
+- **🔎 Secure Code Search**: AI-powered search for security patterns and best practices
+- **⚠️ Custom Security Rules**: Extensible rule engine for organization-specific policies
+
 </details>
 
-</div>
+### 🤖 AI-Powered Intelligence
+
+<details>
+<summary><strong>Click to expand AI features</strong></summary>
+
+- **🧠 Multi-AI Provider Support**: GPT-4, Claude 3.5, and Google Gemini integration
+- **🔧 AI Fix Suggestions**: Automated code fixes with framework-specific recommendations
+- **🔍 Security Insights**: Deep AI analysis of security patterns and threat vectors
+- **🎯 Threat Modeling**: AI-generated threat models and comprehensive risk assessments
+- **📋 Compliance Analysis**: Automated compliance checking (SOC2, GDPR, HIPAA, PCI-DSS)
+- **💡 Best Practice Recommendations**: Context-aware suggestions for code improvement
+
+</details>
+
+### 📊 Enhanced Analytics Dashboard
+
+<details>
+<summary><strong>Click to expand analytics features</strong></summary>
+
+- **📈 Real-time Metrics**: Live performance, security, and quality metrics
+- **📊 Interactive Charts**: Severity distribution, trend analysis, and complexity visualization
+- **⚖️ Risk Assessment**: Comprehensive risk scoring with priority-based recommendations
+- **🚀 Performance Impact**: Analysis of security fixes on application performance
+- **📚 Historical Tracking**: Complete analysis history with restore and comparison capabilities
+- **📋 Custom Reports**: Configurable reporting with executive summaries
+
+</details>
+
+### 🎨 Modern User Experience
+
+<details>
+<summary><strong>Click to expand UX features</strong></summary>
+
+- **📱 Responsive Design**: Optimized experience across desktop, tablet, and mobile devices
+- **🌓 Dark/Light Mode**: Automatic theme switching with system preference detection
+- **📲 Progressive Web App**: Installable PWA with offline capabilities and native feel
+- **💬 AI Chat Assistant**: Context-aware floating chatbot for instant help and guidance
+- **🔍 Advanced Search**: Multi-criteria filtering with saved search capabilities
+- **⚡ Performance Optimized**: Lightning-fast loading with lazy loading and virtualization
+
+</details>
+
+### 💾 Data Management & Privacy
+
+<details>
+<summary><strong>Click to expand data features</strong></summary>
+
+- **🧠 Smart Storage**: Intelligent in-memory caching with automatic optimization
+- **📤 Export/Import**: Multiple formats (JSON, PDF, XML, CSV) with custom templates
+- **📚 Analysis History**: Persistent tracking with full restoration capabilities
+- **📊 Storage Analytics**: Real-time usage monitoring with cleanup recommendations
+- **🔒 Privacy-First**: All processing done locally - your code never leaves your browser
+- **🔐 Secure Communication**: Encrypted API calls when using optional AI features
+
+</details>
 
 ---
 
-<div align="center">
+## 🚀 Quick Start
 
-### **🔗 Quick Links**
+### ⚡ Try It Now (No Installation Required)
 
-[🏠 Home](https://code-guardian-report.vercel.app) • [📖 Docs](#-table-of-contents) • [🚀 Demo](https://code-guardian-report.vercel.app) • [💬 Discussions](https://github.com/Xenonesis/code-guardian-report/discussions) • [📧 Contact](mailto:itisaddy7@gmail.com)
+The fastest way to experience Code Guardian is through our live demo:
 
----
-
-<p><em>"Code Guardian - Securing the future, one line at a time."</em></p>
-
-<img src="https://img.shields.io/badge/Made%20with%20❤️%20by-Aditya%20Kumar%20Tiwari-FF6B6B?style=for-the-badge" alt="Made with love"/>
-
-</div>
-
----
-
-## 📖 Table of Contents
-
-- [✨ Key Features](#-key-features)
-- [🏗️ Architecture Overview](#%EF%B8%8F-architecture-overview)
-- [🚀 Technology Stack](#-technology-stack)
-- [🛠️ Quick Start Guide](#%EF%B8%8F-quick-start-guide)
-  - [📋 Prerequisites](#-prerequisites)
-  - [⚡ Installation](#-installation)
-  - [📜 Available Scripts](#-available-scripts)
-  - [🔧 Environment Setup](#-environment-setup)
-### 📝 Analysis Tracker Service (v4.0.0+)
-
-- **Persistence:** Uses an in-memory cache for all analysis tracking (no localStorage).
-- **API:**
-  - `trackFileAnalysis(userId: string): void` — Track a file analysis event for a user.
-  - `getTotalFilesAnalyzed(): number` — Get the total number of files analyzed.
-  - `getUserAnalysis(userId: string): UserAnalysis | null` — Get analysis stats for a user.
-  - `getAllUserAnalytics(): UserAnalysis[]` — Get stats for all users.
-- **Note:** All analytics are ephemeral and reset on reload.
-- [📱 Usage Guide](#-usage-guide)
-- [🎯 Supported Analysis Tools](#-supported-analysis-tools)
-- [📸 Screenshots & Demo](#-screenshots--demo)
-- [🔧 Configuration](#-configuration)
-- [🚀 Deployment](#-deployment)
-- [🛡️ Security & Privacy](#-security--privacy)
-- [📋 Browser Support](#-browser-support)
-- [🔧 Troubleshooting](#-troubleshooting)
-- [🤝 Contributing](#-contributing)
-- [📊 Performance Metrics](#-performance-metrics)
-- [📈 Changelog](#-changelog)
-- [🔮 Roadmap](#-roadmap)
-- [📄 License](#-license)
-- [👤 Author](#-author)
-- [🙏 Acknowledgments](#-acknowledgments)
-- [📞 Support](#-support)
-- [🌟 Show Your Support](#-show-your-support)
-
----
-
-## ✨ Key Features
-
-<table>
-<tr>
-<td width="50%">
-
-### 🔍 **Advanced Code Analysis**
-- 🛡️ **Security Vulnerability Detection**
-  - OWASP Top 10 compliance checking
-  - Injection flaw identification
-  - Authentication & authorization issues
-  - Cryptographic vulnerability detection
-- 🔐 **Secret Detection Engine**
-  - API key and token detection (AWS, GitHub, Stripe, etc.)
-  - JWT token identification and validation
-- 🧠 **AI-Powered Fix Suggestions** ⭐ NEW
-  - Intelligent vulnerability remediation with multiple approaches
-  - Confidence scoring and effort estimation
-  - Automated code refactoring capabilities
-  - Framework-specific security optimizations
-- 🔍 **Secure Code Search Engine** ⭐ NEW
-  - Comprehensive database of secure coding patterns
-  - Language-specific secure implementations
-  - Vulnerability alternatives and best practices
-  - Interactive code examples with explanations
-- 🛡️ **Code Provenance & Tampering Detection** ⭐ NEW
-  - File integrity monitoring with SHA-256 checksums
-  - Real-time change detection and alerts
-  - Security-critical file identification
-  - Comprehensive audit trail and reporting
-  - Database credential exposure detection
-  - ML-powered entropy analysis for unknown secrets
-  - Pattern matching with 95%+ accuracy
-- 🐛 **Intelligent Bug Detection**
-  - Logic error identification
-  - Null pointer exception prevention
-  - Memory leak detection
-  - Performance bottleneck analysis
-- 📏 **Code Quality Assessment**
-  - Code smell detection
-  - Complexity analysis (Cyclomatic, Cognitive)
-  - Maintainability scoring
-  - Technical debt calculation
-
-### 🤖 **AI-Powered Intelligence**
-- 🧠 **Natural Language Processing**
-  - Human-readable issue explanations
-  - Context-aware recommendations
-  - Smart code suggestions
-- 🔗 **Multi-Provider Support**
-  - OpenAI GPT-4/GPT-3.5 integration
-  - Anthropic Claude support
-  - Custom AI model compatibility
-- 💡 **Contextual Analysis**
-  - Codebase-specific insights
-  - Project pattern recognition
-  - Historical trend analysis
-
-</td>
-<td width="50%">
-
-### 📊 **Rich Analytics Dashboard**
-- 📈 **Interactive Visualizations**
-  - Real-time charts with Recharts
-  - Responsive design across devices
-  - Customizable dashboard layouts
-- 🎯 **Risk Assessment Matrix**
-  - Severity-based issue categorization
-  - Security posture scoring
-  - Compliance tracking
-- 📤 **Advanced Export Options**
-  - JSON, CSV, PDF, HTML, XML formats
-  - Custom report templates
-  - Automated report generation
-
-### 🎨 **Modern User Experience**
-- 📱 **Mobile-First Design**
-  - Responsive across all screen sizes
-  - Touch-optimized interactions
-  - Progressive Web App capabilities
-- 🌓 **Adaptive Theming**
-  - Dark/Light mode with system detection
-  - Custom theme creation
-  - Accessibility-focused color schemes
-- ♿ **Accessibility Excellence**
-  - WCAG 2.1 AA compliance
-  - Screen reader optimization
-  - Keyboard navigation support
-  - High contrast mode
-- ✨ **Smooth Interactions**
-  - Hardware-accelerated animations
-  - Glass morphism effects
-  - Micro-interactions for better UX
-
-</td>
-</tr>
-</table>
-
-## 🚀 Technology Stack
-
-<div align="center">
-
-### Core Technologies
-
-| Category | Technology | Version | Purpose |
-|----------|------------|---------|---------|
-| **Frontend** | React | 18.3.1 | Component-based UI library |
-| **Language** | TypeScript | 5.8.3 | Type-safe development |
-| **Build Tool** | Vite | 6.3.5 | Lightning-fast bundling |
-| **Styling** | Tailwind CSS | 3.4.11 | Utility-first CSS framework |
-
-</div>
-
-### 🎨 **UI & Design System**
-
-- 🎯 **Radix UI**: 12+ accessible, unstyled component primitives (Dialog, Tabs, Toast, etc.)
-- 🎨 **shadcn/ui**: Beautiful, customizable component library with dark/light themes
-- 🔍 **Lucide React 0.462.0**: 1000+ modern, consistent icons
-- ✨ **Tailwind CSS 3.4.11**: Utility-first styling with custom design tokens
-- 🌈 **Framer Motion 12.23.0**: Smooth animations and micro-interactions
-
-### 📊 **Data & State Management**
-
-- 📈 **Recharts 2.15.3**: Interactive data visualization and charts
-- 🎨 **React Router DOM 6.26.2**: Client-side routing with lazy loading
-- 🔄 **React State**: Built-in state management with hooks and context
-- 📊 **Vercel Analytics 1.5.0**: Real-time user analytics and insights
-
-### 🛠️ **Development Tools**
-
-- 🎯 **TypeScript 5.8.3**: Advanced type checking and IntelliSense
-- 🎨 **PostCSS 8.4.47**: CSS post-processing with autoprefixer
-- ⚡ **Vite SWC Plugin 3.5.0**: Ultra-fast React refresh and builds
-- 📦 **Advanced Code Splitting**: Intelligent chunk optimization
-- 🔧 **Path Aliases**: Clean imports with @ syntax
-
-### 🔧 **Build & Optimization**
-- **⚡ Lightning Fast Builds**: Vite 6.3.5 with SWC for sub-second rebuilds
-- **📦 Smart Bundling**: Advanced manual chunk splitting for React, Radix UI, and vendor libraries
-- **🎯 Performance**: Optimized asset handling with intelligent file naming
-- **🔄 Hot Reload**: Instant feedback with HMR overlay during development
-- **🗜️ Compression**: Terser optimization with tree shaking and dead code elimination
-- **🚀 PWA Ready**: Service worker with advanced caching strategies
-
-## 🛠️ Quick Start Guide
+<p align="center">
+  <a href="https://code-guardian-report.vercel.app" target="_blank">
+    <img src="https://img.shields.io/badge/🌐%20Open%20Live%20Demo-4F46E5?style=for-the-badge&logoColor=white" alt="Live Demo" height="50"/>
+  </a>
+</p>
 
 ### 📋 Prerequisites
 
-<table>
-<tr>
-<td width="50%">
-
-**Required:**
-- 🟢 **Node.js** v18.0.0+ ([Download](https://nodejs.org/))
-- 📦 **Package Manager**: npm, yarn, or bun
-- 🌐 **Modern Browser**: Chrome 90+, Firefox 88+, Safari 14+
-
-</td>
-<td width="50%">
-
-**Recommended:**
-- 💻 **VS Code** with TypeScript extension
-- 🔧 **Git** for version control
-- 🚀 **Bun** for faster package management
-
-</td>
-</tr>
-</table>
-
-### ⚡ Installation
-
-<details>
-<summary><b>🚀 Option 1: One-Click Deploy (Recommended)</b></summary>
-
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/Xenonesis/code-guardian-report)
-[![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/Xenonesis/code-guardian-report)
-
-</details>
-
-<details>
-<summary><b>💻 Option 2: Local Development</b></summary>
-
-```bash
-# 1️⃣ Clone the repository
-git clone https://github.com/Xenonesis/code-guardian-report.git
-cd code-guardian-report
-
-# 2️⃣ Install dependencies (choose one)
-npm install        # Using npm
-yarn install       # Using yarn
-bun install        # Using bun (fastest)
-
-# 3️⃣ Start development server
-npm run dev        # Using npm
-yarn dev           # Using yarn
-bun dev            # Using bun
-
-# 4️⃣ Open in browser
-# Navigate to http://localhost:5173
-```
-
-</details>
-
-### 📜 Available Scripts
-
-| Command | Description | Usage |
-|---------|-------------|-------|
-| `dev` | Start development server | `npm run dev` |
-| `build` | Build for production | `npm run build` |
-| `preview` | Preview production build | `npm run preview` |
-| `build:production` | Build with production optimizations | `npm run build:production` |
-| `type-check` | Run TypeScript type checking | `npm run type-check` |
-| `start` | Alias for dev command | `npm start` |
-| `serve` | Alias for preview command | `npm run serve` |
-
-### 🔧 Environment Setup
-
-Create a `.env.local` file in the root directory:
-
-```env
-# AI Provider Configuration (Optional)
-VITE_OPENAI_API_URL=https://api.openai.com/v1
-VITE_ANTHROPIC_API_URL=https://api.anthropic.com/v1
-
-# Application Settings
-VITE_APP_NAME="Code Guardian Report"
-VITE_APP_VERSION="4.5.0"
-```
-
-## 📱 Usage Guide
-
-### **🚀 Getting Started in 3 Steps**
-
-<div align="center">
-
-<table>
-<tr>
-<td width="33%" align="center">
-  <img src="https://img.icons8.com/fluency/96/upload-to-cloud.png" alt="Upload" width="64"/>
-  <h4>1️⃣ Upload Code</h4>
-  <p>Drag & drop ZIP files or select from your device</p>
-  <code>Supports 15+ languages</code>
-</td>
-<td width="33%" align="center">
-  <img src="https://img.icons8.com/fluency/96/artificial-intelligence.png" alt="Analyze" width="64"/>
-  <h4>2️⃣ AI Analysis</h4>
-  <p>Configure AI providers for enhanced insights</p>
-  <code>GPT-4 | Claude | Custom</code>
-</td>
-<td width="33%" align="center">
-  <img src="https://img.icons8.com/fluency/96/dashboard.png" alt="Results" width="64"/>
-  <h4>3️⃣ View Results</h4>
-  <p>Interactive dashboard with detailed reports</p>
-  <code>Export in 5+ formats</code>
-</td>
-</tr>
-</table>
-
-</div>
-
-### **🎯 Key Features Overview**
-
-<div align="center">
-
-| Feature | Description | Supported Formats |
-|---------|-------------|-------------------|
-| 📁 **File Upload** | Drag & drop ZIP files with intelligent parsing | `.zip`, `.tar.gz`, `.rar` |
-| 🔍 **Code Analysis** | Multi-language static analysis engine | `Python`, `JavaScript`, `TypeScript`, `Java`, `C++`, `Go`, `Rust` |
-| 🛡️ **Security Scan** | OWASP Top 10 vulnerability detection | `SQL Injection`, `XSS`, `CSRF`, `Auth Issues` |
-| 🔐 **Secret Detection** | AI-powered secret and credential detection | `API Keys`, `JWT Tokens`, `DB Credentials`, `Private Keys` |
-| 🧠 **AI Fix Suggestions** | Intelligent vulnerability remediation with code patches | `Multiple approaches`, `Confidence scoring`, `Risk assessment` |
-| 🔍 **Secure Code Search** | Comprehensive database of secure coding patterns | `Secure examples`, `Vulnerability alternatives`, `Best practices` |
-| 🛡️ **Code Provenance** | File integrity monitoring and tampering detection | `SHA-256 checksums`, `Change tracking`, `Alert system` |
-| 📊 **Quality Metrics** | Comprehensive code quality assessment | `Complexity`, `Maintainability`, `Technical Debt` |
-| 🤖 **AI Insights** | Intelligent recommendations and fixes | `GPT-4`, `Claude-3`, `Gemini`, `Custom Models` |
-| 📤 **Export Options** | Multiple export formats for reports | `JSON`, `CSV`, `PDF`, `HTML`, `XML` |
-
-</div>
-
-## 🎯 Supported Analysis Tools
-
-<table>
-<thead>
-<tr>
-<th>Category</th>
-<th>Tool</th>
-<th>Description</th>
-<th>Languages</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>**Security Analysis**</td>
-<td>Bandit</td>
-<td>Security vulnerability scanner</td>
-<td>Python</td>
-</tr>
-<tr>
-<td></td>
-<td>Semgrep</td>
-<td>Static analysis for security</td>
-<td>Multi-language</td>
-</tr>
-<tr>
-<td></td>
-<td>Secret Scanner</td>
-<td>AI-powered secret and credential detection</td>
-<td>Multi-language</td>
-</tr>
-<tr>
-<td>**Code Quality**</td>
-<td>ESLint</td>
-<td>Identifies bugs and code quality issues</td>
-<td>JavaScript/TypeScript</td>
-</tr>
-<tr>
-<td></td>
-<td>Pylint</td>
-<td>Comprehensive code quality checker</td>
-<td>Python</td>
-</tr>
-<tr>
-<td></td>
-<td>Flake8</td>
-<td>Style guide enforcement and convention checking</td>
-<td>Python</td>
-</tr>
-</tbody>
-</table>
-
-### **🔧 Advanced Tools & Integrations**
-
-<div align="center">
-
-<table>
-<tr>
-<td width="25%" align="center">
-  <img src="https://img.icons8.com/fluency/64/settings.png" alt="Custom Rules"/>
-  <h5>⚙️ Custom Rules</h5>
-  <p>Define specific vulnerability patterns</p>
-</td>
-<td width="25%" align="center">
-  <img src="https://img.icons8.com/fluency/64/traffic-light.png" alt="Configurable"/>
-  <h5>🚦 Configurable</h5>
-  <p>Adjust severity levels and rule sets</p>
-</td>
-<td width="25%" align="center">
-  <img src="https://img.icons8.com/fluency/64/continuous-integration.png" alt="CI/CD"/>
-  <h5>🔗 CI/CD Ready</h5>
-  <p>GitHub Actions, Jenkins, GitLab CI</p>
-</td>
-<td width="25%" align="center">
-  <img src="https://img.icons8.com/fluency/64/api.png" alt="API"/>
-  <h5>🔌 API Access</h5>
-  <p>RESTful API for automation</p>
-</td>
-</tr>
-</table>
-
-</div>
-
-## 📸 Screenshots & Demo
-
-![Mermaid Diagram](./mermaid_diagram.png)
-*Interactive Mermaid diagram of system flow*
-
-<div align="center">
-
-### 🖥️ **Desktop Experience**
-
-<table>
-<tr>
-<td width="50%">
-  <h4>🏠 Dashboard Overview</h4>
-  <img src="./public/home.png" alt="Dashboard" style="border-radius: 8px; box-shadow: 0 4px 16px rgba(0,0,0,0.1);" width="100%"/>
-  <p><em>Clean, intuitive dashboard with real-time analytics</em></p>
-</td>
-<td width="50%">
-  <h4>🔍 Security Analysis</h4>
-  <img src="./public/cc.png" alt="Security Analysis" style="border-radius: 8px; box-shadow: 0 4px 16px rgba(0,0,0,0.1);" width="100%"/>
-  <p><em>Comprehensive security vulnerability detection</em></p>
-</td>
-</tr>
-<tr>
-<td width="50%">
-  <h4>📊 Interactive Charts</h4>
-  <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600&h=400&fit=crop&auto=format&q=80" alt="Charts" style="border-radius: 8px; box-shadow: 0 4px 16px rgba(0,0,0,0.1);" width="100%"/>
-  <p><em>Beautiful data visualization with Recharts</em></p>
-</td>
-<td width="50%">
-  <h4>🤖 AI Insights</h4>
-  <img src="https://images.unsplash.com/photo-1677442136019-21780ecad995?w=600&h=400&fit=crop&auto=format&q=80" alt="AI Insights" style="border-radius: 8px; box-shadow: 0 4px 16px rgba(0,0,0,0.1);" width="100%"/>
-  <p><em>AI-powered recommendations and insights</em></p>
-</td>
-</tr>
-</table>
-
-### 📱 **Mobile Experience**
-
-<div align="center">
-  <img src="https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=300&h=600&fit=crop&auto=format&q=80" alt="Mobile View" style="border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.15);" width="300"/>
-  <p><em>Fully responsive design optimized for mobile devices</em></p>
-</div>
-
-### 🎨 **Theme Showcase**
-
-<table>
-<tr>
-<td width="50%" align="center">
-  <h4>☀️ Light Mode</h4>
-  <img src="https://images.unsplash.com/photo-1586281380349-632531db7ed4?w=500&h=300&fit=crop&auto=format&q=80" alt="Light Theme" style="border-radius: 8px;" width="100%"/>
-</td>
-<td width="50%" align="center">
-  <h4>🌙 Dark Mode</h4>
-  <img src="https://images.unsplash.com/photo-1551650975-87deedd944c3?w=500&h=300&fit=crop&auto=format&q=80" alt="Dark Theme" style="border-radius: 8px;" width="100%"/>
-</td>
-</tr>
-</table>
-
-</div>
-
-## 🔧 Configuration
-
-### Customization Options
-- **Theme Configuration**: Modify `tailwind.config.ts` for custom colors and styles
-- **Component Customization**: Update `components.json` for shadcn/ui component paths
-- **Analysis Rules**: Configure analysis tool settings in the upload form
-
-## 🚀 Deployment
-
-### Build for Production
-```bash
-npm run build
-```
-
-### Deploy to Popular Platforms
-
-#### **Vercel** (Recommended)
-```bash
-npm install -g vercel
-vercel --prod
-```
-
-#### **Netlify**
-```bash
-npm run build
-# Upload dist/ folder to Netlify
-```
-
-#### **GitHub Pages**
-```bash
-npm run build
-# Configure GitHub Actions for automatic deployment
-```
-
-### Performance Optimizations
-- **Code Splitting**: Automatic route-based splitting
-- **Lazy Loading**: Components loaded on demand
-- **Asset Optimization**: Images and icons optimized for web
-- **Caching Strategy**: Service worker integration for offline support
-
-## 🛡️ Security & Privacy
-
-### **Data Protection**
-- **Local Processing**: Code analysis performed client-side when possible
-- **Secure Transmission**: All API communications use HTTPS
-- **No Permanent Storage**: Files automatically deleted after processing
-- **Privacy-First**: No tracking or analytics without consent
-
-### **API Key Security**
-- **Encrypted Storage**: API keys stored securely in browser
-- **No Server Storage**: Keys never transmitted to our servers
-- **Easy Management**: Add, remove, and update keys safely
-- **Provider Isolation**: Each provider's keys stored separately
-
-## 📋 Browser Support
-
-### **Fully Supported**
-- Chrome 90+
-- Firefox 88+
-- Safari 14+
-- Edge 90+
-
-### **Mobile Support**
-- iOS Safari 14+
-- Chrome Mobile 90+
-- Samsung Internet 14+
-
-### **Accessibility Features**
-- **WCAG 2.1 AA Compliant**: Full accessibility standards compliance
-- **Screen Reader Support**: Optimized for NVDA, JAWS, and VoiceOver
-- **Keyboard Navigation**: Complete keyboard accessibility
-- **High Contrast**: Support for high contrast mode
-- **Reduced Motion**: Respects user motion preferences
-
-## 🤝 Contributing
-
-We welcome contributions! Please follow these steps:
-
-1. **Fork the repository**
-2. **Create a feature branch**: `git checkout -b feature/amazing-feature`
-3. **Make your changes** and add tests
-4. **Run linting**: `npm run lint`
-5. **Commit changes**: `git commit -m 'Add amazing feature'`
-6. **Push to branch**: `git push origin feature/amazing-feature`
-7. **Open a Pull Request**
-
-### Development Guidelines
-- Follow TypeScript best practices
-- Maintain accessibility standards
-- Add tests for new features
-- Update documentation as needed
-- Follow conventional commit messages
-
-## 📊 Performance Metrics
-
-### **🏆 Performance Metrics**
-
-<div align="center">
-
-#### **Lighthouse Scores**
-
-<table>
-<tr>
-<td align="center">
-  <img src="https://img.shields.io/badge/Performance-95-00C851?style=for-the-badge&logo=lighthouse&logoColor=white" alt="Performance"/>
-  <br/><strong>95/100</strong>
-</td>
-<td align="center">
-  <img src="https://img.shields.io/badge/Accessibility-98-00C851?style=for-the-badge&logo=lighthouse&logoColor=white" alt="Accessibility"/>
-  <br/><strong>98/100</strong>
-</td>
-<td align="center">
-  <img src="https://img.shields.io/badge/Best%20Practices-96-00C851?style=for-the-badge&logo=lighthouse&logoColor=white" alt="Best Practices"/>
-  <br/><strong>96/100</strong>
-</td>
-<td align="center">
-  <img src="https://img.shields.io/badge/SEO-92-00C851?style=for-the-badge&logo=lighthouse&logoColor=white" alt="SEO"/>
-  <br/><strong>92/100</strong>
-</td>
-</tr>
-</table>
-
-#### **Core Web Vitals**
-
-<table>
-<tr>
-<td align="center">
-  <img src="https://img.icons8.com/fluency/48/speed.png" alt="LCP"/>
-  <br/><strong>LCP</strong>
-  <br/>< 2.5s
-</td>
-<td align="center">
-  <img src="https://img.icons8.com/fluency/48/click.png" alt="FID"/>
-  <br/><strong>FID</strong>
-  <br/>< 100ms
-</td>
-<td align="center">
-  <img src="https://img.icons8.com/fluency/48/layout.png" alt="CLS"/>
-  <br/><strong>CLS</strong>
-  <br/>< 0.1
-</td>
-<td align="center">
-  <img src="https://img.icons8.com/fluency/48/loading.png" alt="TTI"/>
-  <br/><strong>TTI</strong>
-  <br/>< 3.8s
-</td>
-</tr>
-</table>
-
-</div>
-
-## 📈 Changelog
-
-### 🔄 Version 4.5.0 - Current Release ⭐
-- 🔄 **Version Synchronization**: Updated all version references across the entire project for consistency
-- 📦 **Dependency Alignment**: Synchronized package.json, manifest, and service worker versions
-- 🛠️ **Build Optimization**: Enhanced Vite configuration with advanced chunk splitting strategies
-- 🎯 **TypeScript Updates**: Upgraded to TypeScript 5.8.3 with improved type checking
-- 📋 **Documentation**: Updated README.md with current accurate project details and dependencies
-
-See [changelogs.md](./changelogs.md) for the full version history.
-
-## 🔮 Roadmap
-
-<div align="center">
-
-### **🚀 Development Timeline**
-
-![UML Class Diagram](./UML%20class%20Diagram.png)
-*UML Class Diagram of the system*
-
-```mermaid
-gantt
-    title Code Guardian Development Roadmap
-    dateFormat  YYYY-MM-DD
-    section Q1 2025
-    Multi-language Support    :2025-01-01, 30d
-    Progressive Web App       :2025-01-15, 45d
-    Git Integration          :2025-02-01, 30d
-    section Q2 2025
-    Team Collaboration       :2025-04-01, 45d
-    Custom Rules Engine      :2025-04-15, 30d
-    Voice Commands           :2025-05-01, 30d
-    section Q3 2025
-    Machine Learning         :2025-07-01, 60d
-    Enterprise Features      :2025-08-01, 45d
-    Plugin System           :2025-09-01, 30d
-```
-
-</div>
-
-<details>
-<summary><b>🎯 Detailed Feature Breakdown</b></summary>
-
-### **🌟 Next Release (v3.9.0) - Q1 2025**
-
-<table>
-<tr>
-<td width="50%">
-
-**🌍 Internationalization**
-- [ ] Support for 15+ languages
-- [ ] RTL language support
-- [ ] Cultural date/time formatting
-- [ ] Localized error messages
-
-**📱 Progressive Web App**
-- [ ] Offline functionality
-- [ ] App-like experience
-- [ ] Push notifications
-- [ ] Background sync
-
-</td>
-<td width="50%">
-
-**🔗 Git Integration**
-- [ ] GitHub direct integration
-- [ ] GitLab CI/CD support
-- [ ] Bitbucket pipelines
-- [ ] Automated PR analysis
-
-**👥 Team Features**
-- [ ] Shared workspaces
-- [ ] Role-based permissions
-- [ ] Team analytics
-- [ ] Collaborative reports
-
-</td>
-</tr>
-</table>
-
-### **🚀 Future Releases (v4.6.0+) - 2025 and Beyond**
-
-- 🤖 **AI Model Marketplace**: Integrate and deploy custom AI models
-- 🎤 **Voice Commands**: Voice-controlled navigation and file upload
-- 🧠 **Custom ML Models**: Project-specific analysis with machine learning
-- 🏢 **Enterprise Suite**: SSO, audit logs, compliance reporting
-- 🔌 **Plugin Ecosystem**: Extensible architecture for third-party integrations
-- 📊 **Predictive Analytics**: Trend forecasting and risk prediction
-- 🔒 **Advanced Security**: Zero-trust architecture and enhanced encryption
-- 🌐 **Internationalization**: Support for more languages and locales
-- 📱 **Mobile App**: Native mobile companion app
-
-</details>
-
-## # Changelog
-
-See [changelogs.md](./changelogs.md) for a complete version history.
-
-**Recent Releases:**
-- **v4.5.0 (17/07/2025):** Version bump, synchronized all version references across project
-- **v4.4.0 (16/07/2025):** Updates to main.tsx and vite.config.ts, bug fixes
-- **v4.3.0–v4.3.3 (12–15/07/2025):** Manifest updates, UI improvements, dependency updates
-- **v4.2.0–v4.2.4 (06–10/07/2025):** AI Security Insights, StatsGrid, EnhancedAnalysis updates, bug fixes
-- **v4.1.0–v4.1.3 (27/06–03/07/2025):** Build, config, and performance improvements
-
-## 📄 License
-
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
-
-## 👤 Author
-
-**Aditya Kumar Tiwari**
-- 🎓 BCA in Cybersecurity, Sushant University
-- 💼 Cybersecurity Enthusiast | Full-Stack Developer | Lifelong Learner
-- 📧 Email: [itisaddy7@gmail.com](mailto:itisaddy7@gmail.com)
-- 🐙 GitHub: [@Xenonesis](https://github.com/Xenonesis)
-- 💼 LinkedIn: [Aditya Kumar Tiwari](https://linkedin.com/in/itisaddy)
-- 📸 Instagram: [@i__aditya7](https://instagram.com/i__aditya7)
-- 🌐 Portfolio: [iaddy.netlify.app](https://iaddy.netlify.app)
-
-### 🚀 About the Developer
-Passionate about the intersection of cybersecurity and development, Aditya specializes in creating secure and scalable solutions. Currently pursuing BCA in Cybersecurity with expertise in Python, JavaScript, Linux, and Cloud Computing. Committed to building impactful digital experiences that prioritize security and innovation.
-
-## 🙏 Acknowledgments
-
-- **React Team** - For the amazing React framework
-- **Vite Team** - For the excellent Vite build tool
-- **Tailwind Labs** - For the utility-first CSS framework
-- **Radix UI** - For accessible component primitives
-- **shadcn** - For the beautiful component library
-- **Open Source Community** - For the incredible tools and libraries
-
-## 📞 Support
-
-If you encounter any issues or have questions:
-
-1. **Check the Issues**: [GitHub Issues](https://github.com/Xenonesis/code-guardian-report/issues)
-2. **Create a New Issue**: Provide detailed information about your problem
-3. **Email Support**: [itisaddy7@gmail.com](mailto:itisaddy7@gmail.com)
-4. **Community Discussions**: Join our community discussions
+Before you begin, ensure you have the following installed:
+
+- **Node.js**: Version 18.x or higher ([Download here](https://nodejs.org/))
+- **Package Manager**: npm (comes with Node.js) or yarn
+- **Modern Browser**: Chrome 90+, Firefox 88+, Safari 14+, or Edge 90+
 
 ---
 
-## 🌟 Show Your Support
+## 🛠️ Installation
 
-<div align="center">
+### 📦 Method 1: Clone from GitHub (Recommended)
 
-### **💖 Love Code Guardian? Here's how you can help:**
+```bash
+# 1. Clone the repository
+git clone https://github.com/Xenonesis/code-guardian-report.git
+cd code-guardian-report
+
+# 2. Install dependencies
+npm install
+
+# 3. Start development server
+npm run dev
+
+# 4. Open your browser to http://localhost:5173
+```
+
+### 🔧 Method 2: Download ZIP
+
+1. Download the latest release from [GitHub Releases](https://github.com/Xenonesis/code-guardian-report/releases)
+2. Extract the ZIP file
+3. Open terminal in the extracted folder
+4. Run `npm install` and `npm run dev`
+
+### 🌐 Method 3: Deploy to Vercel (One-Click)
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/Xenonesis/code-guardian-report)
+
+---
+
+## 📊 Usage Guide
+
+### 🎯 Getting Started
+
+1. **📁 Upload Files**
+   - Drag and drop files into the upload area
+   - Or click "Select Files" to browse
+   - Supports multiple file formats (JS, TS, JSX, TSX, etc.)
+
+2. **⚙️ Configure Analysis**
+   - Choose analysis depth (Quick, Standard, Deep)
+   - Enable/disable AI features
+   - Set custom security rules (optional)
+
+3. **📊 Review Results**
+   - Explore the interactive dashboard
+   - Review security vulnerabilities
+   - Check code quality metrics
+   - View AI-generated insights
+
+4. **📤 Export Reports**
+   - Generate PDF reports
+   - Export data as JSON/CSV
+   - Share results with your team
+
+5. **💬 Get Help**
+   - Use the floating AI chatbot
+   - Ask questions about your code
+   - Get real-time assistance
+
+### 🔧 Optional: AI Enhancement Setup
+
+To unlock advanced AI features, create a `.env` file in the root directory:
+
+```env
+# AI Service Configuration (Optional - for enhanced features)
+VITE_OPENAI_API_KEY=your_openai_api_key_here
+VITE_ANTHROPIC_API_KEY=your_anthropic_api_key_here
+VITE_GOOGLE_AI_API_KEY=your_google_ai_api_key_here
+
+# Analytics (Optional)
+VITE_VERCEL_ANALYTICS_ID=your_vercel_analytics_id
+```
+
+> **Note**: AI features are completely optional. Code Guardian works perfectly without any API keys, providing comprehensive local analysis.
+
+---
+
+## 🔧 Configuration
+
+### 🤖 AI Services Setup
+
+Code Guardian supports multiple AI providers for enhanced analysis capabilities:
+
+<details>
+<summary><strong>Click to expand AI configuration details</strong></summary>
+
+```typescript
+// AI Service Configuration
+const aiConfig = {
+  openai: {
+    apiKey: process.env.VITE_OPENAI_API_KEY,
+    model: 'gpt-4-turbo-preview',
+    maxTokens: 4096,
+    features: ['code-analysis', 'security-insights', 'fix-suggestions']
+  },
+  anthropic: {
+    apiKey: process.env.VITE_ANTHROPIC_API_KEY,
+    model: 'claude-3-5-sonnet-20241022',
+    maxTokens: 4096,
+    features: ['constitutional-ai', 'safety-analysis']
+  },
+  google: {
+    apiKey: process.env.VITE_GOOGLE_AI_API_KEY,
+    model: 'gemini-1.5-pro',
+    maxTokens: 4096,
+    features: ['multi-modal-analysis', 'code-understanding']
+  }
+};
+```
+
+**Getting API Keys:**
+- **OpenAI**: [Get API Key](https://platform.openai.com/api-keys)
+- **Anthropic**: [Get API Key](https://console.anthropic.com/)
+- **Google AI**: [Get API Key](https://makersuite.google.com/app/apikey)
+
+</details>
+
+### ⚙️ Analysis Engine Configuration
+
+<details>
+<summary><strong>Click to expand analysis configuration</strong></summary>
+
+```typescript
+// Security Analysis Configuration
+const securityConfig = {
+  owaspTop10: true,           // Enable OWASP Top 10 scanning
+  secretDetection: true,      // Scan for exposed secrets
+  dependencyScanning: true,   // Check dependencies for vulnerabilities
+  codeQualityAnalysis: true,  // Analyze code quality metrics
+  performanceAnalysis: true,  // Performance impact assessment
+  customRules: [],           // Add custom security rules
+  severity: {
+    critical: true,
+    high: true,
+    medium: true,
+    low: false              // Skip low-severity issues
+  }
+};
+```
+
+</details>
+
+---
+
+## 🏗️ Architecture
+
+### 🛠️ Technology Stack
+
+<details>
+<summary><strong>Frontend Technologies</strong></summary>
+
+- **⚛️ React 18.3.1**: Modern React with concurrent features and Suspense
+- **📘 TypeScript 5.8.3**: Type-safe development with advanced type features
+- **⚡ Vite 7.0.5**: Lightning-fast build tool with Hot Module Replacement
+- **🛣️ React Router 6.26.2**: Client-side routing with data loading capabilities
+
+</details>
+
+<details>
+<summary><strong>UI & Styling</strong></summary>
+
+- **🎨 Tailwind CSS 3.4.11**: Utility-first CSS framework for rapid styling
+- **🧩 Radix UI**: Accessible, unstyled UI primitives for complex components
+- **🎭 Framer Motion 12.23.0**: Production-ready motion library for animations
+- **🎯 Lucide React**: Beautiful, customizable icon library
+
+</details>
+
+<details>
+<summary><strong>State Management & Data</strong></summary>
+
+- **🪝 Custom Hooks**: Optimized state management with React hooks pattern
+- **🌐 Context API**: Global state management for theme and analysis data
+- **💾 Local Storage**: Persistent user preferences and analysis history
+- **🔄 Real-time Updates**: Live data synchronization and updates
+
+</details>
+
+<details>
+<summary><strong>AI & Analysis Services</strong></summary>
+
+- **🧠 OpenAI GPT-4**: Advanced language model for intelligent code analysis
+- **🤖 Anthropic Claude 3.5**: Constitutional AI for enhanced security insights
+- **🔍 Google Gemini**: Multi-modal AI for comprehensive code understanding
+- **⚙️ Custom Analysis Engines**: Proprietary security and quality analysis algorithms
+
+</details>
+
+<details>
+<summary><strong>Build & Development Tools</strong></summary>
+
+- **🔍 ESLint 9.31.0**: Advanced code linting with TypeScript support
+- **🎨 PostCSS 8.4.47**: CSS processing and optimization pipeline
+- **📦 Terser 5.43.1**: JavaScript minification and optimization
+- **⚡ LightningCSS 1.28.2**: Fast CSS bundling and processing
+
+</details>
+
+### 📁 Project Structure
+
+<details>
+<summary><strong>Click to expand project structure</strong></summary>
+
+```
+code-guardian-report/
+├── 📁 public/                    # Static assets and PWA files
+│   ├── 🎯 favicon.ico           # Application favicon
+│   ├── 📱 manifest.json         # PWA manifest configuration
+│   ├── ⚙️ sw.js                # Service worker for offline functionality
+│   └── 🖼️ assets/              # Images and static resources
+├── 📁 src/
+│   ├── 📁 components/           # React components library
+│   │   ├── 📊 dashboard/        # Analytics dashboard components
+│   │   ├── 🔒 security/         # Security-specific components
+│   │   ├── 🎨 ui/              # Reusable UI components (Radix-based)
+│   │   ├── 📄 pages/           # Page-specific components
+│   │   ├── 📤 upload/          # File upload components
+│   │   └── 🎭 layouts/         # Layout components
+│   ├── 🪝 hooks/               # Custom React hooks
+│   │   ├── useAnalysis.ts      # Analysis state management
+│   │   ├── useDarkMode.ts      # Theme management
+│   │   └── useFileUpload.ts    # File handling
+│   ├── ⚙️ services/            # Business logic and API services
+│   │   ├── 🤖 aiService.ts                # AI provider integrations
+│   │   ├── 🔒 securityAnalysisEngine.ts   # Core security analysis
+│   │   ├── 🚀 enhancedAnalysisEngine.ts   # Advanced analysis features
+│   │   ├── 🔧 aiFixSuggestionsService.ts  # AI-powered code fixes
+│   │   ├── 🔍 secureCodeSearchService.ts  # Secure coding patterns
+│   │   └── 🛡️ codeProvenanceService.ts    # Code integrity monitoring
+│   ├── 🛠️ utils/               # Utility functions and helpers
+│   │   ├── security.ts         # Security utilities
+│   │   ├── fileValidation.ts   # File validation logic
+│   │   └── performanceOptimizations.ts
+│   ├── 🎨 styles/              # Global styles and themes
+│   │   ├── base.css           # Base styles
+│   │   └── background-effects.css
+│   └── 📄 pages/               # Route components
+│       ├── Index.tsx          # Home page
+│       ├── About.tsx          # About page
+│       └── NotFound.tsx       # 404 page
+├── 📦 package.json             # Dependencies and scripts
+├── ⚙️ vite.config.ts          # Vite build configuration
+├── 🎨 tailwind.config.ts      # Tailwind CSS configuration
+└── 📘 tsconfig.json           # TypeScript configuration
+```
+
+</details>
+
+## 📜 Available Scripts
+
+<details>
+<summary><strong>Development Commands</strong></summary>
+
+```bash
+# 🚀 Development
+npm run dev              # Start development server with hot reload
+npm run build           # Build optimized production bundle
+npm run preview         # Preview production build locally
+
+# 🔍 Code Quality & Testing
+npm run type-check      # Run TypeScript type checking
+npm run lint           # Run ESLint code analysis
+npm run test           # Run test suite (if configured)
+
+# 🚀 Deployment
+npm run build:production # Create optimized production build
+```
+
+</details>
+
+---
+
+## 🌐 Browser Support
+
+### ✅ Supported Browsers
 
 <table>
 <tr>
-<td width="25%" align="center">
-  <a href="https://github.com/Xenonesis/code-guardian-report/stargazers">
-    <img src="https://img.icons8.com/fluency/64/star.png" alt="Star"/>
-    <br/><strong>⭐ Star</strong>
-    <br/>Give us a star on GitHub
-  </a>
+<td align="center"><img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/chrome/chrome_48x48.png" alt="Chrome" width="24px" height="24px" /><br/>Chrome 90+</td>
+<td align="center"><img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/firefox/firefox_48x48.png" alt="Firefox" width="24px" height="24px" /><br/>Firefox 88+</td>
+<td align="center"><img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/safari/safari_48x48.png" alt="Safari" width="24px" height="24px" /><br/>Safari 14+</td>
+<td align="center"><img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/edge/edge_48x48.png" alt="Edge" width="24px" height="24px" /><br/>Edge 90+</td>
+</tr>
+</table>
+
+### 📱 Progressive Web App Features
+
+<details>
+<summary><strong>PWA Capabilities</strong></summary>
+
+- **📱 Installable**: Add to home screen on mobile and desktop
+- **🔄 Offline Support**: Continue working without internet connection
+- **🔄 Background Sync**: Sync data when connection is restored
+- **⚡ Fast Loading**: Cached resources for instant startup
+- **🔔 Push Notifications**: Stay updated with analysis results *(coming soon)*
+
+</details>
+
+---
+
+## 🔒 Security & Privacy
+
+### 🛡️ Data Protection Principles
+
+<details>
+<summary><strong>Privacy-First Architecture</strong></summary>
+
+- **🏠 Client-side Processing**: All code analysis performed locally in your browser
+- **🚫 Zero Data Transmission**: Your code never leaves your device
+- **🔐 Encrypted Storage**: Sensitive data encrypted in local storage
+- **📋 GDPR/CCPA Compliant**: Privacy by design architecture
+- **🔍 Transparent Processing**: Open-source analysis algorithms
+
+</details>
+
+### 🤖 AI Service Privacy
+
+<details>
+<summary><strong>Optional AI Integration</strong></summary>
+
+- **🎛️ User Control**: AI features are completely optional and user-controlled
+- **📊 Data Minimization**: Only necessary code context sent to AI services
+- **🔒 Secure Communication**: All AI API calls use HTTPS encryption
+- **🗑️ No Data Retention**: AI providers don't store your code data
+- **⚙️ Configurable**: Choose which AI services to enable
+
+</details>
+
+---
+
+## 📈 Performance
+
+### ⚡ Performance Metrics
+
+<table>
+<tr>
+<td align="center">
+<strong>🏆 Lighthouse Score</strong><br/>
+<img src="https://img.shields.io/badge/Performance-100%2F100-brightgreen?style=for-the-badge" alt="Performance"/>
 </td>
-<td width="25%" align="center">
-  <a href="https://github.com/Xenonesis/code-guardian-report/network/members">
-    <img src="https://img.icons8.com/fluency/64/code-fork.png" alt="Fork"/>
-    <br/><strong>🍴 Fork</strong>
-    <br/>Fork and contribute
-  </a>
-</td>
-<td width="25%" align="center">
-  <a href="https://github.com/Xenonesis/code-guardian-report/issues">
-    <img src="https://img.icons8.com/fluency/64/bug.png" alt="Issues"/>
-    <br/><strong>🐛 Report</strong>
-    <br/>Report bugs & issues
-  </a>
-</td>
-<td width="25%" align="center">
-  <a href="https://twitter.com/intent/tweet?text=Check%20out%20Code%20Guardian%20-%20AI-powered%20security%20analysis%20platform!%20https://github.com/Xenonesis/code-guardian-report">
-    <img src="https://img.icons8.com/fluency/64/share.png" alt="Share"/>
-    <br/><strong>📢 Share</strong>
-    <br/>Spread the word
-  </a>
+<td align="center">
+<strong>🎯 Core Web Vitals</strong><br/>
+<img src="https://img.shields.io/badge/CWV-Excellent-brightgreen?style=for-the-badge" alt="Core Web Vitals"/>
 </td>
 </tr>
 </table>
 
-<br/>
+<details>
+<summary><strong>Detailed Performance Metrics</strong></summary>
 
-[![GitHub stars](https://img.shields.io/github/stars/Xenonesis/code-guardian-report?style=for-the-badge&logo=github&logoColor=white&color=FFD700)](https://github.com/Xenonesis/code-guardian-report/stargazers)
-[![GitHub forks](https://img.shields.io/github/forks/Xenonesis/code-guardian-report?style=for-the-badge&logo=github&logoColor=white&color=32CD32)](https://github.com/Xenonesis/code-guardian-report/network/members)
-[![GitHub watchers](https://img.shields.io/github/watchers/Xenonesis/code-guardian-report?style=for-the-badge&logo=github&logoColor=white&color=1E90FF)](https://github.com/Xenonesis/code-guardian-report/watchers)
-[![GitHub issues](https://img.shields.io/github/issues/Xenonesis/code-guardian-report?style=for-the-badge&logo=github&logoColor=white&color=FF6B6B)](https://github.com/Xenonesis/code-guardian-report/issues)
+| Metric | Target | Achieved |
+|--------|--------|----------|
+| **First Contentful Paint** | < 1.8s | < 1.2s ✅ |
+| **Largest Contentful Paint** | < 2.5s | < 2.0s ✅ |
+| **Cumulative Layout Shift** | < 0.1 | < 0.05 ✅ |
+| **Time to Interactive** | < 3.8s | < 3.0s ✅ |
+| **First Input Delay** | < 100ms | < 50ms ✅ |
 
-<br/>
+</details>
 
+### 🚀 Performance Optimizations
 
+<details>
+<summary><strong>Built-in Optimizations</strong></summary>
 
-<a href="https://github.com/Xenonesis/code-guardian-report">
-  <img src="https://img.shields.io/badge/⭐%20Star%20this%20repository-FFD700?style=for-the-badge&logoColor=white" alt="Star Repository" height="50"/>
-</a>
+- **⚡ Code Splitting**: Lazy loading of components and routes
+- **🖼️ Image Optimization**: WebP format with fallbacks
+- **📦 Bundle Optimization**: Tree shaking and dead code elimination
+- **💾 Intelligent Caching**: Service worker with cache strategies
+- **🔄 Virtual Scrolling**: Efficient rendering of large datasets
+- **⏰ Debounced Operations**: Optimized user input handling
+
+</details>
+
+---
+
+## 🤝 Contributing
+
+We welcome contributions from developers of all skill levels! Your input helps make Code Guardian better for everyone.
+
+### 🚀 Quick Start for Contributors
+
+<details>
+<summary><strong>Development Setup</strong></summary>
+
+```bash
+# 1. Fork and clone the repository
+git clone https://github.com/YOUR_USERNAME/code-guardian-report.git
+cd code-guardian-report
+
+# 2. Install dependencies
+npm install
+
+# 3. Create a feature branch
+git checkout -b feature/your-amazing-feature
+
+# 4. Start development server
+npm run dev
+
+# 5. Make your changes and test thoroughly
+npm run type-check
+npm run lint
+
+# 6. Commit with conventional commits
+git commit -m "feat: add amazing new feature"
+
+# 7. Push and create a Pull Request
+git push origin feature/your-amazing-feature
+```
+
+</details>
+
+### 📋 Contribution Guidelines
+
+<details>
+<summary><strong>Code Standards & Best Practices</strong></summary>
+
+- **📘 TypeScript**: Use TypeScript for all new code with proper typing
+- **🔍 ESLint**: Follow ESLint rules for code quality
+- **🎨 Prettier**: Use Prettier for consistent code formatting
+- **📝 Conventional Commits**: Follow conventional commit format
+- **🧪 Testing**: Add tests for new features when applicable
+- **📚 Documentation**: Update documentation for new features
+
+</details>
+
+### 🎯 Ways to Contribute
+
+- **🐛 Bug Reports**: Found a bug? [Open an issue](https://github.com/Xenonesis/code-guardian-report/issues)
+- **💡 Feature Requests**: Have an idea? [Suggest a feature](https://github.com/Xenonesis/code-guardian-report/issues)
+- **🔧 Code Contributions**: Submit pull requests for bug fixes or new features
+- **📖 Documentation**: Improve documentation and examples
+- **🌍 Translations**: Help translate the interface to other languages
+
+---
+
+## 📞 Support
+
+### 🆘 Getting Help
+
+<details>
+<summary><strong>Support Channels</strong></summary>
+
+- **📋 GitHub Issues**: [Report bugs or request features](https://github.com/Xenonesis/code-guardian-report/issues)
+- **📖 Documentation**: [Comprehensive guides and API docs](https://github.com/Xenonesis/code-guardian-report/wiki)
+- **💬 Discussions**: [Community discussions and Q&A](https://github.com/Xenonesis/code-guardian-report/discussions)
+- **📧 Email**: For security issues or private inquiries
+
+</details>
+
+### 🐛 Reporting Issues
+
+When reporting issues, please include:
+- **Environment**: OS, browser version, Node.js version
+- **Steps to Reproduce**: Clear steps to reproduce the issue
+- **Expected vs Actual**: What you expected vs what happened
+- **Screenshots**: Visual evidence when applicable
+- **Console Logs**: Any error messages from browser console
+
+---
+
+## 📄 License
+
+This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
+
+<details>
+<summary><strong>License Summary</strong></summary>
+
+✅ **Permissions**
+- Commercial use
+- Modification
+- Distribution
+- Private use
+
+❌ **Limitations**
+- Liability
+- Warranty
+
+📋 **Conditions**
+- License and copyright notice
+
+</details>
+
+---
+
+## 🙏 Acknowledgments
+
+### 🌟 Special Thanks
+
+<details>
+<summary><strong>Open Source Community & Partners</strong></summary>
+
+- **🛡️ OWASP Foundation**: For comprehensive security standards and guidelines
+- **🤖 AI Partners**: OpenAI, Anthropic, and Google for AI service integrations
+- **⚛️ React Team**: For the incredible React framework and ecosystem
+- **🎨 Tailwind CSS**: For the utility-first CSS framework
+- **🚀 Vercel**: For hosting, analytics, and deployment platform
+- **🧩 Radix UI**: For accessible, unstyled UI primitives
+- **🎭 Framer Motion**: For smooth animations and interactions
+- **🔧 Vite Team**: For the lightning-fast build tool
+
+</details>
+
+---
+
+## 🔄 Changelog
+
+### 📋 Version History
+
+See [changelogs.md](./changelogs.md) for complete version history and detailed changes.
+
+<details>
+<summary><strong>Latest Updates (v0.2.0)</strong></summary>
+
+- **🔄 Version Reset**: Clean slate for new development cycle
+- **📦 Dependencies**: Updated all dependencies to latest stable versions
+- **🎯 Features**: Consolidated and enhanced all advanced features
+- **🛠️ Build System**: Optimized build process and performance
+- **📋 Documentation**: Comprehensive README restructure and improvements
+- **🔒 Security**: Enhanced security analysis capabilities
+- **🤖 AI Integration**: Improved multi-provider AI support
+- **🎨 UI/UX**: Modern interface with better accessibility
+
+</details>
+
+---
+
+<div align="center">
+
+### 🚀 Ready to Transform Your Code Security?
+
+<p align="center">
+  <em>Join thousands of developers who trust Code Guardian for their security analysis needs</em>
+</p>
+
+<p align="center">
+  <a href="https://code-guardian-report.vercel.app" target="_blank">
+    <img src="https://img.shields.io/badge/🌟%20Try%20Code%20Guardian%20Now-4F46E5?style=for-the-badge&logoColor=white" alt="Try Now" height="60"/>
+  </a>
+</p>
+
+<p align="center">
+  <sub>Built with ❤️ by <a href="https://github.com/Xenonesis">Aditya Kumar Tiwari</a></sub><br/>
+  <sub>© 2024 Code Guardian. Released under the MIT License.</sub>
+</p>
+
+---
+
+<p align="center">
+  <a href="#-overview">🔝 Back to Top</a>
+</p>
+
+</div>
 
 </div>

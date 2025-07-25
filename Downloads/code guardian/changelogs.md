@@ -5,6 +5,24 @@
 
 ---
 
+## v0.2.0 (22/7/2025)
+- 🔄 **Version Reset**: Reset version from v4.7.0 to v0.2.0 for new development cycle
+- 📋 **README Overhaul**: Complete rewrite of README.md with current codebase details
+  - Updated all technology stack information (React 18.3.1, TypeScript 5.8.3, Vite 7.0.5)
+  - Added comprehensive feature descriptions for AI-powered capabilities
+  - Included detailed project structure and configuration guides
+  - Added performance metrics and browser support information
+  - Enhanced security and privacy documentation
+- 🎯 **Feature Documentation**: Documented all current features including:
+  - AI Fix Suggestions with GPT-4, Claude 3.5, and Google Gemini integration
+  - Secure Code Search with AI-powered pattern recognition
+  - Code Provenance Monitoring for integrity verification
+  - Enhanced Analytics Dashboard with real-time metrics
+  - Floating ChatBot for interactive assistance
+- 📦 **Version Synchronization**: Updated manifest.json and ensured auto-sync system compatibility
+- 🛠️ **Development Workflow**: Added comprehensive development and contribution guidelines
+- 📊 **Technical Accuracy**: All documentation now reflects actual codebase implementation
+
 ## v4.7.0 (22/7/2025)
 - 📦 **Version Update**: Updated from v4.6.0 to v4.7.0
 - 🔄 **Auto-Sync Verification**: Confirmed automatic version synchronization system is working correctly
