@@ -5,8 +5,8 @@
 
 ---
 
-## v0.2.0 (22/7/2025)
-- 🔄 **Version Reset**: Reset version from v4.7.0 to v0.2.0 for new development cycle
+## v0.3 (22/7/2025)
+- 🔄 **Version Update**: Set version to v0.3 for new development cycle
 - 📋 **README Overhaul**: Complete rewrite of README.md with current codebase details
   - Updated all technology stack information (React 18.3.1, TypeScript 5.8.3, Vite 7.0.5)
   - Added comprehensive feature descriptions for AI-powered capabilities
