@@ -54,7 +54,7 @@ export const EnhancedHomeHero: React.FC<EnhancedHomeHeroProps> = ({ onStartAnaly
   }, []);
 
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
+    <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-stone-50/80 via-blue-50/60 to-indigo-50/80 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
       {/* Enhanced Background Effects */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         {/* Animated Mesh Gradient */}

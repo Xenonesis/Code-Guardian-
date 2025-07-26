@@ -504,7 +504,7 @@ const DetailedIssuesTable: React.FC<DetailedIssuesTableProps> = ({
                     <h4 className="font-medium text-slate-900 dark:text-white text-sm sm:text-base mb-1 leading-tight">
                       {issue.message}
                     </h4>
-                    <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 truncate">
+                    <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 truncate-with-tooltip" title={issue.filename}>
                       {issue.filename}:{issue.line}
                     </p>
                   </div>
@@ -574,11 +574,13 @@ const DetailedIssuesTable: React.FC<DetailedIssuesTableProps> = ({
       </div>
 
       {/* Desktop Table Layout */}
-      <div className="hidden lg:block overflow-x-auto">
+      <div className="overflow-x-auto">
         <Table>
           <TableHeader>
             <TableRow className="bg-slate-50 dark:bg-slate-900/50">
-              <TableHead className="w-12" aria-label="Expand details"></TableHead>
+              <TableHead className="w-12">
+                <span className="sr-only">Expand details</span>
+              </TableHead>
               <TableHead className="font-semibold">Location</TableHead>
               <TableHead className="font-semibold">Type & Severity</TableHead>
               <TableHead className="font-semibold">Issue Description</TableHead>
@@ -611,7 +613,7 @@ const DetailedIssuesTable: React.FC<DetailedIssuesTableProps> = ({
                 
                 <TableCell>
                   <div className="space-y-1">
-                    <div className="font-mono text-sm text-blue-600 dark:text-blue-400 truncate max-w-xs" title={issue.filename}>
+                    <div className="font-mono text-sm text-blue-600 dark:text-blue-400 truncate-with-tooltip max-w-xs" title={issue.filename}>
                       {issue.filename}
                     </div>
                     <div className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-400">

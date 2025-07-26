@@ -119,7 +119,7 @@ export const UploadProgress: React.FC<UploadProgressProps> = ({
         </div>
 
         {/* Desktop progress indicator */}
-        <div className="hidden sm:block">
+        <div className="block">
           <ProgressIndicator
             steps={analysisSteps}
             currentStep={currentAnalysisStep}

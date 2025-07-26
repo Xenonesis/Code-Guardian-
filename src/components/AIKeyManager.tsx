@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { setLocalStorageItem, removeLocalStorageItem } from '@/utils/storageEvents';
+
 
 interface AIProvider {
   id: string;
@@ -21,6 +21,8 @@ const aiProviders: AIProvider[] = [
   { id: 'gemini', name: 'Google Gemini', icon: '💎', description: 'Advanced code understanding' },
   { id: 'claude', name: 'Anthropic Claude', icon: '🧠', description: 'Detailed security insights' },
   { id: 'mistral', name: 'Mistral AI', icon: '⚡', description: 'Fast and efficient analysis' },
+  { id: 'lmstudio', name: 'LM Studio', icon: '🖥️', description: 'Local AI models via LM Studio' },
+  { id: 'ollama', name: 'Ollama', icon: '🦙', description: 'Local AI models via Ollama' },
 ];
 
 interface APIKey {
@@ -33,10 +35,13 @@ interface APIKey {
 export const AIKeyManager: React.FC = () => {
   const [apiKeys, setApiKeys] = useState<APIKey[]>([]);
   const [newKey, setNewKey] = useState({ provider: '', key: '', name: '' });
+  const [localConfig, setLocalConfig] = useState({ endpoint: '', model: '' });
+  const [availableModels, setAvailableModels] = useState<string[]>([]);
   const [showKeys, setShowKeys] = useState<Record<string, boolean>>({});
   const [isAdding, setIsAdding] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isLoadingModels, setIsLoadingModels] = useState(false);
 
   // Load API keys from localStorage on component mount
   useEffect(() => {
@@ -53,8 +58,46 @@ export const AIKeyManager: React.FC = () => {
 
   // Save API keys to localStorage whenever they change
   useEffect(() => {
-    setLocalStorageItem('aiApiKeys', JSON.stringify(apiKeys));
+    if (apiKeys.length > 0) {
+      localStorage.setItem('aiApiKeys', JSON.stringify(apiKeys));
+    }
   }, [apiKeys]);
+
+  const fetchAvailableModels = async (provider: string, endpoint: string) => {
+    if (!endpoint || (provider !== 'lmstudio' && provider !== 'ollama')) return;
+    
+    setIsLoadingModels(true);
+    try {
+      let modelsUrl = '';
+      if (provider === 'lmstudio') {
+        modelsUrl = `${endpoint}/v1/models`;
+      } else if (provider === 'ollama') {
+        modelsUrl = `${endpoint}/api/tags`;
+      }
+
+      const response = await fetch(modelsUrl);
+      if (response.ok) {
+        const data = await response.json();
+        let models: string[] = [];
+        
+        if (provider === 'lmstudio') {
+          models = data.data?.map((model: any) => model.id) || [];
+        } else if (provider === 'ollama') {
+          models = data.models?.map((model: any) => model.name) || [];
+        }
+        
+        setAvailableModels(models);
+      } else {
+        setAvailableModels([]);
+        setErrors(prev => ({ ...prev, endpoint: 'Failed to connect to endpoint' }));
+      }
+    } catch (error) {
+      setAvailableModels([]);
+      setErrors(prev => ({ ...prev, endpoint: 'Failed to connect to endpoint' }));
+    } finally {
+      setIsLoadingModels(false);
+    }
+  };
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
@@ -67,10 +110,23 @@ export const AIKeyManager: React.FC = () => {
       newErrors.name = 'Please enter a name for this API key';
     }
 
-    if (!newKey.key.trim()) {
-      newErrors.key = 'Please enter your API key';
-    } else if (newKey.key.length < 10) {
-      newErrors.key = 'API key seems too short. Please check your key';
+    // Validate based on provider type
+    if (newKey.provider === 'lmstudio' || newKey.provider === 'ollama') {
+      if (!localConfig.endpoint.trim()) {
+        newErrors.endpoint = 'Please enter the endpoint URL';
+      } else if (!localConfig.endpoint.startsWith('http')) {
+        newErrors.endpoint = 'Endpoint must start with http:// or https://';
+      }
+      
+      if (!localConfig.model.trim()) {
+        newErrors.model = 'Please select a model';
+      }
+    } else {
+      if (!newKey.key.trim()) {
+        newErrors.key = 'Please enter your API key';
+      } else if (newKey.key.length < 10) {
+        newErrors.key = 'API key seems too short. Please check your key';
+      }
     }
 
     // Check for duplicate names
@@ -94,10 +150,20 @@ export const AIKeyManager: React.FC = () => {
         return;
       }
 
+      let keyValue = newKey.key.trim();
+      
+      // For local providers, store configuration as JSON
+      if (newKey.provider === 'lmstudio' || newKey.provider === 'ollama') {
+        keyValue = JSON.stringify({
+          endpoint: localConfig.endpoint.trim(),
+          model: localConfig.model.trim()
+        });
+      }
+
       const key: APIKey = {
         id: Date.now().toString(),
         provider: newKey.provider.trim(),
-        key: newKey.key.trim(),
+        key: keyValue,
         name: newKey.name.trim(),
       };
 
@@ -105,6 +171,8 @@ export const AIKeyManager: React.FC = () => {
 
       setApiKeys(prevKeys => [...prevKeys, key]);
       setNewKey({ provider: '', key: '', name: '' });
+      setLocalConfig({ endpoint: '', model: '' });
+      setAvailableModels([]);
       setIsAdding(false);
       setErrors({});
 
@@ -131,9 +199,29 @@ export const AIKeyManager: React.FC = () => {
     return aiProviders.find(p => p.id === providerId);
   };
 
-  const maskKey = (key: string) => {
+  const maskKey = (key: string, provider: string) => {
+    if (provider === 'lmstudio' || provider === 'ollama') {
+      try {
+        const config = JSON.parse(key);
+        return `${config.endpoint} (${config.model})`;
+      } catch {
+        return 'Invalid configuration';
+      }
+    }
     if (key.length <= 8) return '••••••••';
     return key.substring(0, 4) + '••••••••' + key.substring(key.length - 4);
+  };
+
+  const getKeyDisplay = (key: string, provider: string, isVisible: boolean) => {
+    if (provider === 'lmstudio' || provider === 'ollama') {
+      try {
+        const config = JSON.parse(key);
+        return isVisible ? `${config.endpoint} (${config.model})` : maskKey(key, provider);
+      } catch {
+        return 'Invalid configuration';
+      }
+    }
+    return isVisible ? key : maskKey(key, provider);
   };
 
   return (
@@ -206,22 +294,24 @@ export const AIKeyManager: React.FC = () => {
                   <div className="flex items-center gap-3 min-w-0 flex-1">
                     <span className="text-lg sm:text-xl flex-shrink-0" aria-hidden="true">{provider?.icon}</span>
                     <div className="min-w-0 flex-1">
-                      <h4 className="font-medium text-sm sm:text-base truncate">{key.name}</h4>
+                      <h4 className="font-medium text-sm sm:text-base truncate-with-tooltip" title={key.name}>{key.name}</h4>
                       <div className="flex flex-col sm:flex-row sm:items-center gap-2 mt-1">
                         <Badge variant="outline" className="text-xs w-fit">{provider?.name}</Badge>
                         <div className="flex items-center gap-2">
-                          <span className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 font-mono truncate max-w-[200px]">
-                            {showKeys[key.id] ? key.key : maskKey(key.key)}
+                          <span className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 font-mono truncate-with-tooltip max-w-[200px]" title={getKeyDisplay(key.key, key.provider, true)}>
+                            {getKeyDisplay(key.key, key.provider, showKeys[key.id])}
                           </span>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => toggleKeyVisibility(key.id)}
-                            className="h-6 w-6 p-0 focus-ring"
-                            aria-label={showKeys[key.id] ? "Hide API key" : "Show API key"}
-                          >
-                            {showKeys[key.id] ? <EyeOff className="h-3 w-3 sm:h-4 sm:w-4" /> : <Eye className="h-3 w-3 sm:h-4 sm:w-4" />}
-                          </Button>
+                          {(key.provider !== 'lmstudio' && key.provider !== 'ollama') && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => toggleKeyVisibility(key.id)}
+                              className="h-6 w-6 p-0 focus-ring touch-target"
+                              aria-label={showKeys[key.id] ? "Hide API key" : "Show API key"}
+                            >
+                              {showKeys[key.id] ? <EyeOff className="h-3 w-3 sm:h-4 sm:w-4" /> : <Eye className="h-3 w-3 sm:h-4 sm:w-4" />}
+                            </Button>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -254,86 +344,191 @@ export const AIKeyManager: React.FC = () => {
                   </Alert>
                 )}
 
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-                  <div>
-                    <Label htmlFor="provider-select" className="text-sm">
-                      Provider <span className="text-red-500">*</span>
-                    </Label>
-                    <Select
-                      value={newKey.provider}
-                      onValueChange={(value) => {
-                        setNewKey({...newKey, provider: value});
-                        if (errors.provider) {
-                          setErrors(prev => ({ ...prev, provider: '' }));
-                        }
-                      }}
-                    >
-                      <SelectTrigger
-                        id="provider-select"
-                        className={`focus-ring ${errors.provider ? 'border-red-500 focus:ring-red-500' : ''}`}
+                <div className="space-y-4">
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="provider-select" className="text-sm">
+                        Provider <span className="text-red-500">*</span>
+                      </Label>
+                      <Select
+                        value={newKey.provider}
+                        onValueChange={(value) => {
+                          setNewKey({...newKey, provider: value});
+                          setLocalConfig({ endpoint: '', model: '' });
+                          setAvailableModels([]);
+                          if (errors.provider) {
+                            setErrors(prev => ({ ...prev, provider: '' }));
+                          }
+                        }}
                       >
-                        <SelectValue placeholder="Select provider" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {aiProviders.map((provider) => (
-                          <SelectItem key={provider.id} value={provider.id}>
-                            <div className="flex items-center gap-2">
-                              <span>{provider.icon}</span>
-                              <span>{provider.name}</span>
-                            </div>
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    {errors.provider && (
-                      <p className="text-red-500 text-xs mt-1">{errors.provider}</p>
-                    )}
+                        <SelectTrigger
+                          id="provider-select"
+                          className={`focus-ring ${errors.provider ? 'border-red-500 focus:ring-red-500' : ''}`}
+                        >
+                          <SelectValue placeholder="Select provider" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {aiProviders.map((provider) => (
+                            <SelectItem key={provider.id} value={provider.id}>
+                              <div className="flex items-center gap-2">
+                                <span>{provider.icon}</span>
+                                <span>{provider.name}</span>
+                              </div>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      {errors.provider && (
+                        <p className="text-red-500 text-xs mt-1">{errors.provider}</p>
+                      )}
+                    </div>
+
+                    <div>
+                      <Label htmlFor="key-name" className="text-sm">
+                        Configuration Name <span className="text-red-500">*</span>
+                      </Label>
+                      <Input
+                        id="key-name"
+                        placeholder={newKey.provider === 'lmstudio' ? 'My LM Studio' : newKey.provider === 'ollama' ? 'My Ollama' : 'My API Key'}
+                        value={newKey.name}
+                        onChange={(e) => {
+                          setNewKey({...newKey, name: e.target.value});
+                          if (errors.name) {
+                            setErrors(prev => ({ ...prev, name: '' }));
+                          }
+                        }}
+                        className={`focus-ring ${errors.name ? 'border-red-500 focus:ring-red-500' : ''}`}
+                        aria-describedby={errors.name ? "name-error" : undefined}
+                      />
+                      {errors.name && (
+                        <p id="name-error" className="text-red-500 text-xs mt-1">{errors.name}</p>
+                      )}
+                    </div>
                   </div>
 
-                  <div>
-                    <Label htmlFor="key-name" className="text-sm">
-                      Key Name <span className="text-red-500">*</span>
-                    </Label>
-                    <Input
-                      id="key-name"
-                      placeholder="My OpenAI Key"
-                      value={newKey.name}
-                      onChange={(e) => {
-                        setNewKey({...newKey, name: e.target.value});
-                        if (errors.name) {
-                          setErrors(prev => ({ ...prev, name: '' }));
-                        }
-                      }}
-                      className={`focus-ring ${errors.name ? 'border-red-500 focus:ring-red-500' : ''}`}
-                      aria-describedby={errors.name ? "name-error" : undefined}
-                    />
-                    {errors.name && (
-                      <p id="name-error" className="text-red-500 text-xs mt-1">{errors.name}</p>
-                    )}
-                  </div>
+                  {/* Local AI Provider Configuration */}
+                  {(newKey.provider === 'lmstudio' || newKey.provider === 'ollama') && (
+                    <div className="space-y-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                      <h5 className="font-medium text-sm">Local AI Configuration</h5>
+                      
+                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                        <div>
+                          <Label htmlFor="endpoint" className="text-sm">
+                            Endpoint URL <span className="text-red-500">*</span>
+                          </Label>
+                          <Input
+                            id="endpoint"
+                            placeholder={newKey.provider === 'lmstudio' ? 'http://localhost:1234' : 'http://localhost:11434'}
+                            value={localConfig.endpoint}
+                            onChange={(e) => {
+                              setLocalConfig({...localConfig, endpoint: e.target.value});
+                              if (errors.endpoint) {
+                                setErrors(prev => ({ ...prev, endpoint: '' }));
+                              }
+                            }}
+                            onBlur={() => {
+                              if (localConfig.endpoint && newKey.provider) {
+                                fetchAvailableModels(newKey.provider, localConfig.endpoint);
+                              }
+                            }}
+                            className={`focus-ring ${errors.endpoint ? 'border-red-500 focus:ring-red-500' : ''}`}
+                          />
+                          {errors.endpoint && (
+                            <p className="text-red-500 text-xs mt-1">{errors.endpoint}</p>
+                          )}
+                        </div>
 
-                  <div>
-                    <Label htmlFor="api-key" className="text-sm">
-                      API Key <span className="text-red-500">*</span>
-                    </Label>
-                    <Input
-                      id="api-key"
-                      type="password"
-                      placeholder="sk-..."
-                      value={newKey.key}
-                      onChange={(e) => {
-                        setNewKey({...newKey, key: e.target.value});
-                        if (errors.key) {
-                          setErrors(prev => ({ ...prev, key: '' }));
-                        }
-                      }}
-                      className={`focus-ring ${errors.key ? 'border-red-500 focus:ring-red-500' : ''}`}
-                      aria-describedby={errors.key ? "key-error" : undefined}
-                    />
-                    {errors.key && (
-                      <p id="key-error" className="text-red-500 text-xs mt-1">{errors.key}</p>
-                    )}
-                  </div>
+                        <div>
+                          <Label htmlFor="model-select" className="text-sm">
+                            Model <span className="text-red-500">*</span>
+                          </Label>
+                          <div className="flex gap-2">
+                            <Select
+                              value={localConfig.model}
+                              onValueChange={(value) => {
+                                setLocalConfig({...localConfig, model: value});
+                                if (errors.model) {
+                                  setErrors(prev => ({ ...prev, model: '' }));
+                                }
+                              }}
+                              disabled={!localConfig.endpoint || isLoadingModels}
+                            >
+                              <SelectTrigger
+                                id="model-select"
+                                className={`focus-ring ${errors.model ? 'border-red-500 focus:ring-red-500' : ''}`}
+                              >
+                                <SelectValue placeholder={isLoadingModels ? 'Loading...' : 'Select model'} />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {availableModels.map((model) => (
+                                  <SelectItem key={model} value={model}>
+                                    {model}
+                                  </SelectItem>
+                                ))}
+                                {availableModels.length === 0 && !isLoadingModels && (
+                                  <SelectItem value="no-models" disabled>
+                                    No models found
+                                  </SelectItem>
+                                )}
+                              </SelectContent>
+                            </Select>
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={() => fetchAvailableModels(newKey.provider, localConfig.endpoint)}
+                              disabled={!localConfig.endpoint || isLoadingModels}
+                              className="px-3"
+                            >
+                              {isLoadingModels ? (
+                                <div className="animate-spin rounded-full h-4 w-4 border-2 border-gray-400 border-t-transparent" />
+                              ) : (
+                                'Refresh'
+                              )}
+                            </Button>
+                          </div>
+                          {errors.model && (
+                            <p className="text-red-500 text-xs mt-1">{errors.model}</p>
+                          )}
+                        </div>
+                      </div>
+                      
+                      <div className="text-xs text-gray-600 dark:text-gray-400">
+                        {newKey.provider === 'lmstudio' && (
+                          <p>Make sure LM Studio is running and the server is started. Default endpoint is usually http://localhost:1234</p>
+                        )}
+                        {newKey.provider === 'ollama' && (
+                          <p>Make sure Ollama is running. Default endpoint is usually http://localhost:11434</p>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* API Key for cloud providers */}
+                  {newKey.provider && newKey.provider !== 'lmstudio' && newKey.provider !== 'ollama' && (
+                    <div>
+                      <Label htmlFor="api-key" className="text-sm">
+                        API Key <span className="text-red-500">*</span>
+                      </Label>
+                      <Input
+                        id="api-key"
+                        type="password"
+                        placeholder="sk-..."
+                        value={newKey.key}
+                        onChange={(e) => {
+                          setNewKey({...newKey, key: e.target.value});
+                          if (errors.key) {
+                            setErrors(prev => ({ ...prev, key: '' }));
+                          }
+                        }}
+                        className={`focus-ring ${errors.key ? 'border-red-500 focus:ring-red-500' : ''}`}
+                        aria-describedby={errors.key ? "key-error" : undefined}
+                      />
+                      {errors.key && (
+                        <p id="key-error" className="text-red-500 text-xs mt-1">{errors.key}</p>
+                      )}
+                    </div>
+                  )}
                 </div>
 
                 <div className="flex flex-col sm:flex-row gap-2">
@@ -356,6 +551,8 @@ export const AIKeyManager: React.FC = () => {
                     onClick={() => {
                       setIsAdding(false);
                       setNewKey({ provider: '', key: '', name: '' });
+                      setLocalConfig({ endpoint: '', model: '' });
+                      setAvailableModels([]);
                       setErrors({});
                     }}
                     disabled={isSubmitting}

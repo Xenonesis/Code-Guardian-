@@ -188,7 +188,10 @@ export const SecurityIssueItem: React.FC<SecurityIssueItemProps> = ({
                 <Brain className="h-3 w-3" />
                 AI Fixes
               </TabsTrigger>
-              <TabsTrigger value="references" className="hidden sm:block text-sm py-2.5 px-3 rounded-md text-slate-300 data-[state=active]:bg-blue-500 data-[state=active]:text-white">References</TabsTrigger>
+              <TabsTrigger value="references" className="text-sm py-2.5 px-3 rounded-md text-slate-600 dark:text-slate-300 data-[state=active]:bg-blue-500 data-[state=active]:text-white">
+                <span className="hidden sm:inline">References</span>
+                <span className="sm:hidden">Refs</span>
+              </TabsTrigger>
             </TabsList>
 
             <TabsContent value="summary" className="space-y-4 mt-4">

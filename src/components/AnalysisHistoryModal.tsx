@@ -19,6 +19,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { type StoredAnalysisData } from '@/services/analysisStorage';
+import { useFocusTrap } from '@/hooks/useFocusTrap';
 
 interface AnalysisHistoryModalProps {
   isOpen: boolean;
@@ -84,9 +85,11 @@ export const AnalysisHistoryModal: React.FC<AnalysisHistoryModalProps> = ({
     ...history.previousAnalyses.map(a => ({ ...a, isCurrent: false }))
   ].sort((a, b) => b.timestamp - a.timestamp);
 
+  const focusTrapRef = useFocusTrap({ isActive: true });
+
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <Card className="w-full max-w-4xl max-h-[80vh] bg-white dark:bg-slate-800 shadow-2xl">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[80] p-4" role="dialog" aria-modal="true">
+      <Card ref={focusTrapRef} className="w-full max-w-4xl max-h-[80vh] bg-white dark:bg-slate-800 shadow-2xl">
         <div className="flex items-center justify-between p-6 border-b dark:border-slate-700">
           <div className="flex items-center gap-3">
             <Clock className="h-6 w-6 text-blue-600" />
@@ -103,7 +106,7 @@ export const AnalysisHistoryModal: React.FC<AnalysisHistoryModalProps> = ({
             variant="ghost"
             size="sm"
             onClick={onClose}
-            className="text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
+            className="text-slate-600 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 touch-target"
           >
             <X className="h-5 w-5" />
           </Button>
@@ -132,7 +135,7 @@ export const AnalysisHistoryModal: React.FC<AnalysisHistoryModalProps> = ({
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 mb-2">
                             <FileText className="h-4 w-4 text-slate-600 dark:text-slate-400 flex-shrink-0" />
-                            <h3 className="font-medium text-slate-900 dark:text-white truncate">
+                            <h3 className="font-medium text-slate-900 dark:text-white truncate-with-tooltip" title={analysis.metadata?.projectName || 'Analysis'}>
                               {analysis.fileName}
                             </h3>
                             {analysis.isCurrent && (

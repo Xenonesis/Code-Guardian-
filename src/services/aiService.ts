@@ -211,6 +211,50 @@ export class AIService {
     }
   }
 
+  private async callMistral(apiKey: string, messages: ChatMessage[]): Promise<string> {
+    console.log('Calling Mistral API...');
+    
+    if (!apiKey) {
+      throw new Error('Mistral API key is required');
+    }
+
+    try {
+      const response = await fetch('https://api.mistral.ai/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${apiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'mistral-large-latest',
+          messages,
+          temperature: 0.7,
+          max_tokens: 2048,
+        }),
+      });
+
+      console.log('Mistral Response Status:', response.status);
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Mistral API Error Response:', errorText);
+        throw new Error(`Mistral API error (${response.status}): ${errorText}`);
+      }
+
+      const data = await response.json();
+      console.log('Mistral API Response:', data);
+      
+      if (!data.choices?.[0]?.message?.content) {
+        throw new Error('Invalid response format from Mistral - no content found');
+      }
+
+      return data.choices[0].message.content;
+    } catch (error) {
+      console.error('Mistral API call failed:', error);
+      throw error;
+    }
+  }
+
   private async callClaude(apiKey: string, messages: ChatMessage[]): Promise<string> {
     console.log('Calling Claude API...');
     
@@ -270,6 +314,127 @@ export class AIService {
     }
   }
 
+  private async callLMStudio(endpoint: string, messages: ChatMessage[], model?: string): Promise<string> {
+    console.log('Calling LM Studio API...');
+    
+    if (!endpoint) {
+      throw new Error('LM Studio endpoint is required');
+    }
+
+    try {
+      const response = await fetch(`${endpoint}/v1/chat/completions`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: model || 'local-model',
+          messages,
+          temperature: 0.7,
+          max_tokens: 2048,
+        }),
+      });
+
+      console.log('LM Studio Response Status:', response.status);
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('LM Studio API Error Response:', errorText);
+        throw new Error(`LM Studio API error (${response.status}): ${errorText}`);
+      }
+
+      const data = await response.json();
+      console.log('LM Studio API Response:', data);
+      
+      if (!data.choices?.[0]?.message?.content) {
+        throw new Error('Invalid response format from LM Studio - no content found');
+      }
+
+      return data.choices[0].message.content;
+    } catch (error) {
+      console.error('LM Studio API call failed:', error);
+      throw error;
+    }
+  }
+
+  private async callOllama(endpoint: string, messages: ChatMessage[], model?: string): Promise<string> {
+    console.log('Calling Ollama API...');
+    
+    if (!endpoint) {
+      throw new Error('Ollama endpoint is required');
+    }
+
+    try {
+      // Convert messages to Ollama format
+      const systemMessage = messages.find(m => m.role === 'system');
+      const userMessages = messages.filter(m => m.role !== 'system');
+      
+      let prompt = '';
+      if (systemMessage) {
+        prompt += `System: ${systemMessage.content}\n\n`;
+      }
+      prompt += userMessages.map(m => `${m.role}: ${m.content}`).join('\n');
+
+      const response = await fetch(`${endpoint}/api/generate`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: model || 'llama2',
+          prompt,
+          stream: false,
+          options: {
+            temperature: 0.7,
+            num_predict: 2048,
+          }
+        }),
+      });
+
+      console.log('Ollama Response Status:', response.status);
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Ollama API Error Response:', errorText);
+        throw new Error(`Ollama API error (${response.status}): ${errorText}`);
+      }
+
+      const data = await response.json();
+      console.log('Ollama API Response:', data);
+      
+      if (!data.response) {
+        throw new Error('Invalid response format from Ollama - no content found');
+      }
+
+      return data.response;
+    } catch (error) {
+      console.error('Ollama API call failed:', error);
+      throw error;
+    }
+  }
+
+  async getAvailableModels(provider: string, endpoint?: string): Promise<string[]> {
+    try {
+      if (provider === 'lmstudio' && endpoint) {
+        const response = await fetch(`${endpoint}/v1/models`);
+        if (response.ok) {
+          const data = await response.json();
+          return data.data?.map((model: any) => model.id) || [];
+        }
+      } else if (provider === 'ollama' && endpoint) {
+        const response = await fetch(`${endpoint}/api/tags`);
+        if (response.ok) {
+          const data = await response.json();
+          return data.models?.map((model: any) => model.name) || [];
+        }
+      }
+      return [];
+    } catch (error) {
+      console.error(`Failed to fetch models for ${provider}:`, error);
+      return [];
+    }
+  }
+
   async generateResponse(messages: ChatMessage[]): Promise<string> {
     const apiKeys = this.getStoredAPIKeys();
     console.log('Available API keys:', apiKeys.map(k => ({ id: k.id, name: k.name })));
@@ -292,6 +457,16 @@ export class AIService {
             return await this.callGemini(provider.apiKey, messages);
           case 'claude':
             return await this.callClaude(provider.apiKey, messages);
+          case 'mistral':
+            return await this.callMistral(provider.apiKey, messages);
+          case 'lmstudio': {
+            const config = JSON.parse(provider.apiKey || '{}');
+            return await this.callLMStudio(config.endpoint, messages, config.model);
+          }
+          case 'ollama': {
+            const config = JSON.parse(provider.apiKey || '{}');
+            return await this.callOllama(config.endpoint, messages, config.model);
+          }
           default:
             console.warn(`Unsupported provider: ${provider.id}`);
             errors.push(`Unsupported provider: ${provider.id}`);

@@ -79,8 +79,8 @@ export const Navigation: React.FC<NavigationProps> = ({ isDarkMode, toggleDarkMo
       className={cn(
         "portal-navbar transition-all duration-300",
         isScrolled
-          ? "bg-white/95 dark:bg-slate-900/95 backdrop-blur-lg shadow-lg border-b border-slate-200/50 dark:border-slate-700/50"
-          : "bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-slate-200/30 dark:border-slate-700/30"
+          ? "bg-white/98 dark:bg-slate-900/95 backdrop-blur-lg shadow-lg border-b border-stone-200/60 dark:border-slate-700/50"
+          : "bg-white/95 dark:bg-slate-900/90 backdrop-blur-md border-b border-stone-200/40 dark:border-slate-700/30"
       )}
       style={{
         position: 'fixed',
@@ -102,7 +102,8 @@ export const Navigation: React.FC<NavigationProps> = ({ isDarkMode, toggleDarkMo
             {/* Shield Icon */}
             <div className="relative p-2 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:rotate-3">
               <Shield className="h-6 w-6 text-white" />
-              <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-white/30 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
+              <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-pink-500/10 opacity-0 group-hover:opacity-100 transition-all duration-500 animate-pulse"></div>
             </div>
             
             {/* Brand Text */}
@@ -110,7 +111,7 @@ export const Navigation: React.FC<NavigationProps> = ({ isDarkMode, toggleDarkMo
               <h1 className="text-xl font-bold bg-gradient-to-r from-slate-900 to-blue-900 dark:from-white dark:to-blue-100 bg-clip-text text-transparent leading-tight">
                 Code Guardian
               </h1>
-              <p className="text-xs text-slate-600 dark:text-slate-400 font-medium leading-none hidden sm:block">
+              <p className="text-xs text-slate-600 dark:text-slate-400 font-medium leading-none block">
                 Security Analysis
               </p>
             </div>

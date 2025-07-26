@@ -2,17 +2,19 @@ import { type VariantProps, cva } from "class-variance-authority";
 
 // Badge variants
 export const badgeVariants = cva(
-  "inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
+  "inline-flex items-center rounded-full border px-4 py-2 text-xs font-bold transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 shadow-lg hover:shadow-xl transform hover:scale-105",
   {
     variants: {
       variant: {
         default:
-          "border-transparent bg-primary text-primary-foreground hover:bg-primary/80",
+          "border-transparent bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-500 hover:to-purple-500 shadow-[0_8px_32px_rgba(59,130,246,0.3)]",
         secondary:
-          "border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80",
+          "border-transparent bg-gradient-to-r from-stone-200 to-stone-300 dark:from-slate-700 dark:to-slate-600 text-stone-800 dark:text-slate-200 hover:from-stone-300 hover:to-stone-400 dark:hover:from-slate-600 dark:hover:to-slate-500",
         destructive:
-          "border-transparent bg-destructive text-destructive-foreground hover:bg-destructive/80",
-        outline: "text-foreground",
+          "border-transparent bg-gradient-to-r from-red-600 to-pink-600 text-white hover:from-red-500 hover:to-pink-500 shadow-[0_8px_32px_rgba(239,68,68,0.3)]",
+        outline: "border-2 border-stone-300 dark:border-slate-600 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm text-stone-700 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-700",
+        success: "border-transparent bg-gradient-to-r from-emerald-600 to-teal-600 text-white hover:from-emerald-500 hover:to-teal-500 shadow-[0_8px_32px_rgba(16,185,129,0.3)]",
+        warning: "border-transparent bg-gradient-to-r from-amber-500 to-orange-500 text-white hover:from-amber-400 hover:to-orange-400 shadow-[0_8px_32px_rgba(245,158,11,0.3)]",
       },
     },
     defaultVariants: {

@@ -13,7 +13,7 @@
 <p align="center">
   <img src="https://img.shields.io/badge/Version-0.80-ff6b6b?style=for-the-badge&logo=rocket&logoColor=white" alt="Version"/>
   <img src="https://img.shields.io/badge/Status-Production%20Ready-00C851?style=for-the-badge&logo=checkmarx&logoColor=white" alt="Status"/>
-  <img src="https://img.shields.io/badge/AI%20Powered-GPT--4%20%7C%20Claude%20%7C%20Gemini-9C27B0?style=for-the-badge&logo=openai&logoColor=white" alt="AI Powered"/>
+  <img src="https://img.shields.io/badge/AI%20Powered-GPT--4%20%7C%20Claude%20%7C%20Gemini%20%7C%20Local-9C27B0?style=for-the-badge&logo=openai&logoColor=white" alt="AI Powered"/>
   <img src="https://img.shields.io/badge/PWA-Ready-FF6F00?style=for-the-badge&logo=pwa&logoColor=white" alt="PWA Ready"/>
 </p>
 
@@ -91,7 +91,7 @@
 <td width="33%" align="center">
   <img src="https://img.icons8.com/fluency/96/artificial-intelligence.png" alt="AI" width="64"/>
   <h4>🤖 AI-Powered Insights</h4>
-  <p>Multi-provider AI integration (GPT-4, Claude, Gemini) for intelligent code recommendations</p>
+  <p>Multi-provider AI integration (GPT-4, Claude, Gemini, LM Studio, Ollama) for intelligent code recommendations</p>
 </td>
 <td width="33%" align="center">
   <img src="https://img.icons8.com/fluency/96/analytics.png" alt="Analytics" width="64"/>
@@ -137,7 +137,9 @@
 <details>
 <summary><strong>Click to expand AI features</strong></summary>
 
-- **🧠 Multi-AI Provider Support**: GPT-4, Claude 3.5, and Google Gemini integration
+- **🧠 Multi-AI Provider Support**: GPT-4, Claude 3.5, Google Gemini, LM Studio, and Ollama integration
+- **🏠 Local AI Support**: Run analysis completely offline with LM Studio and Ollama
+- **🔒 Privacy-First Local AI**: Complete data privacy with local model execution
 - **🔧 AI Fix Suggestions**: Automated code fixes with framework-specific recommendations
 - **🔍 Security Insights**: Deep AI analysis of security patterns and threat vectors
 - **🎯 Threat Modeling**: AI-generated threat models and comprehensive risk assessments
@@ -320,6 +322,18 @@ const aiConfig = {
     model: 'gemini-1.5-pro',
     maxTokens: 4096,
     features: ['multi-modal-analysis', 'code-understanding']
+  },
+  lmstudio: {
+    endpoint: 'http://localhost:1234',
+    model: 'local-model',
+    maxTokens: 4096,
+    features: ['local-analysis', 'privacy-first', 'offline-capable']
+  },
+  ollama: {
+    endpoint: 'http://localhost:11434',
+    model: 'llama2',
+    maxTokens: 4096,
+    features: ['local-analysis', 'privacy-first', 'offline-capable']
   }
 };
 ```
@@ -328,6 +342,8 @@ const aiConfig = {
 - **OpenAI**: [Get API Key](https://platform.openai.com/api-keys)
 - **Anthropic**: [Get API Key](https://console.anthropic.com/)
 - **Google AI**: [Get API Key](https://makersuite.google.com/app/apikey)
+- **LM Studio**: [Download LM Studio](https://lmstudio.ai/) - Run local models
+- **Ollama**: [Download Ollama](https://ollama.ai/) - Run local models
 
 </details>
 
