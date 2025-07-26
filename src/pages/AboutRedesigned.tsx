@@ -10,7 +10,7 @@ import { ToolsEcosystemSection } from '@/components/pages/about/redesigned/Tools
 import { ModernCallToActionSection } from '@/components/pages/about/redesigned/ModernCallToActionSection';
 import { useDarkMode } from '@/hooks/useDarkMode';
 
-const About = () => {
+const AboutRedesigned = () => {
   const { isDarkMode, toggleDarkMode } = useDarkMode();
 
   return (
@@ -42,4 +42,4 @@ const About = () => {
   );
 };
 
-export default About;
+export default AboutRedesigned;

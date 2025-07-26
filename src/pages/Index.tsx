@@ -1,7 +1,7 @@
 import { useState, Suspense, lazy } from 'react';
 
 import { PageLayout } from '@/components/layouts/PageLayout';
-import { HomeHero } from '@/components/pages/home/HomeHero';
+import { UploadForm } from '@/components/UploadForm';
 import { AnalysisTabs } from '@/components/pages/home/AnalysisTabs';
 import { StorageBanner } from '@/components/pages/home/StorageBanner';
 import { useAnalysisHandlers } from '@/components/pages/home/AnalysisHandlers';
@@ -14,7 +14,7 @@ const StorageStatus = lazy(() => import('@/components/StorageStatus'));
 const AnalysisHistoryModal = lazy(() => import('@/components/AnalysisHistoryModal'));
 
 const Index = () => {
-  const [currentTab, setCurrentTab] = useState('upload');
+  const [currentTab, setCurrentTab] = useState('prompts');
   const [isRedirecting, setIsRedirecting] = useState(false);
   const [showStorageStatus, setShowStorageStatus] = useState(false);
   const [showHistoryModal, setShowHistoryModal] = useState(false);
@@ -58,16 +58,18 @@ const Index = () => {
     }
   });
 
-  const handleStartAnalysis = () => {
-    setCurrentTab('upload');
-  };
-
   return (
     <PageLayout
       isDarkMode={isDarkMode}
       toggleDarkMode={toggleDarkMode}
     >
-      <HomeHero onStartAnalysis={handleStartAnalysis} />
+      {/* Upload Section - Moved from tabs to main area */}
+      <section className="max-w-4xl mx-auto py-12 sm:py-16 md:py-20 lg:py-24 px-4 sm:px-6">
+        <UploadForm
+          onFileSelect={handleFileSelect}
+          onAnalysisComplete={handleAnalysisCompleteWithRedirect}
+        />
+      </section>
 
       <StorageBanner
         hasStoredData={hasStoredData}

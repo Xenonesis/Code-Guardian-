@@ -71,7 +71,8 @@ export const FileUploadArea: React.FC<FileUploadAreaProps> = ({
         <div className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-4 sm:mt-6 bg-slate-100 dark:bg-slate-700/50 rounded-lg p-3 sm:p-4">
           <div className="space-y-1">
             <p><strong>Maximum file size:</strong> 50MB</p>
-            <p><strong>Supported languages:</strong> Python, JavaScript, TypeScript, React, Node.js</p>
+            <p><strong>Supported languages:</strong> JavaScript, TypeScript, Python, Java, PHP, Ruby, Go, C/C++, C#, Rust, Swift, and more</p>
+            <p><strong>Requirements:</strong> ZIP must contain actual source code files with content (not just empty files or binaries)</p>
           </div>
         </div>
       </div>

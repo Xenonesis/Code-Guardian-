@@ -2,7 +2,6 @@ import React, { Suspense } from 'react';
 import { FileCode } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { TabsContent } from '@/components/ui/tabs';
-import { UploadForm } from '@/components/UploadForm';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { AnalysisResults } from '@/hooks/useAnalysis';
 import { EnhancedSecurityResults } from '@/components/EnhancedSecurityResults';
@@ -10,7 +9,6 @@ import PromptGenerator from '@/components/PromptGenerator';
 
 // Lazy load heavy components
 const ResultsTable = React.lazy(() => import('@/components/ResultsTable').then(module => ({ default: module.ResultsTable })));
-const AIKeyManager = React.lazy(() => import('@/components/AIKeyManager').then(module => ({ default: module.AIKeyManager })));
 
 interface TabContentProps {
   analysisResults: AnalysisResults | null;
@@ -25,34 +23,8 @@ export const TabContent: React.FC<TabContentProps> = ({
 }) => {
   return (
     <>
-      <TabsContent
-        value="upload"
-        className="space-y-6 sm:space-y-8 animate-fade-in"
-        role="tabpanel"
-        id="upload-panel"
-        aria-labelledby="upload-tab"
-      >
-        <UploadForm
-          onFileSelect={onFileSelect}
-          onAnalysisComplete={onAnalysisComplete}
-        />
-      </TabsContent>
 
-      <TabsContent
-        value="ai-config"
-        className="animate-fade-in"
-        role="tabpanel"
-        id="ai-config-panel"
-        aria-labelledby="ai-config-tab"
-      >
-        <Suspense fallback={
-          <div className="flex justify-center p-8" role="status" aria-label="Loading AI configuration">
-            <LoadingSpinner size="lg" text="Loading AI Configuration..." />
-          </div>
-        }>
-          <AIKeyManager />
-        </Suspense>
-      </TabsContent>
+
 
       <TabsContent
         value="prompts"
