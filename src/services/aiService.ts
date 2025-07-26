@@ -1,6 +1,7 @@
 
 
 
+
 interface AIProvider {
   id: string;
   name: string;
@@ -13,6 +14,28 @@ interface StoredAPIKey {
   provider: string;
   key: string;
   name: string;
+  enabled: boolean;
+}
+
+export interface APIError {
+  provider: string;
+  statusCode: number;
+  message: string;
+  isQuotaExceeded: boolean;
+  isRateLimit: boolean;
+  isAuthError: boolean;
+  retryAfter?: number;
+  userFriendlyMessage: string;
+}
+
+export class AIServiceError extends Error {
+  public readonly apiError: APIError;
+
+  constructor(apiError: APIError) {
+    super(apiError.userFriendlyMessage);
+    this.name = 'AIServiceError';
+    this.apiError = apiError;
+  }
 }
 
 interface ChatMessage {
@@ -73,16 +96,80 @@ export class AIService {
       const keys = localStorage.getItem('aiApiKeys');
       const storedKeys: StoredAPIKey[] = keys ? JSON.parse(keys) : [];
 
-      // Convert stored format to expected format
-      return storedKeys.map(key => ({
-        id: key.provider,
-        name: key.name,
-        apiKey: key.key
-      }));
+      // Convert stored format to expected format, filtering out disabled keys
+      return storedKeys
+        .filter(key => key.enabled !== false) // Include keys that are enabled or don't have the enabled property (backward compatibility)
+        .map(key => ({
+          id: key.provider,
+          name: key.name,
+          apiKey: key.key
+        }));
     } catch (error) {
       console.error('Error parsing stored API keys:', error);
       return [];
     }
+  }
+
+  private createUserFriendlyErrorMessage(provider: string, statusCode: number, errorData: any): APIError {
+    const isQuotaExceeded = statusCode === 429;
+    const isRateLimit = statusCode === 429;
+    const isAuthError = statusCode === 401 || statusCode === 403;
+
+    let userFriendlyMessage: string;
+    let retryAfter: number | undefined;
+
+    // Handle quota exceeded errors
+    if (statusCode === 429) {
+      if (provider === 'gemini') {
+        const quotaType = errorData.details?.[0]?.violations?.[0]?.quotaMetric;
+        const retryInfo = errorData.details?.find((d: any) => d['@type']?.includes('RetryInfo'));
+        if (retryInfo?.retryDelay) {
+          const delayMatch = retryInfo.retryDelay.match(/(\d+)s/);
+          if (delayMatch) {
+            retryAfter = parseInt(delayMatch[1]);
+          }
+        }
+
+        if (quotaType?.includes('free_tier')) {
+          userFriendlyMessage = 'Gemini API quota exceeded: You have reached your daily free tier limit (50 requests). Please wait 24 hours for the quota to reset, or upgrade to a paid plan for higher limits.';
+        } else {
+          userFriendlyMessage = `Gemini API rate limit exceeded: Too many requests. Please wait ${retryAfter ? `${retryAfter} seconds` : 'a few minutes'} before trying again.`;
+        }
+      } else if (provider === 'openai') {
+        userFriendlyMessage = 'OpenAI API quota exceeded: You have reached your usage limit. Please check your billing details or wait for your quota to reset.';
+      } else if (provider === 'claude') {
+        userFriendlyMessage = 'Claude API rate limit exceeded: Too many requests. Please wait a few minutes before trying again.';
+      } else {
+        userFriendlyMessage = 'API rate limit exceeded: Too many requests. Please wait before trying again.';
+      }
+    }
+    // Handle authentication errors
+    else if (statusCode === 401 || statusCode === 403) {
+      userFriendlyMessage = `${provider.charAt(0).toUpperCase() + provider.slice(1)} API authentication failed: Please check your API key in the AI Configuration tab.`;
+    }
+    // Handle server errors
+    else if (statusCode >= 500) {
+      userFriendlyMessage = `${provider.charAt(0).toUpperCase() + provider.slice(1)} API server error: The service is temporarily unavailable. Please try again later.`;
+    }
+    // Handle bad request errors
+    else if (statusCode === 400) {
+      userFriendlyMessage = `${provider.charAt(0).toUpperCase() + provider.slice(1)} API request error: ${errorData.message || 'Invalid request format.'}`;
+    }
+    // Default error message
+    else {
+      userFriendlyMessage = errorData.message || `${provider.charAt(0).toUpperCase() + provider.slice(1)} API error (${statusCode})`;
+    }
+
+    return {
+      provider,
+      statusCode,
+      message: errorData.message || 'Unknown error',
+      isQuotaExceeded,
+      isRateLimit,
+      isAuthError,
+      retryAfter,
+      userFriendlyMessage
+    };
   }
 
   private async callOpenAI(apiKey: string, messages: ChatMessage[]): Promise<string> {
@@ -116,13 +203,17 @@ export class AIService {
         let errorMessage = `OpenAI API error (${response.status})`;
         try {
           const errorData = JSON.parse(errorText);
-          if (errorData.error?.message) {
-            errorMessage = errorData.error.message;
+          if (errorData.error) {
+            const apiError = this.createUserFriendlyErrorMessage('openai', response.status, errorData.error);
+            throw new AIServiceError(apiError);
           }
         } catch (e) {
+          if (e instanceof AIServiceError) {
+            throw e;
+          }
           errorMessage = errorText || response.statusText;
         }
-        
+
         throw new Error(errorMessage);
       }
 
@@ -187,13 +278,17 @@ export class AIService {
         let errorMessage = `Gemini API error (${response.status})`;
         try {
           const errorData = JSON.parse(errorText);
-          if (errorData.error?.message) {
-            errorMessage = errorData.error.message;
+          if (errorData.error) {
+            const apiError = this.createUserFriendlyErrorMessage('gemini', response.status, errorData.error);
+            throw new AIServiceError(apiError);
           }
         } catch (e) {
+          if (e instanceof AIServiceError) {
+            throw e;
+          }
           errorMessage = errorText || response.statusText;
         }
-        
+
         throw new Error(errorMessage);
       }
 
@@ -290,13 +385,17 @@ export class AIService {
         let errorMessage = `Claude API error (${response.status})`;
         try {
           const errorData = JSON.parse(errorText);
-          if (errorData.error?.message) {
-            errorMessage = errorData.error.message;
+          if (errorData.error) {
+            const apiError = this.createUserFriendlyErrorMessage('claude', response.status, errorData.error);
+            throw new AIServiceError(apiError);
           }
         } catch (e) {
+          if (e instanceof AIServiceError) {
+            throw e;
+          }
           errorMessage = errorText || response.statusText;
         }
-        
+
         throw new Error(errorMessage);
       }
 
@@ -473,9 +572,14 @@ export class AIService {
             continue;
         }
       } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-        console.error(`Error with ${provider.name}:`, errorMessage);
-        errors.push(`${provider.name}: ${errorMessage}`);
+        if (error instanceof AIServiceError) {
+          console.error(`Error with ${provider.name}:`, error.apiError);
+          errors.push(`${provider.name}: ${error.apiError.userFriendlyMessage}`);
+        } else {
+          const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+          console.error(`Error with ${provider.name}:`, errorMessage);
+          errors.push(`${provider.name}: ${errorMessage}`);
+        }
         continue;
       }
     }

@@ -26,6 +26,8 @@ import {
 import { SecurityIssue } from '@/hooks/useAnalysis';
 import { FixSuggestion, AIFixSuggestionsService, FixSuggestionRequest } from '@/services/aiFixSuggestionsService';
 import { toast } from 'sonner';
+import { ExternalLink, CreditCard } from 'lucide-react';
+import { parseErrorMessage, showErrorToast } from '../../utils/errorUtils';
 
 interface AIFixSuggestionsCardProps {
   issue: SecurityIssue;
@@ -71,7 +73,11 @@ export const AIFixSuggestionsCard: React.FC<AIFixSuggestionsCardProps> = ({
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to generate fix suggestions';
       setError(errorMessage);
-      toast.error(errorMessage);
+
+      // Show user-friendly error toast
+      showErrorToast(err instanceof Error ? err : errorMessage, {
+        title: 'AI Fix Generation Failed'
+      });
     } finally {
       setIsLoading(false);
     }
@@ -182,7 +188,10 @@ export const AIFixSuggestionsCard: React.FC<AIFixSuggestionsCardProps> = ({
     );
   }
 
-  if (error) {
+  const renderErrorCard = () => {
+    const errorInfo = parseErrorMessage(error || '');
+    const { type, provider, isQuotaExceeded, isAuthError, userFriendlyMessage, actionableAdvice, helpUrl } = errorInfo;
+
     return (
       <Card className="bg-gradient-to-br from-red-50 to-orange-50 dark:from-red-950/20 dark:to-orange-900/20 border-red-200 dark:border-red-800">
         <CardHeader>
@@ -190,28 +199,92 @@ export const AIFixSuggestionsCard: React.FC<AIFixSuggestionsCardProps> = ({
             <Brain className="h-5 w-5 text-red-600" />
             AI Fix Suggestions
             <Badge variant="outline" className="text-red-600 border-red-300">
-              Error
+              {type === 'quota' ? 'Quota Exceeded' :
+               type === 'rate_limit' ? 'Rate Limited' :
+               type === 'auth' ? 'Auth Error' :
+               type === 'server' ? 'Server Error' :
+               type === 'network' ? 'Network Error' : 'Error'}
             </Badge>
           </CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-4">
           <Alert>
             <AlertTriangle className="h-4 w-4" />
-            <AlertDescription>
-              {error}
+            <AlertDescription className="text-sm">
+              {userFriendlyMessage}
             </AlertDescription>
           </Alert>
-          <Button
-            onClick={generateFixSuggestions}
-            className="mt-4"
-            variant="outline"
-          >
-            <Zap className="h-4 w-4 mr-2" />
-            Retry Generation
-          </Button>
+
+          {actionableAdvice.length > 0 && (
+            <div className={`border rounded-lg p-4 ${
+              type === 'quota' ? 'bg-blue-50 dark:bg-blue-950/20 border-blue-200 dark:border-blue-800' :
+              type === 'rate_limit' ? 'bg-amber-50 dark:bg-amber-950/20 border-amber-200 dark:border-amber-800' :
+              type === 'auth' ? 'bg-red-50 dark:bg-red-950/20 border-red-200 dark:border-red-800' :
+              'bg-gray-50 dark:bg-gray-950/20 border-gray-200 dark:border-gray-800'
+            }`}>
+              <div className="flex items-start gap-3">
+                {type === 'quota' && <Clock className="h-5 w-5 text-blue-600 mt-0.5" />}
+                {type === 'rate_limit' && <CreditCard className="h-5 w-5 text-amber-600 mt-0.5" />}
+                {type === 'auth' && <AlertTriangle className="h-5 w-5 text-red-600 mt-0.5" />}
+                <div className="space-y-2">
+                  <h4 className={`font-medium ${
+                    type === 'quota' ? 'text-blue-900 dark:text-blue-100' :
+                    type === 'rate_limit' ? 'text-amber-900 dark:text-amber-100' :
+                    type === 'auth' ? 'text-red-900 dark:text-red-100' :
+                    'text-gray-900 dark:text-gray-100'
+                  }`}>
+                    What you can do:
+                  </h4>
+                  <ul className={`text-sm space-y-1 ${
+                    type === 'quota' ? 'text-blue-800 dark:text-blue-200' :
+                    type === 'rate_limit' ? 'text-amber-800 dark:text-amber-200' :
+                    type === 'auth' ? 'text-red-800 dark:text-red-200' :
+                    'text-gray-800 dark:text-gray-200'
+                  }`}>
+                    {actionableAdvice.map((advice, index) => (
+                      <li key={index}>• {advice}</li>
+                    ))}
+                  </ul>
+                  {helpUrl && (
+                    <a
+                      href={helpUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={`inline-flex items-center gap-1 text-sm hover:underline ${
+                        type === 'quota' ? 'text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300' :
+                        type === 'rate_limit' ? 'text-amber-600 hover:text-amber-800 dark:text-amber-400 dark:hover:text-amber-300' :
+                        type === 'auth' ? 'text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300' :
+                        'text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-300'
+                      }`}
+                    >
+                      Learn more
+                      <ExternalLink className="h-3 w-3" />
+                    </a>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
+          <div className="flex gap-2">
+            <Button
+              onClick={generateFixSuggestions}
+              variant="outline"
+              disabled={type === 'quota' && provider === 'gemini'}
+            >
+              <Zap className="h-4 w-4 mr-2" />
+              {type === 'quota' && provider === 'gemini' ? 'Try Again Tomorrow' :
+               type === 'rate_limit' ? 'Retry in a Moment' :
+               'Retry Generation'}
+            </Button>
+          </div>
         </CardContent>
       </Card>
     );
+  };
+
+  if (error) {
+    return renderErrorCard();
   }
 
   return (

@@ -95,107 +95,188 @@ export class AIFixSuggestionsService {
   private async generateAIFixSuggestions(request: FixSuggestionRequest): Promise<FixSuggestion[]> {
     const { issue, codeContext, language, framework } = request;
 
-    // Generate real fix suggestions based on vulnerability type
-    const realFixSuggestions = this.generateRealFixSuggestions(request);
+    // Always try AI generation first for real, contextual fixes
+    try {
+      const aiSuggestions = await this.generateContextualAIFixes(request);
+      if (aiSuggestions.length > 0) {
+        return aiSuggestions;
+      }
+    } catch (error) {
+      console.warn('AI generation failed, falling back to rule-based fixes:', error);
+    }
 
-    // If we have real suggestions, return them; otherwise fall back to AI
+    // Fallback to rule-based suggestions if AI fails
+    const realFixSuggestions = this.generateRealFixSuggestions(request);
     if (realFixSuggestions.length > 0) {
       return realFixSuggestions;
     }
 
+    // Final fallback
+    return [this.createFallbackSuggestion(request)].map((suggestion, index) => ({
+      ...suggestion,
+      id: this.generateFixId(request.issue.id, index),
+      issueId: request.issue.id
+    }));
+  }
+
+  /**
+   * Generate contextual AI fixes with enhanced prompting for real code generation
+   */
+  private async generateContextualAIFixes(request: FixSuggestionRequest): Promise<FixSuggestion[]> {
+    const { issue, codeContext, language, framework } = request;
+
     const systemPrompt = {
       role: 'system' as const,
-      content: `You are an expert security engineer and code reviewer specializing in automated vulnerability remediation.
+      content: `You are a senior security engineer with expertise in ${language}${framework ? ` and ${framework}` : ''} development. Your task is to analyze real security vulnerabilities and generate production-ready, secure code implementations.
 
-Your task is to analyze security vulnerabilities and provide multiple, practical fix suggestions with detailed implementation guidance.
+CRITICAL REQUIREMENTS:
+1. Generate REAL, WORKING CODE - not pseudo-code or comments
+2. Analyze the actual vulnerable code provided in the context
+3. Create multiple concrete fix approaches with complete implementations
+4. Ensure all code is syntactically correct and follows ${language} best practices
+5. Include proper error handling, validation, and security measures
+6. Provide framework-specific solutions when applicable
 
-For each fix suggestion, provide:
-1. **Multiple Approaches**: Offer 2-3 different fix strategies (quick fix, comprehensive fix, architectural improvement)
-2. **Confidence Assessment**: Rate your confidence in each fix (0-100)
-3. **Effort Estimation**: Categorize implementation effort (Low/Medium/High)
-4. **Priority Ranking**: Rate urgency and importance (1-5)
-5. **Detailed Code Changes**: Specific line-by-line modifications
-6. **Security Benefits**: Explain how the fix improves security
-7. **Risk Assessment**: Identify potential side effects or breaking changes
-8. **Testing Strategy**: Recommend specific tests to validate the fix
-9. **Framework Integration**: Leverage framework-specific security features when applicable
+For each fix suggestion, you must provide:
+- **Complete Code Implementation**: Full, working code that can be directly used
+- **Multiple Approaches**: 2-3 different strategies (quick fix, comprehensive solution, enterprise-grade)
+- **Real Security Measures**: Actual security implementations, not just comments
+- **Production Readiness**: Include error handling, logging, and edge cases
+- **Framework Integration**: Use actual ${framework || language} patterns and libraries
 
-Focus on:
-- Practical, implementable solutions
-- Security best practices for ${language}${framework ? ` and ${framework}` : ''}
-- Minimal breaking changes
-- Performance considerations
-- Maintainability improvements
-
-Return your response as a JSON array of fix suggestions.`
+RESPONSE FORMAT: Return a valid JSON array with complete code implementations.`
     };
 
     const userPrompt = {
       role: 'user' as const,
-      content: `Analyze this security vulnerability and provide fix suggestions:
+      content: `Analyze this REAL security vulnerability and generate PRODUCTION-READY secure code:
 
-**Security Issue:**
+**VULNERABILITY ANALYSIS:**
 - Type: ${issue.type}
-- Severity: ${issue.severity}
-- Category: ${issue.category}
-- Message: ${issue.message}
-- File: ${issue.filename}:${issue.line}
+- Severity: ${issue.severity} (CVSS: ${issue.cvssScore || 'N/A'})
+- Location: ${issue.filename}:${issue.line}
 - CWE: ${issue.cweId || 'Not specified'}
 - OWASP: ${issue.owaspCategory || 'Not specified'}
-- CVSS Score: ${issue.cvssScore || 'Not specified'}
+- Message: ${issue.message}
 
-**Code Context:**
+**ACTUAL VULNERABLE CODE:**
 \`\`\`${language}
 ${codeContext}
 \`\`\`
 
-**Environment:**
+**ENVIRONMENT CONTEXT:**
 - Language: ${language}
-- Framework: ${framework || 'None specified'}
-- Current Remediation: ${issue.remediation?.description || 'None provided'}
+- Framework: ${framework || 'None detected'}
+- File Type: ${issue.filename.split('.').pop()}
+- Project Context: ${this.inferProjectContext(issue.filename, codeContext)}
 
-Please provide 2-3 different fix approaches with varying complexity and thoroughness. Include specific code changes, security explanations, and implementation guidance.
+**REQUIREMENTS:**
+Generate 2-3 COMPLETE, WORKING code implementations that:
+1. Fix the specific vulnerability shown above
+2. Are production-ready with proper error handling
+3. Follow ${language}${framework ? ` and ${framework}` : ''} best practices
+4. Include necessary imports, dependencies, and setup code
+5. Provide different approaches (simple fix, comprehensive solution, enterprise-grade)
 
-Format your response as a JSON array with this structure:
+**RESPONSE FORMAT:**
 [
   {
-    "title": "Fix approach title",
-    "description": "Detailed description",
-    "confidence": 85,
-    "effort": "Medium",
-    "priority": 4,
+    "title": "Specific fix approach name",
+    "description": "Detailed technical description of the implementation",
+    "confidence": 90,
+    "effort": "Low|Medium|High",
+    "priority": 1-5,
     "codeChanges": [
       {
         "type": "replace",
-        "filename": "example.js",
-        "startLine": 10,
-        "endLine": 12,
-        "originalCode": "vulnerable code",
-        "suggestedCode": "secure code",
-        "reasoning": "explanation"
+        "filename": "${issue.filename}",
+        "startLine": ${issue.line},
+        "endLine": ${issue.line},
+        "originalCode": "actual vulnerable code from context",
+        "suggestedCode": "complete working secure implementation",
+        "reasoning": "technical explanation of the fix"
       }
     ],
-    "explanation": "Why this fix works",
-    "securityBenefit": "Security improvements",
-    "riskAssessment": "Potential risks",
-    "testingRecommendations": ["test suggestions"],
-    "relatedPatterns": ["related security patterns"]
+    "explanation": "Technical explanation of why this approach works",
+    "securityBenefit": "Specific security improvements achieved",
+    "riskAssessment": "Potential risks and mitigation strategies",
+    "testingRecommendations": ["specific test cases to validate the fix"],
+    "relatedPatterns": ["security patterns used"],
+    "dependencies": ["any new dependencies required"],
+    "configurationChanges": ["environment or config changes needed"]
   }
-]`
+]
+
+Generate REAL, COMPLETE code implementations - not examples or pseudo-code!`
     };
 
     try {
       const response = await this.aiService.generateResponse([systemPrompt, userPrompt]);
       const suggestions = this.parseAIResponse(response, request);
-      
-      return suggestions.map((suggestion, index) => ({
+
+      // Enhance suggestions with additional context
+      const enhancedSuggestions = suggestions.map((suggestion, index) => ({
         ...suggestion,
         id: this.generateFixId(request.issue.id, index),
-        issueId: request.issue.id
+        issueId: request.issue.id,
+        // Add metadata about AI generation
+        metadata: {
+          generatedBy: 'AI',
+          language,
+          framework,
+          vulnerabilityType: issue.type,
+          contextLines: codeContext.split('\n').length
+        }
       }));
+
+      return enhancedSuggestions;
     } catch (error) {
-      throw new Error(`AI fix generation failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      throw new Error(`Contextual AI fix generation failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
+  }
+
+  /**
+   * Infer project context from filename and code content
+   */
+  private inferProjectContext(filename: string, codeContext: string): string {
+    const contexts: string[] = [];
+
+    // Analyze filename patterns
+    if (filename.includes('test') || filename.includes('spec')) {
+      contexts.push('Test file');
+    }
+    if (filename.includes('config') || filename.includes('settings')) {
+      contexts.push('Configuration file');
+    }
+    if (filename.includes('api') || filename.includes('controller')) {
+      contexts.push('API endpoint');
+    }
+    if (filename.includes('model') || filename.includes('entity')) {
+      contexts.push('Data model');
+    }
+    if (filename.includes('service') || filename.includes('util')) {
+      contexts.push('Service layer');
+    }
+
+    // Analyze code patterns
+    const lowerCode = codeContext.toLowerCase();
+    if (lowerCode.includes('express') || lowerCode.includes('app.get') || lowerCode.includes('app.post')) {
+      contexts.push('Express.js application');
+    }
+    if (lowerCode.includes('react') || lowerCode.includes('usestate') || lowerCode.includes('jsx')) {
+      contexts.push('React component');
+    }
+    if (lowerCode.includes('django') || lowerCode.includes('models.model')) {
+      contexts.push('Django application');
+    }
+    if (lowerCode.includes('spring') || lowerCode.includes('@restcontroller')) {
+      contexts.push('Spring Boot application');
+    }
+    if (lowerCode.includes('database') || lowerCode.includes('connection') || lowerCode.includes('query')) {
+      contexts.push('Database layer');
+    }
+
+    return contexts.length > 0 ? contexts.join(', ') : 'General application code';
   }
 
   /**
@@ -367,14 +448,20 @@ Format your response as a JSON array with this structure:
   private generateSecretFixSuggestions(issue: SecurityIssue, codeContext: string, language: string): Omit<FixSuggestion, 'id' | 'issueId'>[] {
     const suggestions: Omit<FixSuggestion, 'id' | 'issueId'>[] = [];
 
-    // Extract the vulnerable line
+    // Extract the vulnerable line and analyze the secret type
     const lines = codeContext.split('\n');
-    const vulnerableLine = lines.find(line => line.includes('eyJ') || line.includes('AKIA') || line.includes('ghp_')) || lines[0];
+    const vulnerableLine = lines.find(line =>
+      line.includes('eyJ') || line.includes('AKIA') || line.includes('ghp_') ||
+      line.includes('sk-') || line.includes('password') || line.includes('secret')
+    ) || lines[0];
 
-    // Suggestion 1: Environment Variables
+    const secretType = this.detectSecretType(vulnerableLine, issue.type);
+    const variableName = this.extractVariableName(vulnerableLine) || this.generateVariableName(secretType);
+
+    // Suggestion 1: Environment Variables with Validation
     suggestions.push({
-      title: 'Move Secret to Environment Variables',
-      description: 'Replace hardcoded secret with environment variable reference',
+      title: 'Secure Environment Variable Implementation',
+      description: 'Replace hardcoded secret with validated environment variable access including proper error handling',
       confidence: 95,
       effort: 'Low',
       priority: 5,
@@ -384,24 +471,25 @@ Format your response as a JSON array with this structure:
         startLine: issue.line,
         endLine: issue.line,
         originalCode: vulnerableLine.trim(),
-        suggestedCode: this.generateEnvironmentVariableCode(vulnerableLine, language),
-        reasoning: 'Replace hardcoded secret with secure environment variable access'
+        suggestedCode: this.generateSecureEnvironmentVariableCode(variableName, language, secretType),
+        reasoning: 'Replace hardcoded secret with secure environment variable access with validation'
       }],
-      explanation: 'Environment variables keep secrets out of source code and allow different values per environment.',
-      securityBenefit: 'Prevents secret exposure in version control and enables secure secret management.',
-      riskAssessment: 'Low risk - maintains functionality while improving security.',
+      explanation: 'Environment variables with validation ensure secrets are properly configured and provide clear error messages when missing.',
+      securityBenefit: 'Prevents secret exposure in version control, enables secure secret management, and provides runtime validation.',
+      riskAssessment: 'Very low risk - maintains functionality while significantly improving security posture.',
       testingRecommendations: [
-        'Verify environment variable is set in all deployment environments',
         'Test application startup with missing environment variable',
-        'Confirm secret rotation works without code changes'
+        'Verify environment variable is set in all deployment environments',
+        'Test secret rotation without code changes',
+        'Validate error handling when secret is empty or invalid'
       ],
-      relatedPatterns: ['Environment Variables', 'Secret Management', 'Configuration Management']
+      relatedPatterns: ['Environment Variables', 'Secret Management', 'Configuration Management', 'Fail-Fast Pattern']
     });
 
-    // Suggestion 2: Secret Management Service
+    // Suggestion 2: Enterprise Secret Management Service
     suggestions.push({
-      title: 'Use Secret Management Service',
-      description: 'Integrate with a dedicated secret management service like AWS Secrets Manager or HashiCorp Vault',
+      title: 'Enterprise Secret Management Integration',
+      description: 'Integrate with enterprise-grade secret management service with automatic rotation and audit trails',
       confidence: 90,
       effort: 'Medium',
       priority: 4,
@@ -411,18 +499,49 @@ Format your response as a JSON array with this structure:
         startLine: issue.line,
         endLine: issue.line,
         originalCode: vulnerableLine.trim(),
-        suggestedCode: this.generateSecretManagerCode(vulnerableLine, language),
-        reasoning: 'Replace hardcoded secret with secure secret manager integration'
+        suggestedCode: this.generateEnterpriseSecretManagerCode(variableName, language, secretType),
+        reasoning: 'Replace hardcoded secret with enterprise secret manager integration including caching and error handling'
       }],
-      explanation: 'Secret management services provide encryption, rotation, and audit trails for sensitive data.',
-      securityBenefit: 'Enterprise-grade secret security with automatic rotation and access controls.',
-      riskAssessment: 'Medium risk - requires infrastructure setup but provides superior security.',
+      explanation: 'Enterprise secret management services provide encryption at rest and in transit, automatic rotation, audit trails, and fine-grained access controls.',
+      securityBenefit: 'Enterprise-grade secret security with automatic rotation, access controls, audit trails, and compliance features.',
+      riskAssessment: 'Medium risk - requires infrastructure setup and dependency management but provides superior security and compliance.',
       testingRecommendations: [
-        'Test secret retrieval with proper authentication',
+        'Test secret retrieval with proper authentication and authorization',
         'Verify fallback behavior when secret service is unavailable',
-        'Test secret rotation scenarios'
+        'Test secret rotation scenarios and cache invalidation',
+        'Validate audit logging and access controls',
+        'Test performance impact of secret retrieval'
       ],
-      relatedPatterns: ['Secret Management', 'Cloud Security', 'Zero Trust Architecture']
+      relatedPatterns: ['Secret Management', 'Cloud Security', 'Zero Trust Architecture', 'Circuit Breaker Pattern']
+    });
+
+    // Suggestion 3: Secure Configuration with Runtime Validation
+    suggestions.push({
+      title: 'Secure Configuration with Runtime Validation',
+      description: 'Implement comprehensive secret management with validation, encryption, and secure defaults',
+      confidence: 85,
+      effort: 'High',
+      priority: 3,
+      codeChanges: [{
+        type: 'replace',
+        filename: issue.filename,
+        startLine: issue.line,
+        endLine: issue.line,
+        originalCode: vulnerableLine.trim(),
+        suggestedCode: this.generateSecureConfigurationCode(variableName, language, secretType),
+        reasoning: 'Implement comprehensive secure configuration management with validation and encryption'
+      }],
+      explanation: 'Comprehensive secure configuration includes input validation, encryption, secure defaults, and runtime checks.',
+      securityBenefit: 'Multi-layered security with validation, encryption, secure defaults, and comprehensive error handling.',
+      riskAssessment: 'Low risk - comprehensive approach that improves overall application security architecture.',
+      testingRecommendations: [
+        'Test all validation scenarios including edge cases',
+        'Verify encryption and decryption functionality',
+        'Test secure defaults and fallback mechanisms',
+        'Validate error handling and logging',
+        'Performance test configuration loading'
+      ],
+      relatedPatterns: ['Secure Configuration', 'Defense in Depth', 'Input Validation', 'Encryption at Rest']
     });
 
     return suggestions;
@@ -527,51 +646,444 @@ Format your response as a JSON array with this structure:
   }
 
   /**
-   * Generate environment variable code based on language
+   * Detect the type of secret from the vulnerable line and issue type
    */
-  private generateEnvironmentVariableCode(originalLine: string, language: string): string {
-    const variableName = this.extractVariableName(originalLine) || 'SECRET_TOKEN';
+  private detectSecretType(vulnerableLine: string, issueType: string): string {
+    const line = vulnerableLine.toLowerCase();
+    const type = issueType.toLowerCase();
 
-    switch (language.toLowerCase()) {
-      case 'javascript':
-      case 'typescript':
-        return `const ${variableName.toLowerCase()} = process.env.${variableName.toUpperCase()} || '';`;
-      case 'python':
-        return `${variableName.toLowerCase()} = os.getenv('${variableName.toUpperCase()}', '')`;
-      case 'java':
-        return `String ${variableName.toLowerCase()} = System.getenv("${variableName.toUpperCase()}");`;
-      case 'csharp':
-        return `string ${variableName.toLowerCase()} = Environment.GetEnvironmentVariable("${variableName.toUpperCase()}") ?? "";`;
-      case 'php':
-        return `$${variableName.toLowerCase()} = $_ENV['${variableName.toUpperCase()}'] ?? '';`;
-      case 'ruby':
-        return `${variableName.toLowerCase()} = ENV['${variableName.toUpperCase()}'] || ''`;
-      case 'golang':
-      case 'go':
-        return `${variableName.toLowerCase()} := os.Getenv("${variableName.toUpperCase()}")`;
-      default:
-        return `// Replace with environment variable access for ${variableName.toUpperCase()}`;
+    if (line.includes('eyj') || type.includes('jwt')) return 'jwt';
+    if (line.includes('akia') || line.includes('aws')) return 'aws_key';
+    if (line.includes('ghp_') || line.includes('github')) return 'github_token';
+    if (line.includes('sk-') || line.includes('openai')) return 'api_key';
+    if (line.includes('password') || line.includes('pwd')) return 'password';
+    if (line.includes('database') || line.includes('db')) return 'db_credential';
+    if (line.includes('secret') || line.includes('token')) return 'secret_token';
+
+    return 'generic_secret';
+  }
+
+  /**
+   * Generate appropriate variable name based on secret type
+   */
+  private generateVariableName(secretType: string): string {
+    switch (secretType) {
+      case 'jwt': return 'JWT_SECRET';
+      case 'aws_key': return 'AWS_ACCESS_KEY';
+      case 'github_token': return 'GITHUB_TOKEN';
+      case 'api_key': return 'API_KEY';
+      case 'password': return 'DB_PASSWORD';
+      case 'db_credential': return 'DATABASE_URL';
+      case 'secret_token': return 'SECRET_TOKEN';
+      default: return 'SECRET_VALUE';
     }
   }
 
   /**
-   * Generate secret manager integration code
+   * Generate secure environment variable code with validation
    */
-  private generateSecretManagerCode(originalLine: string, language: string): string {
-    const secretName = this.extractVariableName(originalLine) || 'secret-token';
-
+  private generateSecureEnvironmentVariableCode(variableName: string, language: string, secretType: string): string {
     switch (language.toLowerCase()) {
       case 'javascript':
       case 'typescript':
-        return `const ${secretName.toLowerCase()} = await secretManager.getSecret('${secretName}');`;
+        return `// Secure environment variable access with validation
+const ${variableName.toLowerCase()} = (() => {
+  const value = process.env.${variableName.toUpperCase()};
+  if (!value || value.trim() === '') {
+    throw new Error('${variableName.toUpperCase()} environment variable is required but not set');
+  }
+  ${this.getValidationCode(secretType, 'javascript')}
+  return value;
+})();
+
+// Usage example:
+// export ${variableName.toUpperCase()}="your-secure-${secretType.replace('_', '-')}-here"`;
+
       case 'python':
-        return `${secretName.toLowerCase()} = secret_manager.get_secret('${secretName}')`;
+        return `# Secure environment variable access with validation
+import os
+import sys
+
+def get_${variableName.toLowerCase()}():
+    value = os.getenv('${variableName.toUpperCase()}')
+    if not value or not value.strip():
+        raise ValueError('${variableName.toUpperCase()} environment variable is required but not set')
+    ${this.getValidationCode(secretType, 'python')}
+    return value
+
+${variableName.toLowerCase()} = get_${variableName.toLowerCase()}()
+
+# Usage: export ${variableName.toUpperCase()}="your-secure-${secretType.replace('_', '-')}-here"`;
+
       case 'java':
-        return `String ${secretName.toLowerCase()} = secretManager.getSecret("${secretName}");`;
-      case 'csharp':
-        return `string ${secretName.toLowerCase()} = await secretManager.GetSecretAsync("${secretName}");`;
+        return `// Secure environment variable access with validation
+public class SecureConfig {
+    private static final String ${variableName.toUpperCase()};
+
+    static {
+        String value = System.getenv("${variableName.toUpperCase()}");
+        if (value == null || value.trim().isEmpty()) {
+            throw new IllegalStateException("${variableName.toUpperCase()} environment variable is required but not set");
+        }
+        ${this.getValidationCode(secretType, 'java')}
+        ${variableName.toUpperCase()} = value;
+    }
+
+    public static String get${variableName.charAt(0).toUpperCase() + variableName.slice(1).toLowerCase()}() {
+        return ${variableName.toUpperCase()};
+    }
+}
+
+// Usage: export ${variableName.toUpperCase()}="your-secure-${secretType.replace('_', '-')}-here"`;
+
       default:
-        return `// Replace with secret manager integration for ${secretName}`;
+        return `// Secure environment variable access with validation
+const ${variableName.toLowerCase()} = process.env.${variableName.toUpperCase()};
+if (!${variableName.toLowerCase()}) {
+  throw new Error('${variableName.toUpperCase()} environment variable is required');
+}
+
+// Usage: export ${variableName.toUpperCase()}="your-secure-${secretType.replace('_', '-')}-here"`;
+    }
+  }
+
+  /**
+   * Get validation code based on secret type and language
+   */
+  private getValidationCode(secretType: string, language: string): string {
+    switch (secretType) {
+      case 'jwt':
+        return language === 'javascript'
+          ? `if (value.length < 32) throw new Error('JWT secret must be at least 32 characters long');`
+          : language === 'python'
+          ? `if len(value) < 32: raise ValueError('JWT secret must be at least 32 characters long')`
+          : `if (value.length() < 32) throw new IllegalArgumentException("JWT secret must be at least 32 characters long");`;
+
+      case 'aws_key':
+        return language === 'javascript'
+          ? `if (!value.startsWith('AKIA')) throw new Error('Invalid AWS access key format');`
+          : language === 'python'
+          ? `if not value.startswith('AKIA'): raise ValueError('Invalid AWS access key format')`
+          : `if (!value.startsWith("AKIA")) throw new IllegalArgumentException("Invalid AWS access key format");`;
+
+      case 'api_key':
+        return language === 'javascript'
+          ? `if (value.length < 16) throw new Error('API key must be at least 16 characters long');`
+          : language === 'python'
+          ? `if len(value) < 16: raise ValueError('API key must be at least 16 characters long')`
+          : `if (value.length() < 16) throw new IllegalArgumentException("API key must be at least 16 characters long");`;
+
+      default:
+        return language === 'javascript'
+          ? `if (value.length < 8) throw new Error('Secret must be at least 8 characters long');`
+          : language === 'python'
+          ? `if len(value) < 8: raise ValueError('Secret must be at least 8 characters long')`
+          : `if (value.length() < 8) throw new IllegalArgumentException("Secret must be at least 8 characters long");`;
+    }
+  }
+
+  /**
+   * Generate enterprise secret manager integration code
+   */
+  private generateEnterpriseSecretManagerCode(variableName: string, language: string, secretType: string): string {
+    switch (language.toLowerCase()) {
+      case 'javascript':
+      case 'typescript':
+        return `// Enterprise secret manager integration with caching and error handling
+import { SecretManagerServiceClient } from '@google-cloud/secret-manager';
+// or import AWS from 'aws-sdk'; for AWS Secrets Manager
+// or import vault from 'node-vault'; for HashiCorp Vault
+
+class SecureSecretManager {
+  private cache = new Map();
+  private cacheTimeout = 5 * 60 * 1000; // 5 minutes
+
+  async getSecret(secretName: string): Promise<string> {
+    const cached = this.cache.get(secretName);
+    if (cached && Date.now() - cached.timestamp < this.cacheTimeout) {
+      return cached.value;
+    }
+
+    try {
+      // Google Cloud Secret Manager example
+      const client = new SecretManagerServiceClient();
+      const [version] = await client.accessSecretVersion({
+        name: \`projects/\${process.env.PROJECT_ID}/secrets/\${secretName}/versions/latest\`,
+      });
+
+      const secret = version.payload?.data?.toString();
+      if (!secret) throw new Error(\`Secret \${secretName} not found\`);
+
+      this.cache.set(secretName, { value: secret, timestamp: Date.now() });
+      return secret;
+    } catch (error) {
+      console.error(\`Failed to retrieve secret \${secretName}:\`, error);
+      throw new Error(\`Secret retrieval failed: \${error.message}\`);
+    }
+  }
+}
+
+const secretManager = new SecureSecretManager();
+const ${variableName.toLowerCase()} = await secretManager.getSecret('${variableName.toLowerCase().replace('_', '-')}');
+
+// Required environment variables:
+// export PROJECT_ID="your-gcp-project-id"
+// or configure AWS credentials for AWS Secrets Manager
+// or set VAULT_ADDR and VAULT_TOKEN for HashiCorp Vault`;
+
+      case 'python':
+        return `# Enterprise secret manager integration with caching and error handling
+import os
+import time
+import logging
+from google.cloud import secretmanager
+# or import boto3 for AWS Secrets Manager
+# or import hvac for HashiCorp Vault
+
+class SecureSecretManager:
+    def __init__(self):
+        self.cache = {}
+        self.cache_timeout = 300  # 5 minutes
+        self.client = secretmanager.SecretManagerServiceClient()
+
+    def get_secret(self, secret_name: str) -> str:
+        cached = self.cache.get(secret_name)
+        if cached and time.time() - cached['timestamp'] < self.cache_timeout:
+            return cached['value']
+
+        try:
+            project_id = os.getenv('PROJECT_ID')
+            if not project_id:
+                raise ValueError('PROJECT_ID environment variable required')
+
+            name = f"projects/{project_id}/secrets/{secret_name}/versions/latest"
+            response = self.client.access_secret_version(request={"name": name})
+            secret = response.payload.data.decode("UTF-8")
+
+            self.cache[secret_name] = {
+                'value': secret,
+                'timestamp': time.time()
+            }
+            return secret
+        except Exception as error:
+            logging.error(f"Failed to retrieve secret {secret_name}: {error}")
+            raise ValueError(f"Secret retrieval failed: {error}")
+
+secret_manager = SecureSecretManager()
+${variableName.toLowerCase()} = secret_manager.get_secret('${variableName.toLowerCase().replace('_', '-')}')
+
+# Required environment variables:
+# export PROJECT_ID="your-gcp-project-id"
+# export GOOGLE_APPLICATION_CREDENTIALS="path/to/service-account.json"`;
+
+      case 'java':
+        return `// Enterprise secret manager integration with caching and error handling
+import com.google.cloud.secretmanager.v1.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
+
+public class SecureSecretManager {
+    private final SecretManagerServiceClient client;
+    private final ConcurrentHashMap<String, CachedSecret> cache = new ConcurrentHashMap<>();
+    private final long cacheTimeoutMs = TimeUnit.MINUTES.toMillis(5);
+
+    public SecureSecretManager() throws Exception {
+        this.client = SecretManagerServiceClient.create();
+    }
+
+    public String getSecret(String secretName) throws Exception {
+        CachedSecret cached = cache.get(secretName);
+        if (cached != null && System.currentTimeMillis() - cached.timestamp < cacheTimeoutMs) {
+            return cached.value;
+        }
+
+        try {
+            String projectId = System.getenv("PROJECT_ID");
+            if (projectId == null) {
+                throw new IllegalStateException("PROJECT_ID environment variable required");
+            }
+
+            SecretVersionName secretVersionName = SecretVersionName.of(projectId, secretName, "latest");
+            AccessSecretVersionResponse response = client.accessSecretVersion(secretVersionName);
+            String secret = response.getPayload().getData().toStringUtf8();
+
+            cache.put(secretName, new CachedSecret(secret, System.currentTimeMillis()));
+            return secret;
+        } catch (Exception error) {
+            throw new RuntimeException("Secret retrieval failed: " + error.getMessage(), error);
+        }
+    }
+
+    private static class CachedSecret {
+        final String value;
+        final long timestamp;
+
+        CachedSecret(String value, long timestamp) {
+            this.value = value;
+            this.timestamp = timestamp;
+        }
+    }
+}
+
+SecureSecretManager secretManager = new SecureSecretManager();
+String ${variableName.toLowerCase()} = secretManager.getSecret("${variableName.toLowerCase().replace('_', '-')}");
+
+// Required environment variables:
+// export PROJECT_ID="your-gcp-project-id"
+// export GOOGLE_APPLICATION_CREDENTIALS="path/to/service-account.json"`;
+
+      default:
+        return `// Enterprise secret manager integration
+const secretManager = new SecretManager();
+const ${variableName.toLowerCase()} = await secretManager.getSecret('${variableName.toLowerCase()}');`;
+    }
+  }
+
+  /**
+   * Generate secure configuration code with comprehensive validation
+   */
+  private generateSecureConfigurationCode(variableName: string, language: string, secretType: string): string {
+    switch (language.toLowerCase()) {
+      case 'javascript':
+      case 'typescript':
+        return `// Comprehensive secure configuration management
+import crypto from 'crypto';
+import fs from 'fs';
+
+class SecureConfiguration {
+  private secrets = new Map<string, string>();
+  private encryptionKey: Buffer;
+
+  constructor() {
+    this.encryptionKey = this.getOrCreateEncryptionKey();
+    this.loadConfiguration();
+  }
+
+  private getOrCreateEncryptionKey(): Buffer {
+    const keyPath = process.env.ENCRYPTION_KEY_PATH || './.encryption-key';
+    try {
+      return fs.readFileSync(keyPath);
+    } catch {
+      const key = crypto.randomBytes(32);
+      fs.writeFileSync(keyPath, key, { mode: 0o600 });
+      return key;
+    }
+  }
+
+  private encrypt(text: string): string {
+    const iv = crypto.randomBytes(16);
+    const cipher = crypto.createCipher('aes-256-cbc', this.encryptionKey);
+    let encrypted = cipher.update(text, 'utf8', 'hex');
+    encrypted += cipher.final('hex');
+    return iv.toString('hex') + ':' + encrypted;
+  }
+
+  private decrypt(encryptedText: string): string {
+    const [ivHex, encrypted] = encryptedText.split(':');
+    const iv = Buffer.from(ivHex, 'hex');
+    const decipher = crypto.createDecipher('aes-256-cbc', this.encryptionKey);
+    let decrypted = decipher.update(encrypted, 'hex', 'utf8');
+    decrypted += decipher.final('utf8');
+    return decrypted;
+  }
+
+  private loadConfiguration(): void {
+    const value = process.env.${variableName.toUpperCase()};
+    if (!value) {
+      throw new Error('${variableName.toUpperCase()} environment variable is required');
+    }
+
+    ${this.getValidationCode(secretType, 'javascript')}
+
+    // Store encrypted in memory
+    this.secrets.set('${variableName.toLowerCase()}', this.encrypt(value));
+  }
+
+  public getSecret(name: string): string {
+    const encrypted = this.secrets.get(name);
+    if (!encrypted) {
+      throw new Error(\`Secret \${name} not found\`);
+    }
+    return this.decrypt(encrypted);
+  }
+}
+
+const config = new SecureConfiguration();
+const ${variableName.toLowerCase()} = config.getSecret('${variableName.toLowerCase()}');
+
+// Usage: export ${variableName.toUpperCase()}="your-secure-${secretType.replace('_', '-')}-here"`;
+
+      case 'python':
+        return `# Comprehensive secure configuration management
+import os
+import base64
+import logging
+from cryptography.fernet import Fernet
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
+
+class SecureConfiguration:
+    def __init__(self):
+        self.encryption_key = self._get_or_create_encryption_key()
+        self.fernet = Fernet(self.encryption_key)
+        self.secrets = {}
+        self._load_configuration()
+
+    def _get_or_create_encryption_key(self) -> bytes:
+        key_path = os.getenv('ENCRYPTION_KEY_PATH', './.encryption-key')
+        try:
+            with open(key_path, 'rb') as f:
+                return f.read()
+        except FileNotFoundError:
+            password = os.urandom(32)
+            salt = os.urandom(16)
+            kdf = PBKDF2HMAC(
+                algorithm=hashes.SHA256(),
+                length=32,
+                salt=salt,
+                iterations=100000,
+            )
+            key = base64.urlsafe_b64encode(kdf.derive(password))
+
+            with open(key_path, 'wb') as f:
+                f.write(key)
+            os.chmod(key_path, 0o600)
+            return key
+
+    def _encrypt(self, text: str) -> bytes:
+        return self.fernet.encrypt(text.encode())
+
+    def _decrypt(self, encrypted_data: bytes) -> str:
+        return self.fernet.decrypt(encrypted_data).decode()
+
+    def _load_configuration(self):
+        value = os.getenv('${variableName.toUpperCase()}')
+        if not value:
+            raise ValueError('${variableName.toUpperCase()} environment variable is required')
+
+        ${this.getValidationCode(secretType, 'python')}
+
+        # Store encrypted in memory
+        self.secrets['${variableName.toLowerCase()}'] = self._encrypt(value)
+
+    def get_secret(self, name: str) -> str:
+        encrypted = self.secrets.get(name)
+        if not encrypted:
+            raise ValueError(f'Secret {name} not found')
+        return self._decrypt(encrypted)
+
+config = SecureConfiguration()
+${variableName.toLowerCase()} = config.get_secret('${variableName.toLowerCase()}')
+
+# Usage: export ${variableName.toUpperCase()}="your-secure-${secretType.replace('_', '-')}-here"`;
+
+      default:
+        return `// Secure configuration with validation
+const ${variableName.toLowerCase()} = (() => {
+  const value = process.env.${variableName.toUpperCase()};
+  if (!value) throw new Error('${variableName.toUpperCase()} required');
+  return value;
+})();`;
     }
   }
 

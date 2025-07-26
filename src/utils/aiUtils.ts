@@ -14,16 +14,19 @@ interface StoredAPIKey {
   provider: string;
   key: string;
   name: string;
+  enabled: boolean;
 }
 
 /**
- * Check if any AI API keys are configured
+ * Check if any AI API keys are configured and enabled
  */
 export function hasConfiguredApiKeys(): boolean {
   try {
     const keys = localStorage.getItem('aiApiKeys');
     const parsedKeys: StoredAPIKey[] = keys ? JSON.parse(keys) : [];
-    return parsedKeys.length > 0 && parsedKeys.some(key => key.key && key.key.trim().length > 0);
+    return parsedKeys.length > 0 && parsedKeys.some(key => 
+      key.key && key.key.trim().length > 0 && key.enabled !== false
+    );
   } catch (error) {
     console.error('Error checking API keys:', error);
     return false;
@@ -38,12 +41,14 @@ export function getConfiguredProviders(): AIProvider[] {
     const keys = localStorage.getItem('aiApiKeys');
     const storedKeys: StoredAPIKey[] = keys ? JSON.parse(keys) : [];
 
-    // Convert stored format to expected format
-    return storedKeys.map(key => ({
-      id: key.provider,
-      name: key.name,
-      apiKey: key.key
-    }));
+    // Convert stored format to expected format, filtering out disabled keys
+    return storedKeys
+      .filter(key => key.enabled !== false) // Include keys that are enabled or don't have the enabled property (backward compatibility)
+      .map(key => ({
+        id: key.provider,
+        name: key.name,
+        apiKey: key.key
+      }));
   } catch (error) {
     console.error('Error parsing stored API keys:', error);
     return [];
@@ -59,13 +64,17 @@ export function getPrimaryProvider(): AIProvider | null {
 }
 
 /**
- * Check if a specific provider is configured
+ * Check if a specific provider is configured and enabled
  */
 export function isProviderConfigured(providerId: string): boolean {
   try {
     const keys = localStorage.getItem('aiApiKeys');
     const storedKeys: StoredAPIKey[] = keys ? JSON.parse(keys) : [];
-    return storedKeys.some(key => key.provider === providerId && key.key.trim().length > 0);
+    return storedKeys.some(key => 
+      key.provider === providerId && 
+      key.key.trim().length > 0 && 
+      key.enabled !== false
+    );
   } catch (error) {
     console.error('Error checking provider configuration:', error);
     return false;

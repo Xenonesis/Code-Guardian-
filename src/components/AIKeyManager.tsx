@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Key, Eye, EyeOff, Plus, Trash2, Bot, AlertTriangle } from 'lucide-react';
+import { Key, Eye, EyeOff, Plus, Trash2, Bot, AlertTriangle, Power } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -30,6 +30,7 @@ interface APIKey {
   provider: string;
   key: string;
   name: string;
+  enabled: boolean;
 }
 
 export const AIKeyManager: React.FC = () => {
@@ -49,7 +50,17 @@ export const AIKeyManager: React.FC = () => {
     if (storedKeys) {
       try {
         const parsedKeys = JSON.parse(storedKeys);
-        setApiKeys(parsedKeys);
+        // Migrate existing keys to include enabled property (backward compatibility)
+        const migratedKeys = parsedKeys.map((key: APIKey) => ({
+          ...key,
+          enabled: key.enabled !== undefined ? key.enabled : true // Default to enabled for existing keys
+        }));
+        setApiKeys(migratedKeys);
+        
+        // Save migrated keys back to localStorage if migration occurred
+        if (parsedKeys.some((key: APIKey) => key.enabled === undefined)) {
+          localStorage.setItem('aiApiKeys', JSON.stringify(migratedKeys));
+        }
       } catch (error) {
         console.error('Error loading API keys:', error);
       }
@@ -165,6 +176,7 @@ export const AIKeyManager: React.FC = () => {
         provider: newKey.provider.trim(),
         key: keyValue,
         name: newKey.name.trim(),
+        enabled: true,
       };
 
       console.log('Adding new API key:', { ...key, key: '***hidden***' });
@@ -193,6 +205,14 @@ export const AIKeyManager: React.FC = () => {
 
   const toggleKeyVisibility = (id: string) => {
     setShowKeys(prev => ({ ...prev, [id]: !prev[id] }));
+  };
+
+  const toggleAPIKeyEnabled = (id: string) => {
+    setApiKeys(prevKeys => 
+      prevKeys.map(key => 
+        key.id === id ? { ...key, enabled: !key.enabled } : key
+      )
+    );
   };
 
   const getProviderInfo = (providerId: string) => {
@@ -294,7 +314,15 @@ export const AIKeyManager: React.FC = () => {
                   <div className="flex items-center gap-3 min-w-0 flex-1">
                     <span className="text-lg sm:text-xl flex-shrink-0" aria-hidden="true">{provider?.icon}</span>
                     <div className="min-w-0 flex-1">
-                      <h4 className="font-medium text-sm sm:text-base truncate-with-tooltip" title={key.name}>{key.name}</h4>
+                      <div className="flex items-center gap-2">
+                        <h4 className="font-medium text-sm sm:text-base truncate-with-tooltip" title={key.name}>{key.name}</h4>
+                        <Badge 
+                          variant={key.enabled ? "default" : "secondary"} 
+                          className={`text-xs ${key.enabled ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300' : 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400'}`}
+                        >
+                          {key.enabled ? 'Enabled' : 'Disabled'}
+                        </Badge>
+                      </div>
                       <div className="flex flex-col sm:flex-row sm:items-center gap-2 mt-1">
                         <Badge variant="outline" className="text-xs w-fit">{provider?.name}</Badge>
                         <div className="flex items-center gap-2">
@@ -316,15 +344,27 @@ export const AIKeyManager: React.FC = () => {
                       </div>
                     </div>
                   </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => removeAPIKey(key.id)}
-                    className="text-red-600 hover:text-red-700 focus-ring self-end sm:self-auto"
-                    aria-label={`Remove ${key.name} API key`}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => toggleAPIKeyEnabled(key.id)}
+                      className={`focus-ring ${key.enabled ? 'text-green-600 hover:text-green-700' : 'text-gray-500 hover:text-gray-600'}`}
+                      aria-label={`${key.enabled ? 'Disable' : 'Enable'} ${key.name} API key`}
+                      title={`${key.enabled ? 'Disable' : 'Enable'} this AI provider`}
+                    >
+                      <Power className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => removeAPIKey(key.id)}
+                      className="text-red-600 hover:text-red-700 focus-ring"
+                      aria-label={`Remove ${key.name} API key`}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </div>
               );
             })}

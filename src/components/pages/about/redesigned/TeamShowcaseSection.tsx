@@ -26,31 +26,31 @@ export const TeamShowcaseSection: React.FC = () => {
       avatar: "AKT"
     },
     {
-      name: "Mohammad Ehshan",
+      name: "Aayush Tonk",
       role: "Full Stack Developer",
       icon: <Code className="w-5 h-5" />,
       description: "Experienced full-stack developer with expertise in modern web technologies and scalable application development",
       expertise: ["Full Stack Development", "React & Node.js", "Database Design", "API Development", "Cloud Architecture", "DevOps"],
       color: "from-blue-500 to-cyan-500",
-      avatar: "ME"
+      avatar: "AT"
     },
     {
-      name: "Syed Mohd Hasan",
-      role: "Security Analyst",
+      name: "Prachi Upadhyay",
+      role: "ML Engineer",
       icon: <Shield className="w-5 h-5" />,
-      description: "Security specialist focused on threat analysis, vulnerability assessment, and security protocol implementation",
-      expertise: ["Security Analysis", "Threat Detection", "Risk Assessment", "Compliance", "Security Protocols", "Incident Response"],
+      description: "Machine Learning engineer focused on AI model development, data analysis, and intelligent system implementation",
+      expertise: ["Machine Learning", "Data Science", "AI Model Development", "Python", "TensorFlow", "Data Analysis"],
       color: "from-red-500 to-pink-500",
-      avatar: "SMH"
+      avatar: "PU"
     },
     {
-      name: "Mohd Zaid",
+      name: "Ashwini",
       role: "Frontend Developer",
       icon: <User className="w-5 h-5" />,
       description: "Frontend specialist creating intuitive user interfaces and exceptional user experiences with modern frameworks",
       expertise: ["Frontend Development", "UI/UX Design", "React & TypeScript", "Responsive Design", "Performance Optimization", "Accessibility"],
       color: "from-green-500 to-emerald-500",
-      avatar: "MZ"
+      avatar: "AS"
     }
   ];
 
@@ -65,7 +65,7 @@ export const TeamShowcaseSection: React.FC = () => {
             </Badge>
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-6">
               <span className="bg-gradient-to-r from-slate-900 via-purple-700 to-blue-700 dark:from-white dark:via-purple-300 dark:to-blue-300 bg-clip-text text-transparent">
-                Meet the Experts
+                Meet our Team⚡Blitz
               </span>
             </h2>
             <p className="text-xl text-slate-600 dark:text-slate-400 max-w-3xl mx-auto">

@@ -25,7 +25,7 @@ const MeetDeveloperSection = () => {
       expertise: ["Team Leadership", "Cybersecurity", "Penetration Testing", "Security Architecture", "Vulnerability Assessment", "Project Management"]
     },
     {
-      name: "Mohammad Ehshan",
+      name: "Aayush Tonk",
       role: "Backend Developer",
       icon: <Code className="w-5 h-5" />,
       description: "Backend development specialist focused on API design and server-side architecture",
