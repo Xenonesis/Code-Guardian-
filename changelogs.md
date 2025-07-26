@@ -5,6 +5,19 @@
 
 ---
 
+## v0.85 (26/7/2025)
+- 🔄 **Version Update**: Set version to v0.85 for new development cycle
+- 📋 **README/Badges**: Updated all version references to v0.85
+- 📦 **Version Synchronization**: Ensured consistency across documentation and config files
+- 🛡️ **Enhanced Security Patterns**: Added comprehensive secret detection with sanitized patterns
+- 🤖 **AI Code Fix Generation**: Implemented advanced code fix suggestions with multiple AI providers
+- 🏠 **Local LLM Support**: Added support for Ollama and LM Studio local AI models
+- 🔧 **Improved Secret Detection**: Enhanced pattern matching while avoiding false positives
+- 📊 **Better Analytics**: Enhanced dashboard with real-time security metrics
+- 🎯 **Code Quality**: Improved overall code quality and maintainability
+
+---
+
 ## v0.80 (26/7/2025)
 - 🔄 **Version Update**: Set version to v0.80 for new development cycle
 - 📋 **README/Badges**: Updated all version references to v0.80
