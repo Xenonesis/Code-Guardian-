@@ -211,23 +211,31 @@
     opacity: 1;
   }
 
-  /* Premium Navigation */
+  /* Premium Navigation - Completely Solid Background */
+  .portal-navbar,
   .nav-enterprise {
-    background: rgba(255, 255, 255, 0.9);
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    background-color: #ffffff !important;
+    background: #ffffff !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    border-bottom: 1px solid #e2e8f0 !important;
     box-shadow: 
       0 4px 24px rgba(0, 0, 0, 0.08),
       0 2px 8px rgba(0, 0, 0, 0.04);
+    opacity: 1 !important;
   }
 
+  .dark .portal-navbar,
   .dark .nav-enterprise {
-    background: rgba(15, 23, 42, 0.9);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    background-color: #0f172a !important;
+    background: #0f172a !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    border-bottom: 1px solid #334155 !important;
     box-shadow: 
-      0 4px 24px rgba(0, 0, 0, 0.2),
-      0 2px 8px rgba(0, 0, 0, 0.1);
+      0 4px 24px rgba(0, 0, 0, 0.3),
+      0 2px 8px rgba(0, 0, 0, 0.15);
+    opacity: 1 !important;
   }
 
   /* Ultra-Modern Animations */

@@ -95,9 +95,17 @@ export class AIFixSuggestionsService {
   private async generateAIFixSuggestions(request: FixSuggestionRequest): Promise<FixSuggestion[]> {
     const { issue, codeContext, language, framework } = request;
 
+    // Generate real fix suggestions based on vulnerability type
+    const realFixSuggestions = this.generateRealFixSuggestions(request);
+
+    // If we have real suggestions, return them; otherwise fall back to AI
+    if (realFixSuggestions.length > 0) {
+      return realFixSuggestions;
+    }
+
     const systemPrompt = {
       role: 'system' as const,
-      content: `You are an expert security engineer and code reviewer specializing in automated vulnerability remediation. 
+      content: `You are an expert security engineer and code reviewer specializing in automated vulnerability remediation.
 
 Your task is to analyze security vulnerabilities and provide multiple, practical fix suggestions with detailed implementation guidance.
 
@@ -247,7 +255,7 @@ Format your response as a JSON array with this structure:
    */
   private validateEffort(effort: unknown): 'Low' | 'Medium' | 'High' {
     const validEfforts = ['Low', 'Medium', 'High'];
-    return validEfforts.includes(effort) ? effort : 'Medium';
+    return validEfforts.includes(effort as string) ? (effort as 'Low' | 'Medium' | 'High') : 'Medium';
   }
 
   /**
@@ -277,7 +285,7 @@ Format your response as a JSON array with this structure:
    */
   private validateChangeType(type: unknown): 'replace' | 'insert' | 'delete' | 'refactor' {
     const validTypes = ['replace', 'insert', 'delete', 'refactor'];
-    return validTypes.includes(type) ? type : 'replace';
+    return validTypes.includes(type as string) ? (type as 'replace' | 'insert' | 'delete' | 'refactor') : 'replace';
   }
 
   /**
@@ -310,6 +318,184 @@ Format your response as a JSON array with this structure:
   }
 
   /**
+   * Generate real fix suggestions based on vulnerability type and context
+   */
+  private generateRealFixSuggestions(request: FixSuggestionRequest): FixSuggestion[] {
+    const { issue, codeContext, language, framework } = request;
+    const suggestions: Omit<FixSuggestion, 'id' | 'issueId'>[] = [];
+
+    // Handle different vulnerability types with real fixes
+    switch (issue.type.toLowerCase()) {
+      case 'secret':
+      case 'jwt_token':
+        suggestions.push(...this.generateSecretFixSuggestions(issue, codeContext, language));
+        break;
+      case 'sql injection':
+      case 'sql_injection':
+        suggestions.push(...this.generateSQLInjectionFixes(issue, codeContext, language, framework));
+        break;
+      case 'xss':
+      case 'cross-site scripting':
+        suggestions.push(...this.generateXSSFixes(issue, codeContext, language, framework));
+        break;
+      case 'path traversal':
+      case 'directory traversal':
+        suggestions.push(...this.generatePathTraversalFixes(issue, codeContext, language));
+        break;
+      case 'insecure randomness':
+        suggestions.push(...this.generateInsecureRandomnessFixes(issue, codeContext, language));
+        break;
+      case 'hardcoded credentials':
+      case 'hardcoded password':
+        suggestions.push(...this.generateHardcodedCredentialsFixes(issue, codeContext, language));
+        break;
+      default:
+        // Return empty array to fall back to AI generation
+        return [];
+    }
+
+    return suggestions.map((suggestion, index) => ({
+      ...suggestion,
+      id: this.generateFixId(issue.id, index),
+      issueId: issue.id
+    }));
+  }
+
+  /**
+   * Generate fix suggestions for secret/JWT token vulnerabilities
+   */
+  private generateSecretFixSuggestions(issue: SecurityIssue, codeContext: string, language: string): Omit<FixSuggestion, 'id' | 'issueId'>[] {
+    const suggestions: Omit<FixSuggestion, 'id' | 'issueId'>[] = [];
+
+    // Extract the vulnerable line
+    const lines = codeContext.split('\n');
+    const vulnerableLine = lines.find(line => line.includes('eyJ') || line.includes('AKIA') || line.includes('ghp_')) || lines[0];
+
+    // Suggestion 1: Environment Variables
+    suggestions.push({
+      title: 'Move Secret to Environment Variables',
+      description: 'Replace hardcoded secret with environment variable reference',
+      confidence: 95,
+      effort: 'Low',
+      priority: 5,
+      codeChanges: [{
+        type: 'replace',
+        filename: issue.filename,
+        startLine: issue.line,
+        endLine: issue.line,
+        originalCode: vulnerableLine.trim(),
+        suggestedCode: this.generateEnvironmentVariableCode(vulnerableLine, language),
+        reasoning: 'Replace hardcoded secret with secure environment variable access'
+      }],
+      explanation: 'Environment variables keep secrets out of source code and allow different values per environment.',
+      securityBenefit: 'Prevents secret exposure in version control and enables secure secret management.',
+      riskAssessment: 'Low risk - maintains functionality while improving security.',
+      testingRecommendations: [
+        'Verify environment variable is set in all deployment environments',
+        'Test application startup with missing environment variable',
+        'Confirm secret rotation works without code changes'
+      ],
+      relatedPatterns: ['Environment Variables', 'Secret Management', 'Configuration Management']
+    });
+
+    // Suggestion 2: Secret Management Service
+    suggestions.push({
+      title: 'Use Secret Management Service',
+      description: 'Integrate with a dedicated secret management service like AWS Secrets Manager or HashiCorp Vault',
+      confidence: 90,
+      effort: 'Medium',
+      priority: 4,
+      codeChanges: [{
+        type: 'replace',
+        filename: issue.filename,
+        startLine: issue.line,
+        endLine: issue.line,
+        originalCode: vulnerableLine.trim(),
+        suggestedCode: this.generateSecretManagerCode(vulnerableLine, language),
+        reasoning: 'Replace hardcoded secret with secure secret manager integration'
+      }],
+      explanation: 'Secret management services provide encryption, rotation, and audit trails for sensitive data.',
+      securityBenefit: 'Enterprise-grade secret security with automatic rotation and access controls.',
+      riskAssessment: 'Medium risk - requires infrastructure setup but provides superior security.',
+      testingRecommendations: [
+        'Test secret retrieval with proper authentication',
+        'Verify fallback behavior when secret service is unavailable',
+        'Test secret rotation scenarios'
+      ],
+      relatedPatterns: ['Secret Management', 'Cloud Security', 'Zero Trust Architecture']
+    });
+
+    return suggestions;
+  }
+
+  /**
+   * Generate fix suggestions for SQL injection vulnerabilities
+   */
+  private generateSQLInjectionFixes(issue: SecurityIssue, codeContext: string, language: string, framework?: string): Omit<FixSuggestion, 'id' | 'issueId'>[] {
+    const suggestions: Omit<FixSuggestion, 'id' | 'issueId'>[] = [];
+    const lines = codeContext.split('\n');
+    const vulnerableLine = lines.find(line => line.includes('query') || line.includes('SELECT') || line.includes('INSERT')) || lines[0];
+
+    // Suggestion 1: Parameterized Queries
+    suggestions.push({
+      title: 'Use Parameterized Queries',
+      description: 'Replace string concatenation with parameterized queries to prevent SQL injection',
+      confidence: 98,
+      effort: 'Low',
+      priority: 5,
+      codeChanges: [{
+        type: 'replace',
+        filename: issue.filename,
+        startLine: issue.line,
+        endLine: issue.line,
+        originalCode: vulnerableLine.trim(),
+        suggestedCode: this.generateParameterizedQueryCode(vulnerableLine, language, framework),
+        reasoning: 'Use parameterized queries to safely handle user input in SQL statements'
+      }],
+      explanation: 'Parameterized queries separate SQL code from data, preventing injection attacks.',
+      securityBenefit: 'Completely eliminates SQL injection risk by treating user input as data, not code.',
+      riskAssessment: 'Very low risk - standard security practice with no functional impact.',
+      testingRecommendations: [
+        'Test with various input including SQL injection payloads',
+        'Verify query performance is maintained',
+        'Test edge cases like null values and special characters'
+      ],
+      relatedPatterns: ['Parameterized Queries', 'Input Validation', 'Database Security']
+    });
+
+    // Suggestion 2: ORM Usage
+    if (framework) {
+      suggestions.push({
+        title: 'Use ORM Query Builder',
+        description: 'Leverage ORM query builder methods that automatically handle parameterization',
+        confidence: 95,
+        effort: 'Medium',
+        priority: 4,
+        codeChanges: [{
+          type: 'replace',
+          filename: issue.filename,
+          startLine: issue.line,
+          endLine: issue.line,
+          originalCode: vulnerableLine.trim(),
+          suggestedCode: this.generateORMQueryCode(vulnerableLine, language, framework),
+          reasoning: 'Use ORM query builder for automatic SQL injection protection'
+        }],
+        explanation: 'ORM query builders provide a safe abstraction layer over raw SQL queries.',
+        securityBenefit: 'Built-in protection against SQL injection with improved code maintainability.',
+        riskAssessment: 'Low risk - may require minor refactoring but improves overall code quality.',
+        testingRecommendations: [
+          'Test query functionality with ORM methods',
+          'Verify performance meets requirements',
+          'Test complex query scenarios'
+        ],
+        relatedPatterns: ['ORM Security', 'Query Builder', 'Database Abstraction']
+      });
+    }
+
+    return suggestions;
+  }
+
+  /**
    * Create fallback suggestion when AI parsing fails
    */
   private createFallbackSuggestion(request: FixSuggestionRequest): Omit<FixSuggestion, 'id' | 'issueId'> {
@@ -338,6 +524,313 @@ Format your response as a JSON array with this structure:
       ],
       relatedPatterns: []
     };
+  }
+
+  /**
+   * Generate environment variable code based on language
+   */
+  private generateEnvironmentVariableCode(originalLine: string, language: string): string {
+    const variableName = this.extractVariableName(originalLine) || 'SECRET_TOKEN';
+
+    switch (language.toLowerCase()) {
+      case 'javascript':
+      case 'typescript':
+        return `const ${variableName.toLowerCase()} = process.env.${variableName.toUpperCase()} || '';`;
+      case 'python':
+        return `${variableName.toLowerCase()} = os.getenv('${variableName.toUpperCase()}', '')`;
+      case 'java':
+        return `String ${variableName.toLowerCase()} = System.getenv("${variableName.toUpperCase()}");`;
+      case 'csharp':
+        return `string ${variableName.toLowerCase()} = Environment.GetEnvironmentVariable("${variableName.toUpperCase()}") ?? "";`;
+      case 'php':
+        return `$${variableName.toLowerCase()} = $_ENV['${variableName.toUpperCase()}'] ?? '';`;
+      case 'ruby':
+        return `${variableName.toLowerCase()} = ENV['${variableName.toUpperCase()}'] || ''`;
+      case 'golang':
+      case 'go':
+        return `${variableName.toLowerCase()} := os.Getenv("${variableName.toUpperCase()}")`;
+      default:
+        return `// Replace with environment variable access for ${variableName.toUpperCase()}`;
+    }
+  }
+
+  /**
+   * Generate secret manager integration code
+   */
+  private generateSecretManagerCode(originalLine: string, language: string): string {
+    const secretName = this.extractVariableName(originalLine) || 'secret-token';
+
+    switch (language.toLowerCase()) {
+      case 'javascript':
+      case 'typescript':
+        return `const ${secretName.toLowerCase()} = await secretManager.getSecret('${secretName}');`;
+      case 'python':
+        return `${secretName.toLowerCase()} = secret_manager.get_secret('${secretName}')`;
+      case 'java':
+        return `String ${secretName.toLowerCase()} = secretManager.getSecret("${secretName}");`;
+      case 'csharp':
+        return `string ${secretName.toLowerCase()} = await secretManager.GetSecretAsync("${secretName}");`;
+      default:
+        return `// Replace with secret manager integration for ${secretName}`;
+    }
+  }
+
+  /**
+   * Generate parameterized query code
+   */
+  private generateParameterizedQueryCode(originalLine: string, language: string, framework?: string): string {
+    switch (language.toLowerCase()) {
+      case 'javascript':
+      case 'typescript':
+        if (framework?.toLowerCase().includes('node')) {
+          return 'const result = await db.query("SELECT * FROM users WHERE id = ?", [userId]);';
+        }
+        return 'const result = await query("SELECT * FROM users WHERE id = $1", [userId]);';
+      case 'python':
+        return 'cursor.execute("SELECT * FROM users WHERE id = %s", (user_id,))';
+      case 'java':
+        return 'PreparedStatement stmt = conn.prepareStatement("SELECT * FROM users WHERE id = ?");\nstmt.setInt(1, userId);';
+      case 'csharp':
+        return 'var result = await connection.QueryAsync("SELECT * FROM users WHERE id = @userId", new { userId });';
+      case 'php':
+        return '$stmt = $pdo->prepare("SELECT * FROM users WHERE id = ?");\n$stmt->execute([$userId]);';
+      default:
+        return '// Use parameterized queries to prevent SQL injection';
+    }
+  }
+
+  /**
+   * Generate ORM query code
+   */
+  private generateORMQueryCode(originalLine: string, language: string, framework?: string): string {
+    switch (framework?.toLowerCase()) {
+      case 'sequelize':
+        return 'const user = await User.findByPk(userId);';
+      case 'typeorm':
+        return 'const user = await userRepository.findOne({ where: { id: userId } });';
+      case 'prisma':
+        return 'const user = await prisma.user.findUnique({ where: { id: userId } });';
+      case 'django':
+        return 'user = User.objects.get(id=user_id)';
+      case 'sqlalchemy':
+        return 'user = session.query(User).filter(User.id == user_id).first()';
+      case 'hibernate':
+        return 'User user = session.get(User.class, userId);';
+      case 'entity framework':
+        return 'var user = await context.Users.FindAsync(userId);';
+      default:
+        return '// Use ORM query methods instead of raw SQL';
+    }
+  }
+
+  /**
+   * Extract variable name from code line
+   */
+  private extractVariableName(line: string): string | null {
+    // Try to extract variable name from various patterns
+    const patterns = [
+      /const\s+(\w+)/,
+      /let\s+(\w+)/,
+      /var\s+(\w+)/,
+      /(\w+)\s*=/,
+      /(\w+)\s*:/
+    ];
+
+    for (const pattern of patterns) {
+      const match = line.match(pattern);
+      if (match && match[1]) {
+        return match[1];
+      }
+    }
+
+    return null;
+  }
+
+  /**
+   * Generate XSS fix suggestions
+   */
+  private generateXSSFixes(issue: SecurityIssue, codeContext: string, language: string, framework?: string): Omit<FixSuggestion, 'id' | 'issueId'>[] {
+    const suggestions: Omit<FixSuggestion, 'id' | 'issueId'>[] = [];
+    const lines = codeContext.split('\n');
+    const vulnerableLine = lines.find(line => line.includes('innerHTML') || line.includes('html') || line.includes('render')) || lines[0];
+
+    suggestions.push({
+      title: 'Use Safe HTML Rendering',
+      description: 'Replace dangerous HTML injection with safe rendering methods',
+      confidence: 95,
+      effort: 'Low',
+      priority: 5,
+      codeChanges: [{
+        type: 'replace',
+        filename: issue.filename,
+        startLine: issue.line,
+        endLine: issue.line,
+        originalCode: vulnerableLine.trim(),
+        suggestedCode: this.generateSafeHTMLCode(vulnerableLine, language, framework),
+        reasoning: 'Use safe HTML rendering to prevent XSS attacks'
+      }],
+      explanation: 'Safe HTML rendering automatically escapes user input to prevent script injection.',
+      securityBenefit: 'Eliminates XSS vulnerabilities by properly encoding user-controlled data.',
+      riskAssessment: 'Very low risk - maintains functionality while preventing attacks.',
+      testingRecommendations: [
+        'Test with XSS payloads to verify protection',
+        'Verify HTML content displays correctly',
+        'Test with various character encodings'
+      ],
+      relatedPatterns: ['Output Encoding', 'XSS Prevention', 'Safe Rendering']
+    });
+
+    return suggestions;
+  }
+
+  /**
+   * Generate safe HTML rendering code
+   */
+  private generateSafeHTMLCode(originalLine: string, language: string, framework?: string): string {
+    switch (language.toLowerCase()) {
+      case 'javascript':
+      case 'typescript':
+        if (framework?.toLowerCase().includes('react')) {
+          return 'element.textContent = userInput; // Safe text rendering';
+        }
+        return 'element.textContent = userInput; // Use textContent instead of innerHTML';
+      case 'python':
+        if (framework?.toLowerCase().includes('django')) {
+          return '{{ user_input|escape }} <!-- Django auto-escaping -->';
+        }
+        return 'html.escape(user_input)  # Escape HTML characters';
+      default:
+        return '// Use safe HTML rendering methods to prevent XSS';
+    }
+  }
+
+  /**
+   * Generate path traversal fix suggestions
+   */
+  private generatePathTraversalFixes(issue: SecurityIssue, codeContext: string, language: string): Omit<FixSuggestion, 'id' | 'issueId'>[] {
+    return [{
+      title: 'Validate and Sanitize File Paths',
+      description: 'Add path validation to prevent directory traversal attacks',
+      confidence: 92,
+      effort: 'Medium',
+      priority: 4,
+      codeChanges: [{
+        type: 'replace',
+        filename: issue.filename,
+        startLine: issue.line,
+        endLine: issue.line,
+        originalCode: codeContext.split('\n')[0].trim(),
+        suggestedCode: this.generatePathValidationCode(language),
+        reasoning: 'Validate file paths to prevent directory traversal'
+      }],
+      explanation: 'Path validation ensures file access is restricted to allowed directories.',
+      securityBenefit: 'Prevents unauthorized file system access and data exposure.',
+      riskAssessment: 'Low risk - may require adjusting file access patterns.',
+      testingRecommendations: [
+        'Test with path traversal payloads (../, ..\\ etc.)',
+        'Verify legitimate file access still works',
+        'Test edge cases with symbolic links'
+      ],
+      relatedPatterns: ['Path Validation', 'File System Security', 'Input Sanitization']
+    }];
+  }
+
+  /**
+   * Generate path validation code
+   */
+  private generatePathValidationCode(language: string): string {
+    switch (language.toLowerCase()) {
+      case 'javascript':
+      case 'typescript':
+        return 'const safePath = path.resolve(basePath, path.normalize(userPath));\nif (!safePath.startsWith(basePath)) throw new Error("Invalid path");';
+      case 'python':
+        return 'safe_path = os.path.realpath(os.path.join(base_path, user_path))\nif not safe_path.startswith(base_path): raise ValueError("Invalid path")';
+      case 'java':
+        return 'Path safePath = Paths.get(basePath).resolve(userPath).normalize();\nif (!safePath.startsWith(basePath)) throw new SecurityException("Invalid path");';
+      default:
+        return '// Validate file paths to prevent directory traversal';
+    }
+  }
+
+  /**
+   * Generate insecure randomness fix suggestions
+   */
+  private generateInsecureRandomnessFixes(issue: SecurityIssue, codeContext: string, language: string): Omit<FixSuggestion, 'id' | 'issueId'>[] {
+    return [{
+      title: 'Use Cryptographically Secure Random Generator',
+      description: 'Replace weak random number generation with cryptographically secure methods',
+      confidence: 98,
+      effort: 'Low',
+      priority: 5,
+      codeChanges: [{
+        type: 'replace',
+        filename: issue.filename,
+        startLine: issue.line,
+        endLine: issue.line,
+        originalCode: codeContext.split('\n')[0].trim(),
+        suggestedCode: this.generateSecureRandomCode(language),
+        reasoning: 'Use cryptographically secure random number generation'
+      }],
+      explanation: 'Cryptographically secure random generators provide unpredictable values for security purposes.',
+      securityBenefit: 'Prevents prediction of random values used in security contexts.',
+      riskAssessment: 'Very low risk - direct replacement with secure alternative.',
+      testingRecommendations: [
+        'Verify random values are unpredictable',
+        'Test performance impact if generating many values',
+        'Ensure proper seeding in production'
+      ],
+      relatedPatterns: ['Secure Random', 'Cryptographic Security', 'Random Number Generation']
+    }];
+  }
+
+  /**
+   * Generate secure random code
+   */
+  private generateSecureRandomCode(language: string): string {
+    switch (language.toLowerCase()) {
+      case 'javascript':
+      case 'typescript':
+        return 'const randomBytes = crypto.getRandomValues(new Uint8Array(32));';
+      case 'python':
+        return 'import secrets\nrandom_value = secrets.randbelow(100)  # or secrets.token_hex(16)';
+      case 'java':
+        return 'SecureRandom secureRandom = new SecureRandom();\nint randomValue = secureRandom.nextInt();';
+      case 'csharp':
+        return 'using var rng = RandomNumberGenerator.Create();\nbyte[] randomBytes = new byte[32];\nrng.GetBytes(randomBytes);';
+      default:
+        return '// Use cryptographically secure random number generator';
+    }
+  }
+
+  /**
+   * Generate hardcoded credentials fix suggestions
+   */
+  private generateHardcodedCredentialsFixes(issue: SecurityIssue, codeContext: string, language: string): Omit<FixSuggestion, 'id' | 'issueId'>[] {
+    return [{
+      title: 'Move Credentials to Secure Configuration',
+      description: 'Replace hardcoded credentials with secure configuration management',
+      confidence: 95,
+      effort: 'Low',
+      priority: 5,
+      codeChanges: [{
+        type: 'replace',
+        filename: issue.filename,
+        startLine: issue.line,
+        endLine: issue.line,
+        originalCode: codeContext.split('\n')[0].trim(),
+        suggestedCode: this.generateEnvironmentVariableCode(codeContext.split('\n')[0], language),
+        reasoning: 'Move credentials to environment variables or secure configuration'
+      }],
+      explanation: 'Secure configuration keeps credentials out of source code and enables proper secret management.',
+      securityBenefit: 'Prevents credential exposure and enables secure credential rotation.',
+      riskAssessment: 'Low risk - requires configuration setup but improves security significantly.',
+      testingRecommendations: [
+        'Verify credentials are loaded correctly from configuration',
+        'Test application behavior with missing credentials',
+        'Test credential rotation scenarios'
+      ],
+      relatedPatterns: ['Configuration Management', 'Secret Management', 'Environment Variables']
+    }];
   }
 
   /**

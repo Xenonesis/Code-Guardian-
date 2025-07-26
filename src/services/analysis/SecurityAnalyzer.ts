@@ -7,6 +7,7 @@ import { SecretDetectionService, SecretMatch, SecretType } from '../secretDetect
 import { LanguageDetectionService, DetectionResult, LanguageInfo, FrameworkInfo } from '../languageDetectionService';
 import { FrameworkDetectionEngine, DependencyInfo } from '../frameworkDetectionEngine';
 import { naturalLanguageDescriptionService } from '../naturalLanguageDescriptionService';
+import { EnhancedVulnerabilityDetector } from '../enhancedVulnerabilityDetector';
 
 type SupportedLanguage = 'javascript' | 'typescript' | 'python' | 'java' | 'php' | 'ruby' | 'golang' | 'csharp';
 type ToolsByLanguage = Record<SupportedLanguage, string[]>;
@@ -39,12 +40,14 @@ export class SecurityAnalyzer {
   private secretDetectionService: SecretDetectionService;
   private languageDetectionService: LanguageDetectionService;
   private frameworkDetectionEngine: FrameworkDetectionEngine;
+  private enhancedVulnerabilityDetector: EnhancedVulnerabilityDetector;
   private analysisContext?: EnhancedAnalysisContext;
 
   constructor() {
     this.secretDetectionService = new SecretDetectionService();
     this.languageDetectionService = new LanguageDetectionService();
     this.frameworkDetectionEngine = new FrameworkDetectionEngine();
+    this.enhancedVulnerabilityDetector = new EnhancedVulnerabilityDetector();
   }
 
   /**
@@ -867,10 +870,16 @@ export class SecurityAnalyzer {
       const secretIssues = this.convertSecretsToIssues(secretDetectionResult.secrets, filename);
       issues.push(...secretIssues);
 
+      // Perform enhanced vulnerability detection
+      console.log(`🛡️ REAL ANALYSIS: Running enhanced vulnerability detection for ${filename}...`);
+      const vulnerabilityResult = this.enhancedVulnerabilityDetector.detectVulnerabilities(content, filename, language);
+      issues.push(...vulnerabilityResult.vulnerabilities);
+
       // Real analysis complete - only return actual issues found
       console.log(`✅ REAL ANALYSIS COMPLETE for ${filename}: ${issues.length} total issues found`);
       console.log(`🔐 REAL ANALYSIS: ${secretIssues.length} secrets detected`);
-      console.log(`🛡️ REAL ANALYSIS: ${issues.length - secretIssues.length} other security issues found`);
+      console.log(`🛡️ REAL ANALYSIS: ${vulnerabilityResult.vulnerabilities.length} vulnerabilities detected`);
+      console.log(`📋 REAL ANALYSIS: ${issues.length - secretIssues.length - vulnerabilityResult.vulnerabilities.length} other security issues found`);
 
       if (issues.length > 0) {
         const severityCounts = issues.reduce((acc, issue) => {

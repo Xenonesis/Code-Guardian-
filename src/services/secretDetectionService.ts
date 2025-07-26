@@ -554,6 +554,12 @@ export class SecretDetectionService {
     // Combine and deduplicate results
     const allSecrets = this.deduplicateSecrets([...patternSecrets, ...mlSecrets]);
 
+    // Enhanced real-world secret detection with context analysis
+    const enhancedSecrets = this.enhanceSecretsWithContext(allSecrets, content);
+
+    // Validate secrets using additional heuristics
+    const validatedSecrets = this.validateSecretsWithHeuristics(enhancedSecrets, content);
+
     console.log(`✅ REAL SECRET DETECTION: Total unique secrets found: ${allSecrets.length}`);
 
     // Calculate statistics
@@ -573,12 +579,185 @@ export class SecretDetectionService {
     }
 
     return {
-      secrets: allSecrets,
-      totalSecrets: allSecrets.length,
-      highConfidenceSecrets,
-      secretTypes,
-      riskScore
+      secrets: validatedSecrets,
+      totalSecrets: validatedSecrets.length,
+      highConfidenceSecrets: validatedSecrets.filter(s => s.confidence >= 80).length,
+      secretTypes: this.categorizeSecrets(validatedSecrets),
+      riskScore: this.calculateRiskScore(validatedSecrets)
     };
+  }
+
+  /**
+   * Categorize secrets by type
+   */
+  private categorizeSecrets(secrets: SecretMatch[]): Record<SecretType, number> {
+    const secretTypes: Record<SecretType, number> = {} as Record<SecretType, number>;
+
+    secrets.forEach(secret => {
+      secretTypes[secret.type] = (secretTypes[secret.type] || 0) + 1;
+    });
+
+    return secretTypes;
+  }
+
+  /**
+   * Enhance secrets with contextual analysis for better accuracy
+   */
+  private enhanceSecretsWithContext(secrets: SecretMatch[], content: string): SecretMatch[] {
+    return secrets.map(secret => {
+      const lines = content.split('\n');
+      const secretLine = lines[secret.line - 1] || '';
+      const contextLines = this.getContextLines(lines, secret.line - 1, 2);
+
+      // Analyze context for false positive reduction
+      const contextAnalysis = this.analyzeSecretContext(secretLine, contextLines);
+
+      // Adjust confidence based on context
+      let adjustedConfidence = secret.confidence;
+
+      // Reduce confidence for test files, examples, or documentation
+      if (this.isTestOrExampleContext(contextLines)) {
+        adjustedConfidence = Math.max(20, adjustedConfidence - 30);
+      }
+
+      // Increase confidence for production-like contexts
+      if (this.isProductionContext(contextLines)) {
+        adjustedConfidence = Math.min(95, adjustedConfidence + 15);
+      }
+
+      // Check for environment variable patterns
+      if (this.isEnvironmentVariablePattern(secretLine)) {
+        adjustedConfidence = Math.max(10, adjustedConfidence - 40);
+      }
+
+      return {
+        ...secret,
+        confidence: adjustedConfidence,
+        context: contextLines.join('\n')
+      };
+    });
+  }
+
+  /**
+   * Validate secrets using additional heuristics
+   */
+  private validateSecretsWithHeuristics(secrets: SecretMatch[], content: string): SecretMatch[] {
+    return secrets.filter(secret => {
+      // Filter out obvious false positives
+      if (secret.confidence < 30) return false;
+
+      // Check for common false positive patterns
+      if (this.isFalsePositivePattern(secret.value)) return false;
+
+      // Validate secret format based on type
+      if (!this.validateSecretFormat(secret)) return false;
+
+      return true;
+    });
+  }
+
+  /**
+   * Get context lines around a specific line
+   */
+  private getContextLines(lines: string[], lineIndex: number, contextSize: number): string[] {
+    const start = Math.max(0, lineIndex - contextSize);
+    const end = Math.min(lines.length, lineIndex + contextSize + 1);
+    return lines.slice(start, end);
+  }
+
+  /**
+   * Analyze the context around a secret for better classification
+   */
+  private analyzeSecretContext(secretLine: string, contextLines: string[]): {
+    isTest: boolean;
+    isExample: boolean;
+    isProduction: boolean;
+    isEnvironmentVar: boolean;
+  } {
+    const contextText = contextLines.join(' ').toLowerCase();
+
+    return {
+      isTest: /test|spec|mock|fake|dummy|example/.test(contextText),
+      isExample: /example|demo|sample|placeholder/.test(contextText),
+      isProduction: /prod|production|live|deploy/.test(contextText),
+      isEnvironmentVar: /process\.env|getenv|env\[|environment/.test(contextText)
+    };
+  }
+
+  /**
+   * Check if context suggests test or example code
+   */
+  private isTestOrExampleContext(contextLines: string[]): boolean {
+    const contextText = contextLines.join(' ').toLowerCase();
+    return /test|spec|mock|fake|dummy|example|demo|sample|placeholder|todo|fixme/.test(contextText);
+  }
+
+  /**
+   * Check if context suggests production code
+   */
+  private isProductionContext(contextLines: string[]): boolean {
+    const contextText = contextLines.join(' ').toLowerCase();
+    return /prod|production|live|deploy|config|settings|credentials/.test(contextText);
+  }
+
+  /**
+   * Check if the secret appears to be an environment variable reference
+   */
+  private isEnvironmentVariablePattern(line: string): boolean {
+    return /process\.env\.|getenv\(|env\[|environment\.|ENV_|env_/.test(line);
+  }
+
+  /**
+   * Check for common false positive patterns
+   */
+  private isFalsePositivePattern(value: string): boolean {
+    const falsePositives = [
+      /^(test|example|demo|sample|placeholder|your_|my_|user_)/i,
+      /^(abc|123|xxx|yyy|zzz)/i,
+      /^(null|undefined|empty|none)/i,
+      /^[a-z]{1,3}$/i, // Too short
+      /^[0-9]+$/,      // Only numbers
+      /^[a-z]+$/i      // Only letters (too simple)
+    ];
+
+    return falsePositives.some(pattern => pattern.test(value));
+  }
+
+  /**
+   * Validate secret format based on its type
+   */
+  private validateSecretFormat(secret: SecretMatch): boolean {
+    switch (secret.type) {
+      case 'jwt_token':
+        return this.validateJWTFormat(secret.value);
+      case 'aws_access_key':
+        return /^AKIA[0-9A-Z]{16}$/.test(secret.value);
+      case 'github_token':
+        return /^gh[ps]_[A-Za-z0-9]{36}$/.test(secret.value);
+      case 'api_key':
+        return secret.value.length >= 16 && secret.entropy >= 3.5;
+      default:
+        return secret.entropy >= 3.0; // Minimum entropy requirement
+    }
+  }
+
+  /**
+   * Validate JWT token format
+   */
+  private validateJWTFormat(token: string): boolean {
+    const parts = token.split('.');
+    if (parts.length !== 3) return false;
+
+    try {
+      // Try to decode the header and payload
+      const header = JSON.parse(atob(parts[0]));
+      const payload = JSON.parse(atob(parts[1]));
+
+      // Check for required JWT fields
+      return header.alg && header.typ && (payload.exp || payload.iat);
+    } catch {
+      return false;
+    }
   }
 
   /**

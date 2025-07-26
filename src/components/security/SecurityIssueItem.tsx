@@ -94,11 +94,7 @@ export const SecurityIssueItem: React.FC<SecurityIssueItemProps> = ({
 
   return (
     <div className="bg-slate-800/50 border border-slate-700/50 rounded-lg">
-      <button
-        type="button"
-        onClick={onToggle}
-        className="w-full p-4 text-left hover:bg-slate-800/70 transition-colors touch-target active:scale-[0.99]"
-      >
+      <div className="p-4">
         <div className="flex items-start justify-between gap-3">
           <div className="flex-1 min-w-0">
             <div className="flex flex-wrap items-center gap-2 mb-3">
@@ -158,14 +154,21 @@ export const SecurityIssueItem: React.FC<SecurityIssueItemProps> = ({
             </div>
           </div>
           <div className="ml-3 flex-shrink-0 flex items-center">
-            {isExpanded ? (
-              <ChevronDown className="h-5 w-5 text-slate-400 transition-transform duration-200" />
-            ) : (
-              <ChevronRight className="h-5 w-5 text-slate-400 transition-transform duration-200" />
-            )}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onToggle}
+              className="p-2 hover:bg-slate-700 text-slate-400 hover:text-white"
+            >
+              {isExpanded ? (
+                <ChevronDown className="h-5 w-5 transition-transform duration-200" />
+              ) : (
+                <ChevronRight className="h-5 w-5 transition-transform duration-200" />
+              )}
+            </Button>
           </div>
         </div>
-      </button>
+      </div>
 
       {isExpanded && (
         <div className="border-t border-slate-700/50 p-4">
