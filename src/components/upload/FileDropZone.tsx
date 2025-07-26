@@ -1,5 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import { Upload, Sparkles } from 'lucide-react';
+import { enhancedToast } from '@/components/ui/enhanced-toast';
 
 interface FileDropZoneProps {
   onFileSelect: (file: File) => void;
@@ -36,7 +37,10 @@ export const FileDropZone: React.FC<FileDropZoneProps> = ({ onFileSelect }) => {
     if (file && (file.name.endsWith('.zip') || file.type === 'application/zip' || file.type === 'application/x-zip-compressed')) {
       onFileSelect(file);
     } else {
-      alert('Please select a valid .zip file');
+      enhancedToast.error('Invalid file type', {
+        description: 'Please select a valid .zip file containing your source code.',
+        duration: 4000
+      });
     }
     
     e.target.value = '';
@@ -97,7 +101,7 @@ export const FileDropZone: React.FC<FileDropZoneProps> = ({ onFileSelect }) => {
         <div className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-4 sm:mt-6 bg-slate-100 dark:bg-slate-700/50 rounded-lg p-3 sm:p-4">
           <div className="space-y-1">
             <p><strong>Maximum file size:</strong> 50MB</p>
-            <p><strong>Supported languages:</strong> Python, JavaScript, TypeScript, React, Node.js</p>
+            <p><strong>Supported languages:</strong> JavaScript, TypeScript, Python, Java, PHP, Ruby, Go, C/C++, C#, Rust, Swift, and more</p>
           </div>
         </div>
       </div>
