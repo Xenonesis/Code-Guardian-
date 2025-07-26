@@ -5,7 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite --host",
-    "build": "vite build",
+    "prebuild": "chmod +x node_modules/.bin/vite || true",
+    "build": "npx vite build",
+    "build:vercel": "chmod +x node_modules/.bin/vite 2>/dev/null || true && npx vite build",
     "build:production": "NODE_ENV=production npm run build",
     "preview": "vite preview --host",
     "type-check": "tsc --noEmit",
