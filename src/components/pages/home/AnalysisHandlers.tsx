@@ -1,4 +1,4 @@
-import { useToast } from '@/hooks/use-toast';
+import { enhancedToast } from '@/components/ui/enhanced-toast';
 import { AnalysisResults } from '@/hooks/useAnalysis';
 import { type StoredAnalysisData } from '@/services/analysisStorage';
 
@@ -25,16 +25,12 @@ export const useAnalysisHandlers = ({
   onOptimizeStorage,
   onRestoreFromHistory
 }: AnalysisHandlersProps) => {
-  const { toast } = useToast();
-
   const handleAnalysisCompleteWithRedirect = (results: AnalysisResults) => {
     onAnalysisComplete(results);
     onSetIsRedirecting(true);
 
-    toast({
-      title: "✅ Analysis Complete!",
+    enhancedToast.success("Analysis Complete!", {
       description: `Found ${results.issues.length} issues across ${results.totalFiles} files. Results saved automatically. Redirecting...`,
-      variant: "default",
       duration: 2000,
     });
 
@@ -42,10 +38,8 @@ export const useAnalysisHandlers = ({
       onSetCurrentTab('results');
       onSetIsRedirecting(false);
 
-      toast({
-        title: "📊 Results Ready!",
+      enhancedToast.info("Results Ready!", {
         description: hasStoredData ? "Analysis results are now displayed below and saved for future access." : "Analysis results are now displayed below.",
-        variant: "default",
         duration: 3000,
       });
     }, 1500);
@@ -53,10 +47,8 @@ export const useAnalysisHandlers = ({
 
   const handleClearStoredData = () => {
     onClearStoredData();
-    toast({
-      title: "🗑️ Data Cleared",
+    enhancedToast.success("Data Cleared", {
       description: "Stored analysis data has been cleared successfully.",
-      variant: "default",
       duration: 2000,
     });
   };
@@ -64,17 +56,13 @@ export const useAnalysisHandlers = ({
   const handleExportAnalysis = (format: 'json' | 'compressed') => {
     try {
       onExportAnalysis(format);
-      toast({
-        title: "📤 Export Complete",
+      enhancedToast.success("Export Complete", {
         description: `Analysis data exported as ${format.toUpperCase()} file.`,
-        variant: "default",
         duration: 2000,
       });
     } catch (error) {
-      toast({
-        title: "❌ Export Failed",
+      enhancedToast.error("Export Failed", {
         description: "Failed to export analysis data. Please try again.",
-        variant: "destructive",
         duration: 3000,
       });
     }

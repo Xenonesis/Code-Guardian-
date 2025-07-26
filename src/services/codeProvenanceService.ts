@@ -514,7 +514,7 @@ export class CodeProvenanceService {
   }
 
   /**
-   * Generate comprehensive provenance report
+   * Generate comprehensive provenance report with enhanced real-world risk calculation
    */
   private generateProvenanceReport(newViolations: TamperingAlert[]): ProvenanceReport {
     const allRecords = Array.from(this.fileRecords.values());
@@ -537,10 +537,8 @@ export class CodeProvenanceService {
       fileStatistics.byLanguage[language] = (fileStatistics.byLanguage[language] || 0) + 1;
     });
 
-    // Calculate risk score
-    const criticalAlerts = this.alerts.filter(a => a.severity === 'critical').length;
-    const highAlerts = this.alerts.filter(a => a.severity === 'high').length;
-    const riskScore = Math.min(100, (criticalAlerts * 25) + (highAlerts * 10) + (newViolations.length * 5));
+    // Enhanced real-world risk score calculation
+    const riskScore = this.calculateRealRiskScore(allRecords, newViolations);
 
     return {
       totalFiles: allRecords.length,
@@ -552,6 +550,99 @@ export class CodeProvenanceService {
       fileStatistics,
       riskScore
     };
+  }
+
+  /**
+   * Calculate real-world risk score based on comprehensive analysis
+   */
+  private calculateRealRiskScore(
+    allRecords: FileIntegrityRecord[], 
+    newViolations: TamperingAlert[]
+  ): number {
+    let riskScore = 0;
+
+    // Base risk from alerts (weighted by severity and recency)
+    const now = Date.now();
+    this.alerts.forEach(alert => {
+      const ageInHours = (now - alert.detectedAt.getTime()) / (1000 * 60 * 60);
+      const recencyMultiplier = Math.max(0.1, 1 - (ageInHours / 168)); // Decay over 1 week
+      
+      switch (alert.severity) {
+        case 'critical':
+          riskScore += 30 * recencyMultiplier;
+          break;
+        case 'high':
+          riskScore += 20 * recencyMultiplier;
+          break;
+        case 'medium':
+          riskScore += 10 * recencyMultiplier;
+          break;
+        case 'low':
+          riskScore += 5 * recencyMultiplier;
+          break;
+      }
+    });
+
+    // Risk from file composition
+    const totalFiles = allRecords.length;
+    if (totalFiles > 0) {
+      const criticalFileRatio = allRecords.filter(r => r.isSecurityCritical).length / totalFiles;
+      const securityCategoryRatio = allRecords.filter(r => r.metadata.category === 'security').length / totalFiles;
+      
+      // Higher risk if many critical/security files
+      riskScore += criticalFileRatio * 15;
+      riskScore += securityCategoryRatio * 10;
+    }
+
+    // Risk from new violations in current scan
+    newViolations.forEach(violation => {
+      switch (violation.severity) {
+        case 'critical':
+          riskScore += 25;
+          break;
+        case 'high':
+          riskScore += 15;
+          break;
+        case 'medium':
+          riskScore += 8;
+          break;
+        case 'low':
+          riskScore += 3;
+          break;
+      }
+    });
+
+    // Risk from monitoring coverage
+    if (totalFiles > 0) {
+      const monitoringCoverage = allRecords.length / totalFiles;
+      if (monitoringCoverage < 0.8) {
+        riskScore += (1 - monitoringCoverage) * 20; // Penalty for poor coverage
+      }
+    }
+
+    // Risk from file patterns and content analysis
+    allRecords.forEach(record => {
+      // Risk from file tags
+      if (record.tags.includes('credentials')) riskScore += 5;
+      if (record.tags.includes('cryptography')) riskScore += 3;
+      if (record.tags.includes('authentication')) riskScore += 3;
+      
+      // Risk from file age and modification patterns
+      const fileAge = (now - record.lastModified.getTime()) / (1000 * 60 * 60 * 24);
+      if (fileAge < 1 && record.isSecurityCritical) {
+        riskScore += 5; // Recently modified critical files are riskier
+      }
+    });
+
+    // Normalize and cap the risk score
+    riskScore = Math.min(100, Math.max(0, Math.round(riskScore)));
+
+    // Ensure minimum risk score if there are any violations
+    if (this.alerts.length > 0 && riskScore < 10) {
+      riskScore = 10;
+    }
+
+    return riskScore;
   }
 
   /**

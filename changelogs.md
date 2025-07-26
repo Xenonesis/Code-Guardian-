@@ -5,6 +5,13 @@
 
 ---
 
+## v0.80 (26/7/2025)
+- 🔄 **Version Update**: Set version to v0.80 for new development cycle
+- 📋 **README/Badges**: Updated all version references to v0.80
+- 📦 **Version Synchronization**: Ensured consistency across documentation and config files
+
+---
+
 ## v0.55 (26/7/2025)
 - 🔄 **Version Update**: Set version to v0.55 for new development cycle
 

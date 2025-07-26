@@ -159,10 +159,31 @@ export const CodeProvenanceCard: React.FC<CodeProvenanceCardProps> = ({
   };
 
   const getRiskScoreColor = (score: number) => {
-    if (score >= 80) return 'text-red-600';
-    if (score >= 60) return 'text-orange-600';
-    if (score >= 40) return 'text-yellow-600';
-    return 'text-green-600';
+    if (score >= 80) return 'text-red-600 dark:text-red-400';
+    if (score >= 60) return 'text-orange-600 dark:text-orange-400';
+    if (score >= 40) return 'text-yellow-600 dark:text-yellow-400';
+    return 'text-green-600 dark:text-green-400';
+  };
+
+  const getRiskScoreIconColor = (score: number) => {
+    if (score >= 80) return 'bg-gradient-to-br from-red-500 to-red-600';
+    if (score >= 60) return 'bg-gradient-to-br from-orange-500 to-orange-600';
+    if (score >= 40) return 'bg-gradient-to-br from-yellow-500 to-yellow-600';
+    return 'bg-gradient-to-br from-green-500 to-green-600';
+  };
+
+  const getAlertSeverityColor = (count: number) => {
+    if (count >= 20) return 'text-red-600 dark:text-red-400';
+    if (count >= 10) return 'text-orange-600 dark:text-orange-400';
+    if (count >= 1) return 'text-yellow-600 dark:text-yellow-400';
+    return 'text-green-600 dark:text-green-400';
+  };
+
+  const getAlertSeverityIconColor = (count: number) => {
+    if (count >= 20) return 'bg-gradient-to-br from-red-500 to-red-600';
+    if (count >= 10) return 'bg-gradient-to-br from-orange-500 to-orange-600';
+    if (count >= 1) return 'bg-gradient-to-br from-yellow-500 to-yellow-600';
+    return 'bg-gradient-to-br from-green-500 to-green-600';
   };
 
   return (
@@ -181,121 +202,133 @@ export const CodeProvenanceCard: React.FC<CodeProvenanceCardProps> = ({
       </CardHeader>
       <CardContent>
         <Tabs defaultValue="overview" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 gap-1 sm:gap-0 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm border shadow-lg rounded-xl p-1">
-            <TabsTrigger value="overview" className="flex items-center justify-center py-2 px-2 text-xs sm:text-sm font-medium data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-indigo-500 data-[state=active]:text-white transition-all duration-300 rounded-lg">
+          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 gap-1 sm:gap-0 bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm border border-slate-200/50 dark:border-slate-700/50 shadow-lg rounded-xl p-1.5">
+            <TabsTrigger 
+              value="overview" 
+              className="relative flex items-center justify-center py-3 px-3 text-xs sm:text-sm font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 data-[state=active]:text-white data-[state=active]:bg-slate-900 dark:data-[state=active]:bg-white dark:data-[state=active]:text-slate-900 data-[state=active]:shadow-lg data-[state=active]:border-b-2 data-[state=active]:border-b-slate-900 dark:data-[state=active]:border-b-white transition-all duration-300 rounded-lg"
+            >
               Overview
             </TabsTrigger>
-            <TabsTrigger value="alerts" className="flex items-center justify-center py-2 px-2 text-xs sm:text-sm font-medium data-[state=active]:bg-gradient-to-r data-[state=active]:from-red-500 data-[state=active]:to-pink-500 data-[state=active]:text-white transition-all duration-300 rounded-lg">
-              Alerts ({alerts.length})
+            <TabsTrigger 
+              value="alerts" 
+              className="relative flex items-center justify-center py-3 px-3 text-xs sm:text-sm font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 data-[state=active]:text-white data-[state=active]:bg-red-600 data-[state=active]:shadow-lg data-[state=active]:border-b-2 data-[state=active]:border-b-red-600 transition-all duration-300 rounded-lg"
+            >
+              <span className="hidden sm:inline">Alerts ({alerts.length})</span>
+              <span className="sm:hidden">Alerts</span>
             </TabsTrigger>
-            <TabsTrigger value="monitoring" className="flex items-center justify-center py-2 px-2 text-xs sm:text-sm font-medium data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-emerald-500 data-[state=active]:text-white transition-all duration-300 rounded-lg">
+            <TabsTrigger 
+              value="monitoring" 
+              className="relative flex items-center justify-center py-3 px-3 text-xs sm:text-sm font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 data-[state=active]:text-white data-[state=active]:bg-green-600 data-[state=active]:shadow-lg data-[state=active]:border-b-2 data-[state=active]:border-b-green-600 transition-all duration-300 rounded-lg"
+            >
               Monitoring
             </TabsTrigger>
-            <TabsTrigger value="reports" className="flex items-center justify-center py-2 px-2 text-xs sm:text-sm font-medium data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-indigo-500 data-[state=active]:text-white transition-all duration-300 rounded-lg">
+            <TabsTrigger 
+              value="reports" 
+              className="relative flex items-center justify-center py-3 px-3 text-xs sm:text-sm font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 data-[state=active]:text-white data-[state=active]:bg-purple-600 data-[state=active]:shadow-lg data-[state=active]:border-b-2 data-[state=active]:border-b-purple-600 transition-all duration-300 rounded-lg"
+            >
               Reports
             </TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview" className="space-y-4">
-            {/* Status Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <Card>
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 bg-blue-500 rounded-lg">
-                      <Database className="h-4 w-4 text-white" />
-                    </div>
-                    <div>
-                      <p className="text-2xl font-bold text-blue-800 dark:text-blue-200">
-                        {statistics.totalFiles}
-                      </p>
-                      <p className="text-sm text-blue-600 dark:text-blue-400">Total Files</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
 
-              <Card>
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 bg-red-500 rounded-lg">
-                      <Shield className="h-4 w-4 text-white" />
-                    </div>
-                    <div>
-                      <p className="text-2xl font-bold text-red-800 dark:text-red-200">
-                        {statistics.criticalFiles}
-                      </p>
-                      <p className="text-sm text-red-600 dark:text-red-400">Critical Files</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 bg-orange-500 rounded-lg">
-                      <AlertTriangle className="h-4 w-4 text-white" />
-                    </div>
-                    <div>
-                      <p className="text-2xl font-bold text-orange-800 dark:text-orange-200">
-                        {statistics.alertCount}
-                      </p>
-                      <p className="text-sm text-orange-600 dark:text-orange-400">Active Alerts</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 bg-green-500 rounded-lg">
-                      <TrendingUp className="h-4 w-4 text-white" />
-                    </div>
-                    <div>
-                      <p className={`text-2xl font-bold ${getRiskScoreColor(report?.riskScore || 0)}`}>
-                        {report?.riskScore || 0}
-                      </p>
-                      <p className="text-sm text-green-600 dark:text-green-400">Risk Score</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Risk Assessment */}
+            {/* Enhanced Risk Assessment */}
             {report && (
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg">Risk Assessment</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div>
-                      <div className="flex justify-between mb-2">
-                        <span className="text-sm font-medium">Overall Risk Score</span>
-                        <span className={`text-sm font-bold ${getRiskScoreColor(report.riskScore)}`}>
-                          {report.riskScore}/100
-                        </span>
+              <Card className="relative overflow-hidden bg-gradient-to-br from-purple-50/80 via-white to-indigo-50/60 dark:from-purple-950/40 dark:via-slate-800/80 dark:to-indigo-950/30 border-0 shadow-lg rounded-xl">
+                <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-indigo-500/10 opacity-50" />
+                <CardHeader className="relative z-10 pb-4">
+                  <CardTitle className="flex items-center gap-3 text-lg sm:text-xl font-bold bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">
+                    <div className="relative">
+                      <div className="absolute inset-0 bg-gradient-to-br from-purple-500 to-indigo-500 rounded-xl blur-sm opacity-30" />
+                      <div className="relative bg-gradient-to-br from-purple-500 to-indigo-500 p-2.5 rounded-xl shadow-lg">
+                        <TrendingUp className="h-5 w-5 text-white" />
                       </div>
-                      <Progress value={report.riskScore} className="h-2" />
+                    </div>
+                    Risk Assessment
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="relative z-10">
+                  <div className="space-y-6">
+                    {/* Enhanced Risk Score Progress */}
+                    <div className="relative">
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+                        <span className="text-base font-semibold text-slate-700 dark:text-slate-300">Overall Risk Score</span>
+                        <div className="flex items-center gap-2">
+                          <span className={`text-2xl sm:text-3xl font-bold ${getRiskScoreColor(report.riskScore)}`}>
+                            {report.riskScore}
+                          </span>
+                          <span className="text-lg text-slate-500 dark:text-slate-400">/100</span>
+                        </div>
+                      </div>
+                      <div className="relative mb-2">
+                        <Progress 
+                          value={report.riskScore} 
+                          className={`h-4 rounded-full transition-all duration-1000 ${
+                            report.riskScore >= 80 ? 'bg-red-100 dark:bg-red-950' :
+                            report.riskScore >= 60 ? 'bg-orange-100 dark:bg-orange-950' :
+                            report.riskScore >= 40 ? 'bg-yellow-100 dark:bg-yellow-950' :
+                            'bg-green-100 dark:bg-green-950'
+                          }`}
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent rounded-full animate-pulse opacity-60" />
+                      </div>
+                      <div className="flex justify-between text-xs text-slate-500 dark:text-slate-400">
+                        <span>Low Risk</span>
+                        <span>High Risk</span>
+                      </div>
                     </div>
                     
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-                      <div>
-                        <span className="font-medium">Integrity Violations:</span>
-                        <span className="ml-2 text-red-600">{report.integrityViolations || 0}</span>
+                    {/* Enhanced Statistics Grid with Better Spacing */}
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                      <div className="bg-gradient-to-br from-red-50/80 to-pink-50/60 dark:from-red-950/30 dark:to-pink-950/20 p-5 rounded-xl border border-red-200/50 dark:border-red-800/30">
+                        <div className="flex items-center gap-3 mb-2">
+                          <div className="p-2 bg-gradient-to-br from-red-500 to-pink-500 rounded-lg shadow-lg">
+                            <AlertTriangle className="h-4 w-4 text-white" />
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <p className="text-xl font-bold text-red-600 dark:text-red-400">
+                              {report.integrityViolations || 0}
+                            </p>
+                          </div>
+                        </div>
+                        <p className="text-sm font-medium text-red-600/80 dark:text-red-400/80">Integrity Violations</p>
+                        <p className="text-xs text-red-500/60 dark:text-red-400/60 mt-1">
+                          {(report.integrityViolations || 0) > 0 ? 'Requires immediate attention' : 'No violations detected'}
+                        </p>
                       </div>
-                      <div>
-                        <span className="font-medium">Last Scan:</span>
-                        <span className="ml-2 text-slate-600">
-                          {report.lastScanTime.toLocaleString()}
-                        </span>
+
+                      <div className="bg-gradient-to-br from-blue-50/80 to-indigo-50/60 dark:from-blue-950/30 dark:to-indigo-950/20 p-5 rounded-xl border border-blue-200/50 dark:border-blue-800/30">
+                        <div className="flex items-center gap-3 mb-2">
+                          <div className="p-2 bg-gradient-to-br from-blue-500 to-indigo-500 rounded-lg shadow-lg">
+                            <Clock className="h-4 w-4 text-white" />
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <p className="text-sm font-medium text-blue-600/80 dark:text-blue-400/80">Last Scan</p>
+                          </div>
+                        </div>
+                        <p className="text-sm text-slate-600 dark:text-slate-400 leading-tight">
+                          {new Date(report.lastScanTime).toLocaleDateString()}
+                        </p>
+                        <p className="text-xs text-slate-500 dark:text-slate-400">
+                          {new Date(report.lastScanTime).toLocaleTimeString()}
+                        </p>
                       </div>
-                      <div>
-                        <span className="font-medium">Monitored Files:</span>
-                        <span className="ml-2 text-green-600">{report.monitoredFiles}</span>
+
+                      <div className="bg-gradient-to-br from-green-50/80 to-emerald-50/60 dark:from-green-950/30 dark:to-emerald-950/20 p-5 rounded-xl border border-green-200/50 dark:border-green-800/30">
+                        <div className="flex items-center gap-3 mb-2">
+                          <div className="p-2 bg-gradient-to-br from-green-500 to-emerald-500 rounded-lg shadow-lg">
+                            <FileCheck className="h-4 w-4 text-white" />
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <p className="text-xl font-bold text-green-600 dark:text-green-400">
+                              {report.monitoredFiles}
+                            </p>
+                          </div>
+                        </div>
+                        <p className="text-sm font-medium text-green-600/80 dark:text-green-400/80">Monitored Files</p>
+                        <p className="text-xs text-green-500/60 dark:text-green-400/60 mt-1">
+                          Active monitoring enabled
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -303,24 +336,69 @@ export const CodeProvenanceCard: React.FC<CodeProvenanceCardProps> = ({
               </Card>
             )}
 
-            {/* Actions */}
-            <div className="flex gap-2">
-              {!statistics.monitoringStatus ? (
-                <Button onClick={initializeMonitoring} disabled={isScanning || files.length === 0}>
-                  <Upload className="h-4 w-4 mr-2" />
-                  Initialize Monitoring
-                </Button>
-              ) : (
-                <Button onClick={performIntegrityScan} disabled={isScanning}>
-                  {isScanning ? (
-                    <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
-                  ) : (
-                    <Scan className="h-4 w-4 mr-2" />
-                  )}
-                  {isScanning ? 'Scanning...' : 'Run Integrity Scan'}
-                </Button>
-              )}
-            </div>
+            {/* Enhanced Action Section - Better Integrated */}
+            <Card className="relative overflow-hidden bg-gradient-to-br from-slate-50/80 via-white to-gray-50/60 dark:from-slate-950/40 dark:via-slate-800/80 dark:to-gray-950/30 border-0 shadow-lg rounded-xl">
+              <div className="absolute inset-0 bg-gradient-to-br from-slate-500/5 to-gray-500/10 opacity-50" />
+              <CardContent className="relative z-10 p-6">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                  <div className="flex-1">
+                    <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">
+                      {!statistics.monitoringStatus ? 'Initialize Security Monitoring' : 'Security Actions'}
+                    </h3>
+                    <p className="text-sm text-slate-600 dark:text-slate-400">
+                      {!statistics.monitoringStatus 
+                        ? 'Start monitoring your codebase for integrity violations and security threats.'
+                        : 'Run integrity scans to detect unauthorized changes and security issues.'
+                      }
+                    </p>
+                  </div>
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    {!statistics.monitoringStatus ? (
+                      <Button 
+                        onClick={initializeMonitoring} 
+                        disabled={isScanning || files.length === 0}
+                        className="relative group overflow-hidden bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 hover:from-blue-500 hover:via-purple-500 hover:to-indigo-500 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl px-6 py-3 font-semibold"
+                      >
+                        <div className="relative flex items-center justify-center gap-3">
+                          <div className="p-1 bg-white/20 rounded-lg">
+                            <Upload className="h-5 w-5" />
+                          </div>
+                          <span>Initialize Monitoring</span>
+                        </div>
+                      </Button>
+                    ) : (
+                      <>
+                        <Button 
+                          onClick={performIntegrityScan} 
+                          disabled={isScanning}
+                          className="relative group overflow-hidden bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-400 hover:to-emerald-400 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl px-6 py-3 font-semibold"
+                        >
+                          <div className="relative flex items-center justify-center gap-3">
+                            <div className="p-1 bg-white/20 rounded-lg">
+                              {isScanning ? (
+                                <RefreshCw className="h-5 w-5 animate-spin" />
+                              ) : (
+                                <Scan className="h-5 w-5" />
+                              )}
+                            </div>
+                            <span>
+                              {isScanning ? 'Scanning...' : 'Run Integrity Scan'}
+                            </span>
+                          </div>
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          className="bg-white/10 dark:bg-black/10 backdrop-blur-xl border-white/20 dark:border-white/10 hover:bg-white/20 dark:hover:bg-black/20 rounded-xl px-4 py-3"
+                        >
+                          <Settings className="h-4 w-4 mr-2" />
+                          Settings
+                        </Button>
+                      </>
+                    )}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           </TabsContent>
 
           <TabsContent value="alerts" className="space-y-4">

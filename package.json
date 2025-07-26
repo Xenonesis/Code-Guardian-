@@ -1,11 +1,11 @@
 {
   "name": "code-guardian-report",
   "private": true,
-  "version": "0.35.0",
+  "version": "0.80",
   "type": "module",
   "scripts": {
     "dev": "vite --host",
-    "prebuild": "chmod +x node_modules/.bin/vite || true",
+    "prebuild": "echo 'Preparing build...'",
     "build": "npx vite build",
     "build:vercel": "chmod +x node_modules/.bin/vite 2>/dev/null || true && npx vite build",
     "build:production": "NODE_ENV=production npm run build",

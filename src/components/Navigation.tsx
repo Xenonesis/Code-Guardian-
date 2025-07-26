@@ -121,13 +121,23 @@ export const Navigation: React.FC<NavigationProps> = ({ isDarkMode, toggleDarkMo
                   "relative flex items-center gap-2 px-3 py-2 rounded-lg font-medium transition-all duration-200 text-sm group",
                   isActive(item.path)
                     ? "text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20"
-                    : "text-slate-700 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-slate-50 dark:hover:bg-slate-800/50"
+                    : "text-slate-900 dark:text-slate-100 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-slate-50 dark:hover:bg-slate-800/50"
                 )}
               >
                 <div className="flex-shrink-0 transition-transform duration-200 group-hover:scale-110">
                   {item.icon}
                 </div>
-                <span>{item.label}</span>
+                <span style={{ 
+                  color: item.label === 'Settings' 
+                    ? (isDarkMode ? '#ffffff !important' : '#000000 !important') 
+                    : 'inherit', 
+                  opacity: 1, 
+                  visibility: 'visible', 
+                  display: 'inline-block',
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  textShadow: item.label === 'Settings' ? '0 0 1px rgba(0,0,0,0.5)' : 'none'
+                }}>{item.label}</span>
                 
                 {/* Active indicator */}
                 {isActive(item.path) && (

@@ -125,3 +125,20 @@ const hasValidAnalysisResults = analysisResults &&
 - **User Guidance**: Step-by-step instructions for optimal usage
 
 This enhancement ensures Code Guardian maintains its commitment to accuracy and prevents users from generating misleading prompts based on fake or non-existent analysis results.
+
+## 🔧 Language & Framework Details
+
+### Secure Code Search Engine
+**Pattern Library** - Search for secure code implementations and learn from security best practices
+
+- Search for secure code patterns, vulnerabilities, and implementations
+- Find examples of secure coding practices, vulnerability fixes, and best practices
+- Learn from real-world security implementations and patterns
+
+### Code Provenance & Integrity Monitoring
+**Active** - Monitor file integrity, detect unauthorized changes, and track code provenance
+
+**Security Actions:**
+- Run integrity scans to detect unauthorized changes and security issues
+- Monitor file integrity and track code provenance across development lifecycle
+- Automated scanning and reporting for continuous security monitoring

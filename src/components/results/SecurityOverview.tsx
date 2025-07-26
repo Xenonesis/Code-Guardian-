@@ -111,11 +111,33 @@ export const SecurityOverview: React.FC<SecurityOverviewProps> = ({ results }) =
                 </span>
               </div>
             </summary>
-            <div className="mt-2">
+            <div className="mt-2 space-y-4">
               <LanguageDetectionSummary
                 detectionResult={results.languageDetection}
                 className="border-l-4 border-l-blue-500 dark:border-l-blue-400"
               />
+              
+              {/* Security Tools Overview */}
+              <div className="grid gap-4 md:grid-cols-1">
+                {/* Secure Code Search Engine */}
+                <div className="p-4 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/30">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="w-2 h-2 rounded-full bg-blue-500"></div>
+                    <h3 className="font-semibold text-slate-900 dark:text-white">Secure Code Search Engine</h3>
+                    <span className="px-2 py-1 text-xs bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded">Pattern Library</span>
+                  </div>
+                  <p className="text-sm text-slate-600 dark:text-slate-400 mb-3">
+                    Search for secure code implementations and learn from security best practices
+                  </p>
+                  <ul className="text-xs text-slate-500 dark:text-slate-400 space-y-1">
+                    <li>• Search for secure code patterns, vulnerabilities, and implementations</li>
+                    <li>• Find examples of secure coding practices, vulnerability fixes, and best practices</li>
+                    <li>• Learn from real-world security implementations and patterns</li>
+                  </ul>
+                </div>
+
+                {/* Code Provenance & Integrity Monitoring - Commented Out */}
+              </div>
             </div>
           </details>
         )}
@@ -151,13 +173,15 @@ export const SecurityOverview: React.FC<SecurityOverviewProps> = ({ results }) =
             vulnerabilityType={otherIssues.length > 0 ? otherIssues[0].type : undefined}
           />
 
-          {/* Code Provenance & Integrity Monitoring Section */}
+          {/* Code Provenance & Integrity Monitoring Section - Commented Out */}
+          {/*
           <CodeProvenanceCard
             files={filesForProvenance}
             onInitializeMonitoring={() => {
               toast.success('File integrity monitoring initialized');
             }}
           />
+          */}
         </div>
       </div>
 

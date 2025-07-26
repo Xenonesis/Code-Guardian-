@@ -63,13 +63,37 @@ const Index = () => {
       isDarkMode={isDarkMode}
       toggleDarkMode={toggleDarkMode}
     >
-      {/* Upload Section - Moved from tabs to main area */}
-      <section className="max-w-4xl mx-auto py-12 sm:py-16 md:py-20 lg:py-24 px-4 sm:px-6">
-        <UploadForm
-          onFileSelect={handleFileSelect}
-          onAnalysisComplete={handleAnalysisCompleteWithRedirect}
-        />
-      </section>
+      <div className="relative z-10">
+        {/* Hero Section with Enhanced Background - Matching terms page */}
+        <section className="relative max-w-4xl mx-auto py-12 sm:py-16 md:py-20 lg:py-24 px-4 sm:px-6">
+          {/* Enhanced Background for Hero Section Only */}
+          <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-3xl">
+            {/* Main dark gradient background */}
+            <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-purple-900/50 to-slate-900 rounded-3xl"></div>
+            
+            {/* Floating gradient orbs */}
+            <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-indigo-500/20 rounded-full blur-3xl animate-float-slow"></div>
+            <div className="absolute bottom-1/4 right-1/4 w-48 h-48 bg-gradient-to-r from-emerald-500/20 to-teal-500/20 rounded-full blur-2xl animate-float-delayed"></div>
+            
+            {/* Additional atmospheric elements */}
+            <div className="absolute top-1/2 right-1/6 w-32 h-32 bg-gradient-to-r from-pink-500/15 to-rose-500/15 rounded-full blur-2xl animate-pulse-slow"></div>
+            <div className="absolute bottom-1/6 left-1/3 w-40 h-40 bg-gradient-to-r from-cyan-500/15 to-blue-500/15 rounded-full blur-3xl animate-float-slow" style={{animationDelay: '1s'}}></div>
+            
+            {/* Scattered decorative elements */}
+            <div className="absolute top-1/6 right-1/4 w-2 h-2 bg-blue-400/60 rounded-full animate-pulse"></div>
+            <div className="absolute top-1/3 left-1/6 w-1 h-1 bg-purple-400/60 rounded-full animate-pulse" style={{animationDelay: '0.5s'}}></div>
+            <div className="absolute bottom-1/3 right-1/3 w-1.5 h-1.5 bg-cyan-400/60 rounded-full animate-pulse" style={{animationDelay: '1.5s'}}></div>
+            <div className="absolute top-2/3 left-1/2 w-1 h-1 bg-pink-400/60 rounded-full animate-pulse" style={{animationDelay: '2s'}}></div>
+          </div>
+          
+          {/* Upload Form with relative positioning to appear above background */}
+          <div className="relative z-10">
+            <UploadForm
+              onFileSelect={handleFileSelect}
+              onAnalysisComplete={handleAnalysisCompleteWithRedirect}
+            />
+          </div>
+        </section>
 
       <StorageBanner
         hasStoredData={hasStoredData}
@@ -121,6 +145,7 @@ const Index = () => {
       <Suspense fallback={null}>
         {analysisResults && <FloatingChatBot analysisResults={analysisResults} />}
       </Suspense>
+      </div>
     </PageLayout>
   );
 };
