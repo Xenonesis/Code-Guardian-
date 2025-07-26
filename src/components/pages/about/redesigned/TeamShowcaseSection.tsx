@@ -26,7 +26,7 @@ export const TeamShowcaseSection: React.FC = () => {
       avatar: "AKT"
     },
     {
-      name: "Mohammad Ehshan",
+      name: "Aayush Tonk",
       role: "Full Stack Developer",
       icon: <Code className="w-5 h-5" />,
       description: "Experienced full-stack developer with expertise in modern web technologies and scalable application development",
@@ -35,7 +35,7 @@ export const TeamShowcaseSection: React.FC = () => {
       avatar: "ME"
     },
     {
-      name: "Syed Mohd Hasan",
+      name: "Prachi Upadhyay",
       role: "Security Analyst",
       icon: <Shield className="w-5 h-5" />,
       description: "Security specialist focused on threat analysis, vulnerability assessment, and security protocol implementation",
@@ -43,15 +43,6 @@ export const TeamShowcaseSection: React.FC = () => {
       color: "from-red-500 to-pink-500",
       avatar: "SMH"
     },
-    {
-      name: "Mohd Zaid",
-      role: "Frontend Developer",
-      icon: <User className="w-5 h-5" />,
-      description: "Frontend specialist creating intuitive user interfaces and exceptional user experiences with modern frameworks",
-      expertise: ["Frontend Development", "UI/UX Design", "React & TypeScript", "Responsive Design", "Performance Optimization", "Accessibility"],
-      color: "from-green-500 to-emerald-500",
-      avatar: "MZ"
-    }
   ];
 
   return (
@@ -146,7 +137,7 @@ export const TeamShowcaseSection: React.FC = () => {
           <Card className="bg-gradient-to-r from-blue-600 to-purple-600 text-white border-0">
             <CardContent className="p-8 text-center">
               <h3 className="text-2xl font-bold mb-4">
-                Team Blitz - Innovation Hub
+                Powered By Team Blitz ⚡
               </h3>
               <p className="text-blue-100 mb-6 max-w-2xl mx-auto">
                 We're part of Team Blitz, a collective of passionate developers and security experts 
