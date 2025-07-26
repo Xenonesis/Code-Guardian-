@@ -1,0 +1,382 @@
+/* Ultra-Responsive Enterprise Design System */
+
+@layer utilities {
+  /* Mobile-First Premium Responsive Design */
+  
+  /* Ultra-Small Devices (320px and up) */
+  @media (min-width: 320px) {
+    .container-responsive {
+      padding-left: 1rem;
+      padding-right: 1rem;
+    }
+    
+    .text-responsive-xs {
+      font-size: 0.75rem;
+      line-height: 1rem;
+    }
+    
+    .text-responsive-sm {
+      font-size: 0.875rem;
+      line-height: 1.25rem;
+    }
+    
+    .text-responsive-base {
+      font-size: 1rem;
+      line-height: 1.5rem;
+    }
+    
+    .text-responsive-lg {
+      font-size: 1.125rem;
+      line-height: 1.75rem;
+    }
+    
+    .text-responsive-xl {
+      font-size: 1.25rem;
+      line-height: 1.75rem;
+    }
+    
+    .text-responsive-2xl {
+      font-size: 1.5rem;
+      line-height: 2rem;
+    }
+    
+    .text-responsive-3xl {
+      font-size: 1.875rem;
+      line-height: 2.25rem;
+    }
+    
+    .text-responsive-4xl {
+      font-size: 2.25rem;
+      line-height: 2.5rem;
+    }
+    
+    .text-responsive-5xl {
+      font-size: 3rem;
+      line-height: 1;
+    }
+    
+    .text-responsive-6xl {
+      font-size: 3.75rem;
+      line-height: 1;
+    }
+  }
+
+  /* Small Devices (480px and up) */
+  @media (min-width: 480px) {
+    .container-responsive {
+      padding-left: 1.5rem;
+      padding-right: 1.5rem;
+    }
+    
+    .text-responsive-lg {
+      font-size: 1.25rem;
+      line-height: 1.75rem;
+    }
+    
+    .text-responsive-xl {
+      font-size: 1.5rem;
+      line-height: 2rem;
+    }
+    
+    .text-responsive-2xl {
+      font-size: 1.875rem;
+      line-height: 2.25rem;
+    }
+    
+    .text-responsive-3xl {
+      font-size: 2.25rem;
+      line-height: 2.5rem;
+    }
+    
+    .text-responsive-4xl {
+      font-size: 3rem;
+      line-height: 1;
+    }
+    
+    .text-responsive-5xl {
+      font-size: 3.75rem;
+      line-height: 1;
+    }
+    
+    .text-responsive-6xl {
+      font-size: 4.5rem;
+      line-height: 1;
+    }
+  }
+
+  /* Medium Devices (768px and up) */
+  @media (min-width: 768px) {
+    .container-responsive {
+      padding-left: 2rem;
+      padding-right: 2rem;
+    }
+    
+    .text-responsive-2xl {
+      font-size: 2.25rem;
+      line-height: 2.5rem;
+    }
+    
+    .text-responsive-3xl {
+      font-size: 3rem;
+      line-height: 1;
+    }
+    
+    .text-responsive-4xl {
+      font-size: 3.75rem;
+      line-height: 1;
+    }
+    
+    .text-responsive-5xl {
+      font-size: 4.5rem;
+      line-height: 1;
+    }
+    
+    .text-responsive-6xl {
+      font-size: 6rem;
+      line-height: 1;
+    }
+  }
+
+  /* Large Devices (1024px and up) */
+  @media (min-width: 1024px) {
+    .container-responsive {
+      padding-left: 2.5rem;
+      padding-right: 2.5rem;
+    }
+    
+    .text-responsive-3xl {
+      font-size: 3.75rem;
+      line-height: 1;
+    }
+    
+    .text-responsive-4xl {
+      font-size: 4.5rem;
+      line-height: 1;
+    }
+    
+    .text-responsive-5xl {
+      font-size: 6rem;
+      line-height: 1;
+    }
+    
+    .text-responsive-6xl {
+      font-size: 8rem;
+      line-height: 1;
+    }
+  }
+
+  /* Extra Large Devices (1280px and up) */
+  @media (min-width: 1280px) {
+    .container-responsive {
+      padding-left: 3rem;
+      padding-right: 3rem;
+    }
+    
+    .text-responsive-4xl {
+      font-size: 6rem;
+      line-height: 1;
+    }
+    
+    .text-responsive-5xl {
+      font-size: 8rem;
+      line-height: 1;
+    }
+    
+    .text-responsive-6xl {
+      font-size: 10rem;
+      line-height: 1;
+    }
+  }
+
+  /* Premium Mobile Optimizations */
+  @media (max-width: 767px) {
+    /* Mobile-First Card Enhancements */
+    .card-mobile {
+      border-radius: 1rem;
+      padding: 1rem;
+      margin: 0.5rem;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+    }
+    
+    /* Mobile Button Optimizations */
+    .btn-mobile {
+      min-height: 44px;
+      min-width: 44px;
+      padding: 0.875rem 1.5rem;
+      font-size: 1rem;
+      border-radius: 1rem;
+      font-weight: 600;
+    }
+    
+    /* Mobile Input Optimizations */
+    .input-mobile {
+      min-height: 44px;
+      padding: 0.875rem 1rem;
+      font-size: 1rem;
+      border-radius: 0.875rem;
+    }
+    
+    /* Mobile Navigation Enhancements */
+    .nav-mobile {
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    /* Mobile Typography Optimizations */
+    .text-mobile-heading {
+      font-size: 1.5rem;
+      line-height: 1.3;
+      font-weight: 800;
+      letter-spacing: -0.025em;
+    }
+    
+    .text-mobile-body {
+      font-size: 1rem;
+      line-height: 1.6;
+      font-weight: 400;
+    }
+    
+    /* Mobile Spacing Optimizations */
+    .spacing-mobile-xs { margin: 0.25rem; }
+    .spacing-mobile-sm { margin: 0.5rem; }
+    .spacing-mobile-md { margin: 1rem; }
+    .spacing-mobile-lg { margin: 1.5rem; }
+    .spacing-mobile-xl { margin: 2rem; }
+    
+    /* Mobile Grid Optimizations */
+    .grid-mobile-1 { grid-template-columns: 1fr; }
+    .grid-mobile-2 { grid-template-columns: repeat(2, 1fr); }
+    
+    /* Mobile Animation Optimizations */
+    .animate-mobile-reduced {
+      animation-duration: 0.3s;
+      animation-timing-function: ease-out;
+    }
+    
+    /* Mobile Touch Optimizations */
+    .touch-optimized {
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    
+    /* Mobile Performance Optimizations */
+    .performance-mobile {
+      will-change: transform;
+      backface-visibility: hidden;
+      perspective: 1000px;
+    }
+  }
+
+  /* Tablet Optimizations (768px - 1023px) */
+  @media (min-width: 768px) and (max-width: 1023px) {
+    .card-tablet {
+      border-radius: 1.5rem;
+      padding: 1.5rem;
+      margin: 0.75rem;
+    }
+    
+    .btn-tablet {
+      padding: 1rem 2rem;
+      font-size: 1.125rem;
+      border-radius: 1.25rem;
+    }
+    
+    .grid-tablet-2 { grid-template-columns: repeat(2, 1fr); }
+    .grid-tablet-3 { grid-template-columns: repeat(3, 1fr); }
+  }
+
+  /* Desktop Optimizations (1024px and up) */
+  @media (min-width: 1024px) {
+    .card-desktop {
+      border-radius: 2rem;
+      padding: 2rem;
+      margin: 1rem;
+    }
+    
+    .btn-desktop {
+      padding: 1.25rem 2.5rem;
+      font-size: 1.25rem;
+      border-radius: 1.5rem;
+    }
+    
+    .grid-desktop-3 { grid-template-columns: repeat(3, 1fr); }
+    .grid-desktop-4 { grid-template-columns: repeat(4, 1fr); }
+    .grid-desktop-5 { grid-template-columns: repeat(5, 1fr); }
+  }
+
+  /* Ultra-Wide Desktop Optimizations (1536px and up) */
+  @media (min-width: 1536px) {
+    .card-ultrawide {
+      border-radius: 2.5rem;
+      padding: 2.5rem;
+      margin: 1.25rem;
+    }
+    
+    .btn-ultrawide {
+      padding: 1.5rem 3rem;
+      font-size: 1.375rem;
+      border-radius: 2rem;
+    }
+    
+    .grid-ultrawide-4 { grid-template-columns: repeat(4, 1fr); }
+    .grid-ultrawide-5 { grid-template-columns: repeat(5, 1fr); }
+    .grid-ultrawide-6 { grid-template-columns: repeat(6, 1fr); }
+  }
+
+  /* High DPI Display Optimizations */
+  @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    .high-dpi-optimized {
+      image-rendering: -webkit-optimize-contrast;
+      image-rendering: crisp-edges;
+    }
+    
+    .text-high-dpi {
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      text-rendering: optimizeLegibility;
+    }
+  }
+
+  /* Dark Mode Responsive Enhancements */
+  @media (prefers-color-scheme: dark) {
+    .auto-dark-card {
+      background: rgba(15, 23, 42, 0.95);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .auto-dark-text {
+      color: rgba(255, 255, 255, 0.9);
+    }
+  }
+
+  /* Reduced Motion Preferences */
+  @media (prefers-reduced-motion: reduce) {
+    .motion-safe-only {
+      animation: none !important;
+      transition: none !important;
+    }
+    
+    .motion-reduced {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+
+  /* Print Optimizations */
+  @media print {
+    .print-hidden { display: none !important; }
+    .print-visible { display: block !important; }
+    
+    .print-optimized {
+      background: white !important;
+      color: black !important;
+      box-shadow: none !important;
+      border: 1px solid #ccc !important;
+    }
+  }
+}

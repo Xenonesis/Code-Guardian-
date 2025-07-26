@@ -58,7 +58,7 @@ export const HomeHero: React.FC<HomeHeroProps> = ({ onStartAnalysis }) => {
       <div className="relative z-10 max-w-5xl mx-auto text-center space-y-8 sm:space-y-12">
         {/* Revolutionary Feature Badges */}
         <div className="flex flex-wrap justify-center gap-4 sm:gap-6 mb-10 sm:mb-14">
-          <div className="flex items-center gap-3 sm:gap-4 px-6 sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-white/20 to-white/10 dark:from-black/20 dark:to-black/10 backdrop-blur-2xl rounded-2xl sm:rounded-3xl border border-white/40 dark:border-white/30 shadow-2xl hover:scale-110 transition-all duration-500 group">
+          <div className="flex items-center gap-3 sm:gap-4 px-6 sm:px-8 py-3 sm:py-4 glass-ultra rounded-2xl sm:rounded-3xl shadow-enterprise-lg hover:scale-110 hover:shadow-glow-blue transition-all duration-700 group">
             <Shield className="h-5 w-5 sm:h-6 sm:w-6 text-blue-400 group-hover:animate-spin group-hover:text-blue-300" />
             <span className="text-sm sm:text-base font-bold bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent">Enterprise Security</span>
           </div>
@@ -80,8 +80,9 @@ export const HomeHero: React.FC<HomeHeroProps> = ({ onStartAnalysis }) => {
         <div className="flex flex-col sm:flex-row gap-6 sm:gap-8 justify-center items-center">
           <Button
             onClick={onStartAnalysis}
-            size="lg"
-            className="group relative overflow-hidden px-10 sm:px-12 py-5 sm:py-6 rounded-3xl sm:rounded-4xl font-bold text-lg sm:text-xl shadow-3xl transition-all duration-700 hover:scale-115 focus:scale-115 w-full sm:w-auto min-w-[280px] sm:min-w-[320px]"
+            size="xl"
+            variant="ultra"
+            className="group relative overflow-hidden btn-enterprise px-10 sm:px-12 py-5 sm:py-6 rounded-3xl font-bold text-lg sm:text-xl shadow-enterprise-lg hover:shadow-glow-blue transition-all duration-700 hover:scale-110 focus:scale-110 w-full sm:w-auto min-w-[280px] sm:min-w-[320px]"
           >
             <div className="absolute inset-0 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 opacity-100 group-hover:opacity-95 transition-opacity duration-500" />
             <div className="absolute inset-0 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />

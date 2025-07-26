@@ -9,11 +9,11 @@ const Card = React.forwardRef<
   }
 >(({ className, variant = 'default', ...props }, ref) => {
   const variants = {
-    default: "rounded-xl border bg-card text-card-foreground shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5",
-    modern: "rounded-3xl bg-white/98 dark:bg-slate-800/95 backdrop-blur-xl border border-white/60 dark:border-slate-700/60 shadow-2xl hover:shadow-[0_20px_40px_-12px_rgba(0,0,0,0.15)] transition-all duration-500 hover:-translate-y-2 hover:scale-[1.02] group relative overflow-hidden",
-    glass: "rounded-3xl backdrop-blur-2xl bg-white/15 dark:bg-black/15 border border-white/30 dark:border-white/20 shadow-2xl hover:shadow-[0_25px_50px_-12px_rgba(0,0,0,0.25)] transition-all duration-500 hover:-translate-y-1",
-    gradient: "rounded-3xl bg-gradient-to-br from-white/98 via-stone-50/95 to-amber-50/90 dark:from-slate-800 dark:via-slate-800 dark:to-slate-900 border border-stone-200/70 dark:border-slate-700/50 shadow-2xl hover:shadow-[0_20px_40px_-12px_rgba(251,146,60,0.15)] transition-all duration-500 hover:-translate-y-2",
-    elevated: "rounded-3xl bg-gradient-to-br from-card to-white dark:from-slate-800 dark:to-slate-900 border-0 shadow-2xl hover:shadow-[0_35px_60px_-12px_rgba(0,0,0,0.25)] transition-all duration-700 hover:-translate-y-3 hover:scale-[1.03] relative overflow-hidden"
+    default: "rounded-2xl border bg-card text-card-foreground shadow-enterprise hover:shadow-enterprise-lg transition-all duration-500 hover:-translate-y-1 card-enterprise",
+    modern: "card-enterprise shadow-enterprise-lg hover:shadow-glow-blue transition-all duration-700 hover:-translate-y-3 hover:scale-[1.02] group relative overflow-hidden",
+    glass: "glass-ultra rounded-3xl shadow-enterprise-lg hover:shadow-glow-purple transition-all duration-700 hover:-translate-y-2",
+    gradient: "rounded-3xl gradient-enterprise shadow-enterprise-lg hover:shadow-glow-blue transition-all duration-700 hover:-translate-y-3 hover:scale-[1.02]",
+    elevated: "neomorphism rounded-3xl shadow-enterprise-lg hover:shadow-glow-purple transition-all duration-700 hover:-translate-y-4 hover:scale-[1.03] relative overflow-hidden"
   }
   
   return (

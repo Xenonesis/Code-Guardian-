@@ -77,10 +77,10 @@ export const Navigation: React.FC<NavigationProps> = ({ isDarkMode, toggleDarkMo
   const navContent = (
     <nav 
       className={cn(
-        "portal-navbar transition-all duration-300",
+        "portal-navbar transition-all duration-700 nav-enterprise",
         isScrolled
-          ? "bg-white/98 dark:bg-slate-900/95 backdrop-blur-lg shadow-lg border-b border-stone-200/60 dark:border-slate-700/50"
-          : "bg-white/95 dark:bg-slate-900/90 backdrop-blur-md border-b border-stone-200/40 dark:border-slate-700/30"
+          ? "shadow-enterprise-lg border-b border-white/30 dark:border-white/10"
+          : "shadow-enterprise border-b border-white/20 dark:border-white/5"
       )}
       style={{
         position: 'fixed',
@@ -100,7 +100,7 @@ export const Navigation: React.FC<NavigationProps> = ({ isDarkMode, toggleDarkMo
             onClick={() => setIsMobileMenuOpen(false)}
           >
             {/* Shield Icon */}
-            <div className="relative p-2 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:rotate-3">
+            <div className="relative p-3 rounded-2xl gradient-enterprise shadow-glow-blue group-hover:shadow-glow-purple transition-all duration-700 group-hover:rotate-6 animate-float-enterprise">
               <Shield className="h-6 w-6 text-white" />
               <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-white/30 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
               <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-pink-500/10 opacity-0 group-hover:opacity-100 transition-all duration-500 animate-pulse"></div>
@@ -108,11 +108,11 @@ export const Navigation: React.FC<NavigationProps> = ({ isDarkMode, toggleDarkMo
             
             {/* Brand Text */}
             <div className="flex flex-col">
-              <h1 className="text-xl font-bold bg-gradient-to-r from-slate-900 to-blue-900 dark:from-white dark:to-blue-100 bg-clip-text text-transparent leading-tight">
+              <h1 className="text-xl font-bold gradient-text-enterprise text-enterprise-heading leading-tight">
                 Code Guardian
               </h1>
-              <p className="text-xs text-slate-600 dark:text-slate-400 font-medium leading-none block">
-                Security Analysis
+              <p className="text-xs text-slate-600 dark:text-slate-400 font-semibold leading-none block tracking-wide">
+                AI Security Platform
               </p>
             </div>
           </Link>
@@ -124,10 +124,10 @@ export const Navigation: React.FC<NavigationProps> = ({ isDarkMode, toggleDarkMo
                 key={item.path}
                 to={item.path}
                 className={cn(
-                  "relative flex items-center gap-2 px-3 py-2 rounded-lg font-medium transition-all duration-200 text-sm group",
+                  "relative flex items-center gap-3 px-5 py-3 rounded-2xl font-semibold transition-all duration-500 text-sm group text-enterprise",
                   isActive(item.path)
-                    ? "text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20"
-                    : "text-slate-900 dark:text-slate-100 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-slate-50 dark:hover:bg-slate-800/50"
+                    ? "text-white bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 shadow-glow-blue transform scale-105"
+                    : "text-slate-700 dark:text-slate-200 hover:text-white hover:bg-gradient-to-r hover:from-blue-500 hover:via-purple-500 hover:to-indigo-500 hover:shadow-glow-blue hover:scale-105 glass-ultra"
                 )}
               >
                 <div className="flex-shrink-0 transition-transform duration-200 group-hover:scale-110">

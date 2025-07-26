@@ -33,12 +33,13 @@ export const PageLayout: React.FC<PageLayoutProps> = ({
 }) => {
 
   return (
-    <div className={`min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-purple-50/20 dark:from-slate-950 dark:via-blue-950/30 dark:to-purple-950/20 transition-all duration-500 ${className}`}>
-      {/* Enhanced Background Effects - Reduced on mobile */}
+    <div className={`min-h-screen gradient-enterprise transition-all duration-700 ${className}`}>
+      {/* Ultra-Premium Background Effects */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute top-0 left-1/4 w-64 h-64 sm:w-96 sm:h-96 bg-gradient-to-r from-blue-400/5 sm:from-blue-400/10 via-purple-400/5 sm:via-purple-400/10 to-pink-400/5 sm:to-pink-400/10 rounded-full blur-3xl animate-float-slow"></div>
-        <div className="absolute bottom-0 right-1/4 w-48 h-48 sm:w-80 sm:h-80 bg-gradient-to-r from-emerald-400/5 sm:from-emerald-400/10 via-teal-400/5 sm:via-teal-400/10 to-cyan-400/5 sm:to-cyan-400/10 rounded-full blur-3xl animate-float-delayed"></div>
-        <div className="hidden sm:block absolute top-1/2 left-0 w-64 h-64 bg-gradient-to-r from-orange-400/10 to-red-400/10 rounded-full blur-3xl animate-pulse-slow"></div>
+        <div className="absolute top-0 left-1/4 w-96 h-96 sm:w-[32rem] sm:h-[32rem] bg-gradient-to-r from-blue-400/15 via-purple-400/15 to-pink-400/15 rounded-full blur-3xl animate-float-enterprise"></div>
+        <div className="absolute bottom-0 right-1/4 w-80 h-80 sm:w-[28rem] sm:h-[28rem] bg-gradient-to-r from-emerald-400/15 via-teal-400/15 to-cyan-400/15 rounded-full blur-3xl animate-float-enterprise" style={{animationDelay: '2s'}}></div>
+        <div className="absolute top-1/2 left-0 w-72 h-72 sm:w-96 sm:h-96 bg-gradient-to-r from-orange-400/15 to-red-400/15 rounded-full blur-3xl animate-pulse-enterprise"></div>
+        <div className="absolute top-1/3 right-1/3 w-64 h-64 sm:w-80 sm:h-80 bg-gradient-to-r from-violet-400/12 via-indigo-400/12 to-blue-400/12 rounded-full blur-3xl animate-float-enterprise" style={{animationDelay: '4s'}}></div>
       </div>
       {showNavigation && toggleDarkMode && (
         <Navigation isDarkMode={isDarkMode} toggleDarkMode={toggleDarkMode} />
