@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🛡️ Code Guardian v0.95
+# 🛡️ Code Guardian v1.15
 
 <p align="center">
   <strong>🚀 Premium Enterprise-Grade AI Security Analysis Platform</strong><br/>
