@@ -1,5 +1,6 @@
+import MetricsDashboard from "../components/MetricsDashboard";
 import { useState, Suspense, lazy } from 'react';
-
+import { Link } from "react-router-dom";
 import { PageLayout } from '@/components/layouts/PageLayout';
 import { UploadForm } from '@/components/UploadForm';
 import { AnalysisTabs } from '@/components/pages/home/AnalysisTabs';
@@ -19,6 +20,7 @@ const Index = () => {
   const [showStorageStatus, setShowStorageStatus] = useState(false);
   const [showHistoryModal, setShowHistoryModal] = useState(false);
   const { isDarkMode, toggleDarkMode } = useDarkMode();
+  const [showMetrics, setShowMetrics] = useState(false);
   
   const {
     analysisResults,
@@ -92,6 +94,28 @@ const Index = () => {
               onFileSelect={handleFileSelect}
               onAnalysisComplete={handleAnalysisCompleteWithRedirect}
             />
+            {/* Dashboard Metrics Button */}
+          <div className="flex flex-col items-center mt-6">
+            <button
+              onClick={() => setShowMetrics((prev) => !prev)}
+              className="inline-block px-6 py-3 rounded-lg bg-gradient-to-r from-purple-600           to-indigo-600 text-white font-semibold shadow-lg hover:from-indigo-600           hover:to-purple-600 transition-colors duration-200 focus:outline-none           focus:ring-2 focus:ring-purple-400"
+            >
+              {showMetrics ? "Hide Security Metrics Dashboard" : "View Security Metrics           Dashboard"}
+            </button>
+            {showMetrics && (          
+              <div className="w-full mt-8">
+                <MetricsDashboard
+                  totalVulnerabilities={42}
+                  critical={2}
+                  high={8}
+                  medium={15}
+                  low={17}
+                  codeCoverage={87}
+                  scanDate="2025-07-28"
+                />
+              </div>
+            )}
+            </div>
           </div>
         </section>
 
