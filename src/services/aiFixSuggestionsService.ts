@@ -102,7 +102,20 @@ export class AIFixSuggestionsService {
         return aiSuggestions;
       }
     } catch (error) {
-      console.warn('AI generation failed, falling back to rule-based fixes:', error);
+      console.warn('AI generation failed, trying quick fallback:', error);
+
+      // If the main AI request failed due to timeout, try a quick, simple request
+      if (error instanceof Error && error.message.includes('timeout')) {
+        try {
+          console.log('Attempting quick AI fallback...');
+          const quickSuggestions = await this.generateQuickAIFix(request);
+          if (quickSuggestions.length > 0) {
+            return quickSuggestions;
+          }
+        } catch (quickError) {
+          console.warn('Quick AI fallback also failed:', quickError);
+        }
+      }
     }
 
     // Fallback to rule-based suggestions if AI fails
@@ -171,18 +184,17 @@ ${codeContext}
 - Project Context: ${this.inferProjectContext(issue.filename, codeContext)}
 
 **REQUIREMENTS:**
-Generate 2-3 COMPLETE, WORKING code implementations that:
+Generate 2 CONCISE, WORKING code implementations that:
 1. Fix the specific vulnerability shown above
 2. Are production-ready with proper error handling
 3. Follow ${language}${framework ? ` and ${framework}` : ''} best practices
-4. Include necessary imports, dependencies, and setup code
-5. Provide different approaches (simple fix, comprehensive solution, enterprise-grade)
+4. Keep explanations brief and focused
 
-**RESPONSE FORMAT:**
+**RESPONSE FORMAT (MUST BE VALID JSON):**
 [
   {
-    "title": "Specific fix approach name",
-    "description": "Detailed technical description of the implementation",
+    "title": "Brief fix approach name",
+    "description": "Concise technical description (max 100 words)",
     "confidence": 90,
     "effort": "Low|Medium|High",
     "priority": 1-5,
@@ -194,24 +206,31 @@ Generate 2-3 COMPLETE, WORKING code implementations that:
         "endLine": ${issue.line},
         "originalCode": "actual vulnerable code from context",
         "suggestedCode": "complete working secure implementation",
-        "reasoning": "technical explanation of the fix"
+        "reasoning": "brief technical explanation"
       }
     ],
-    "explanation": "Technical explanation of why this approach works",
-    "securityBenefit": "Specific security improvements achieved",
-    "riskAssessment": "Potential risks and mitigation strategies",
-    "testingRecommendations": ["specific test cases to validate the fix"],
-    "relatedPatterns": ["security patterns used"],
-    "dependencies": ["any new dependencies required"],
-    "configurationChanges": ["environment or config changes needed"]
+    "explanation": "Brief explanation of why this approach works (max 50 words)",
+    "securityBenefit": "Specific security improvements (max 30 words)",
+    "riskAssessment": "Potential risks (max 30 words)",
+    "testingRecommendations": ["brief test case 1", "brief test case 2"],
+    "relatedPatterns": ["pattern1", "pattern2"],
+    "dependencies": [],
+    "configurationChanges": []
   }
 ]
 
-Generate REAL, COMPLETE code implementations - not examples or pseudo-code!`
+IMPORTANT: Keep response under 4000 characters. Generate COMPLETE working code - not examples!`
     };
 
     try {
-      const response = await this.aiService.generateResponse([systemPrompt, userPrompt]);
+      const response = await this.generateResponseWithRetry([systemPrompt, userPrompt], 2);
+
+      // Check if response is too short (likely truncated)
+      if (response.length < 100) {
+        console.warn('AI response appears to be too short, using fallback');
+        throw new Error('AI response too short');
+      }
+
       const suggestions = this.parseAIResponse(response, request);
 
       // Enhance suggestions with additional context
@@ -225,14 +244,127 @@ Generate REAL, COMPLETE code implementations - not examples or pseudo-code!`
           language,
           framework,
           vulnerabilityType: issue.type,
-          contextLines: codeContext.split('\n').length
+          contextLines: codeContext.split('\n').length,
+          responseLength: response.length
         }
       }));
 
       return enhancedSuggestions;
     } catch (error) {
-      throw new Error(`Contextual AI fix generation failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      console.error('Contextual AI fix generation failed:', error);
+
+      // Provide more specific error messages
+      let errorMessage = 'AI fix generation failed';
+      if (error instanceof Error) {
+        if (error.message.includes('timeout')) {
+          errorMessage = 'AI request timed out. Please try again.';
+        } else if (error.message.includes('quota') || error.message.includes('rate limit')) {
+          errorMessage = 'AI service quota exceeded. Please try again later.';
+        } else if (error.message.includes('network') || error.message.includes('fetch')) {
+          errorMessage = 'Network error. Please check your connection and try again.';
+        } else {
+          errorMessage = `AI service error: ${error.message}`;
+        }
+      }
+
+      throw new Error(errorMessage);
     }
+  }
+
+  /**
+   * Generate a quick AI fix with minimal prompt to avoid timeouts
+   */
+  private async generateQuickAIFix(request: FixSuggestionRequest): Promise<FixSuggestion[]> {
+    const { issue, codeContext, language } = request;
+
+    const quickPrompt = {
+      role: 'user' as const,
+      content: `Fix this ${issue.severity} ${issue.type} vulnerability in ${language}:
+
+Code: ${codeContext.substring(0, 500)}
+Issue: ${issue.message}
+
+Respond with JSON only:
+[{"title":"Quick Fix","description":"Brief fix","confidence":80,"effort":"Low","priority":3,"codeChanges":[{"type":"replace","filename":"${issue.filename}","startLine":${issue.line},"endLine":${issue.line},"originalCode":"vulnerable code","suggestedCode":"secure code","reasoning":"security fix"}],"explanation":"Brief explanation","securityBenefit":"Security improvement","riskAssessment":"Low risk","testingRecommendations":["test fix"],"relatedPatterns":[]}]`
+    };
+
+    try {
+      // Use shorter timeout for quick fix
+      const timeoutPromise = new Promise<never>((_, reject) => {
+        setTimeout(() => reject(new Error('Quick AI request timeout after 10 seconds')), 10000);
+      });
+
+      const responsePromise = this.aiService.generateResponse([quickPrompt]);
+      const response = await Promise.race([responsePromise, timeoutPromise]);
+
+      const suggestions = this.parseAIResponse(response, request);
+
+      return suggestions.map((suggestion, index) => ({
+        ...suggestion,
+        id: this.generateFixId(request.issue.id, index),
+        issueId: request.issue.id,
+        metadata: {
+          generatedBy: 'Quick AI',
+          language,
+          vulnerabilityType: issue.type,
+          responseLength: response.length
+        }
+      }));
+
+    } catch (error) {
+      console.error('Quick AI fix failed:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Generate AI response with retry logic and progressive timeout
+   */
+  private async generateResponseWithRetry(
+    messages: Array<{ role: string; content: string }>,
+    maxRetries: number = 2
+  ): Promise<string> {
+    let lastError: Error | null = null;
+
+    for (let attempt = 0; attempt <= maxRetries; attempt++) {
+      try {
+        // Progressive timeout: start with 15s, then 30s, then 45s
+        const timeoutMs = 15000 + (attempt * 15000);
+        console.log(`AI request attempt ${attempt + 1}/${maxRetries + 1} with ${timeoutMs/1000}s timeout`);
+
+        const timeoutPromise = new Promise<never>((_, reject) => {
+          setTimeout(() => reject(new Error(`AI request timeout after ${timeoutMs/1000} seconds`)), timeoutMs);
+        });
+
+        const responsePromise = this.aiService.generateResponse(messages);
+        const response = await Promise.race([responsePromise, timeoutPromise]);
+
+        console.log(`AI request successful on attempt ${attempt + 1}, response length: ${response.length}`);
+        return response;
+
+      } catch (error) {
+        lastError = error instanceof Error ? error : new Error('Unknown error');
+        console.warn(`AI request attempt ${attempt + 1} failed:`, lastError.message);
+
+        // Don't retry on certain errors
+        if (lastError.message.includes('quota') ||
+            lastError.message.includes('rate limit') ||
+            lastError.message.includes('authentication') ||
+            lastError.message.includes('unauthorized')) {
+          console.log('Non-retryable error detected, skipping retries');
+          break;
+        }
+
+        // Wait before retry (exponential backoff)
+        if (attempt < maxRetries) {
+          const waitTime = Math.min(1000 * Math.pow(2, attempt), 5000); // Max 5s wait
+          console.log(`Waiting ${waitTime}ms before retry...`);
+          await new Promise(resolve => setTimeout(resolve, waitTime));
+        }
+      }
+    }
+
+    throw lastError || new Error('All retry attempts failed');
   }
 
   /**
@@ -284,21 +416,125 @@ Generate REAL, COMPLETE code implementations - not examples or pseudo-code!`
    */
   private parseAIResponse(response: string, request: FixSuggestionRequest): Omit<FixSuggestion, 'id' | 'issueId'>[] {
     try {
-      // Extract JSON from response if it's wrapped in markdown
-      const jsonMatch = response.match(/```json\s*([\s\S]*?)\s*```/) || response.match(/\[([\s\S]*)\]/);
-      const jsonString = jsonMatch ? (jsonMatch[1] || jsonMatch[0]) : response;
-      
+      // Log the raw response for debugging
+      console.log('Raw AI response:', response.substring(0, 200) + '...');
+      console.log('Response length:', response.length);
+
+      // Try multiple extraction patterns
+      let jsonString = '';
+
+      // Pattern 1: JSON wrapped in markdown code blocks
+      const markdownMatch = response.match(/```json\s*([\s\S]*?)\s*```/);
+      if (markdownMatch) {
+        jsonString = markdownMatch[1];
+      } else {
+        // Pattern 2: Look for array pattern anywhere in the response
+        const arrayMatch = response.match(/\[[\s\S]*\]/);
+        if (arrayMatch) {
+          jsonString = arrayMatch[0];
+        } else {
+          // Pattern 3: Look for object pattern that might be part of an array
+          const objectMatch = response.match(/\{[\s\S]*\}/);
+          if (objectMatch) {
+            // Wrap single object in array
+            jsonString = `[${objectMatch[0]}]`;
+          } else {
+            // No valid JSON found, throw error to trigger fallback
+            throw new Error('No valid JSON found in AI response');
+          }
+        }
+      }
+
+      // Clean up the JSON string
+      jsonString = jsonString.trim();
+
+      // Validate that we have something that looks like JSON
+      if (!jsonString.startsWith('[') && !jsonString.startsWith('{')) {
+        throw new Error('Extracted string does not appear to be valid JSON');
+      }
+
+      // Try to fix truncated JSON by attempting to repair common issues
+      jsonString = this.repairTruncatedJSON(jsonString);
+
       const suggestions = JSON.parse(jsonString) as unknown[];
-      
+
       if (!Array.isArray(suggestions)) {
-        throw new Error('Response is not an array');
+        // If it's a single object, wrap it in an array
+        if (typeof suggestions === 'object' && suggestions !== null) {
+          return [this.validateAndEnhanceSuggestion(suggestions, request, 0)];
+        }
+        throw new Error('Response is not an array or object');
       }
 
       return suggestions.map((suggestion, index) => this.validateAndEnhanceSuggestion(suggestion, request, index));
     } catch (error) {
       console.error('Failed to parse AI response:', error);
+      console.error('Response content:', response.substring(0, 1000) + (response.length > 1000 ? '...[truncated]' : ''));
       // Fallback to basic suggestion
       return [this.createFallbackSuggestion(request)];
+    }
+  }
+
+  /**
+   * Attempt to repair truncated JSON by fixing common issues
+   */
+  private repairTruncatedJSON(jsonString: string): string {
+    try {
+      // First, try parsing as-is
+      JSON.parse(jsonString);
+      return jsonString;
+    } catch (error) {
+      console.log('Attempting to repair truncated JSON...');
+
+      let repaired = jsonString;
+
+      // If it's an array, ensure it ends with ]
+      if (repaired.startsWith('[')) {
+        // Count open and close brackets
+        const openBrackets = (repaired.match(/\[/g) || []).length;
+        const closeBrackets = (repaired.match(/\]/g) || []).length;
+
+        // If we have more open brackets, try to close them
+        if (openBrackets > closeBrackets) {
+          // Find the last complete object
+          const lastCompleteObjectMatch = repaired.match(/.*\}(?=\s*,?\s*$)/s);
+          if (lastCompleteObjectMatch) {
+            repaired = lastCompleteObjectMatch[0];
+            // Remove trailing comma if present
+            repaired = repaired.replace(/,\s*$/, '');
+            // Close the array
+            repaired += ']';
+          }
+        }
+      }
+
+      // If it's an object, ensure it ends with }
+      if (repaired.startsWith('{')) {
+        const openBraces = (repaired.match(/\{/g) || []).length;
+        const closeBraces = (repaired.match(/\}/g) || []).length;
+
+        if (openBraces > closeBraces) {
+          // Try to find the last complete property
+          const lastCompletePropertyMatch = repaired.match(/.*"[^"]*"\s*:\s*(?:"[^"]*"|[^,\}]*?)(?=\s*,?\s*$)/s);
+          if (lastCompletePropertyMatch) {
+            repaired = lastCompletePropertyMatch[0];
+            // Remove trailing comma if present
+            repaired = repaired.replace(/,\s*$/, '');
+            // Close the object
+            repaired += '}';
+          }
+        }
+      }
+
+      // Try parsing the repaired JSON
+      try {
+        JSON.parse(repaired);
+        console.log('Successfully repaired truncated JSON');
+        return repaired;
+      } catch (repairError) {
+        console.log('Could not repair JSON, using original');
+        return jsonString;
+      }
     }
   }
 
@@ -618,30 +854,61 @@ Generate REAL, COMPLETE code implementations - not examples or pseudo-code!`
    * Create fallback suggestion when AI parsing fails
    */
   private createFallbackSuggestion(request: FixSuggestionRequest): Omit<FixSuggestion, 'id' | 'issueId'> {
+    const { issue, codeContext } = request;
+
+    // Try to provide a more specific fallback based on the issue type
+    let title = 'Security Fix Required';
+    let description = `Address ${issue.severity} severity ${issue.type} vulnerability`;
+    let suggestedCode = 'Please review and apply appropriate security measures';
+    let reasoning = 'Manual review required for this security issue';
+
+    // Provide specific guidance based on common vulnerability types
+    if (issue.rule?.includes('sql-injection') || issue.message?.toLowerCase().includes('sql')) {
+      title = 'SQL Injection Fix';
+      description = 'Use parameterized queries to prevent SQL injection';
+      suggestedCode = '// Use parameterized queries or prepared statements\n// Example: db.query("SELECT * FROM users WHERE id = ?", [userId])';
+      reasoning = 'Parameterized queries prevent SQL injection by separating SQL code from data';
+    } else if (issue.rule?.includes('xss') || issue.message?.toLowerCase().includes('xss')) {
+      title = 'XSS Prevention Fix';
+      description = 'Sanitize and escape user input to prevent XSS attacks';
+      suggestedCode = '// Sanitize user input and use proper encoding\n// Example: escapeHtml(userInput) or use framework-specific sanitization';
+      reasoning = 'Input sanitization and output encoding prevent XSS vulnerabilities';
+    } else if (issue.rule?.includes('hardcoded') || issue.message?.toLowerCase().includes('secret')) {
+      title = 'Secret Management Fix';
+      description = 'Move hardcoded secrets to environment variables';
+      suggestedCode = '// Use environment variables\n// Example: process.env.SECRET_KEY or config.getSecret()';
+      reasoning = 'Environment variables keep secrets out of source code';
+    } else if (issue.rule?.includes('random') || issue.message?.toLowerCase().includes('random')) {
+      title = 'Secure Random Fix';
+      description = 'Use cryptographically secure random number generation';
+      suggestedCode = '// Use crypto.getRandomValues() instead of Math.random()\n// Example: crypto.getRandomValues(new Uint32Array(1))[0]';
+      reasoning = 'Cryptographically secure random numbers prevent prediction attacks';
+    }
+
     return {
-      title: 'Basic Security Fix',
-      description: `Address ${request.issue.type} vulnerability in ${request.issue.filename}`,
-      confidence: 60,
+      title,
+      description,
+      confidence: 70,
       effort: 'Medium',
-      priority: 3,
+      priority: issue.severity === 'Critical' ? 5 : issue.severity === 'High' ? 4 : 3,
       codeChanges: [{
         type: 'replace',
-        filename: request.issue.filename,
-        startLine: request.issue.line,
-        endLine: request.issue.line,
-        originalCode: 'Vulnerable code pattern',
-        suggestedCode: 'Secure implementation',
-        reasoning: 'Apply security best practices'
+        filename: issue.filename,
+        startLine: issue.line,
+        endLine: issue.line,
+        originalCode: codeContext.split('\n')[0] || 'Vulnerable code',
+        suggestedCode,
+        reasoning
       }],
-      explanation: 'This fix addresses the identified security vulnerability using standard security practices.',
-      securityBenefit: 'Reduces security risk and improves code safety.',
-      riskAssessment: 'Review changes carefully before applying.',
+      explanation: `This ${issue.severity.toLowerCase()} severity vulnerability requires manual review and implementation of appropriate security measures.`,
+      securityBenefit: `Addresses ${issue.type} vulnerability and improves overall security posture.`,
+      riskAssessment: 'Manual review recommended. Test thoroughly before deployment.',
       testingRecommendations: [
-        'Test functionality after applying fix',
-        'Run security scans to verify fix effectiveness',
-        'Perform regression testing'
+        'Verify the fix addresses the specific vulnerability',
+        'Test functionality is not broken',
+        'Run security scans to confirm fix effectiveness'
       ],
-      relatedPatterns: []
+      relatedPatterns: ['Secure Coding Practices', 'Input Validation', 'Output Encoding']
     };
   }
 

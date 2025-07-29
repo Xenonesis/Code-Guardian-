@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Key, Eye, EyeOff, Plus, Trash2, Bot, AlertTriangle, Power } from 'lucide-react';
+import { Key, Eye, EyeOff, Plus, Trash2, Bot, AlertTriangle, Power, Search } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -21,6 +21,7 @@ const aiProviders: AIProvider[] = [
   { id: 'gemini', name: 'Google Gemini', icon: '💎', description: 'Advanced code understanding' },
   { id: 'claude', name: 'Anthropic Claude', icon: '🧠', description: 'Detailed security insights' },
   { id: 'mistral', name: 'Mistral AI', icon: '⚡', description: 'Fast and efficient analysis' },
+  { id: 'openrouter', name: 'OpenRouter', icon: '🌐', description: 'Access to multiple AI models via OpenRouter' },
   { id: 'lmstudio', name: 'LM Studio', icon: '🖥️', description: 'Local AI models via LM Studio' },
   { id: 'ollama', name: 'Ollama', icon: '🦙', description: 'Local AI models via Ollama' },
 ];
@@ -43,6 +44,12 @@ export const AIKeyManager: React.FC = () => {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoadingModels, setIsLoadingModels] = useState(false);
+  const [modelSearchQuery, setModelSearchQuery] = useState('');
+
+  // Filter models based on search query
+  const filteredModels = availableModels.filter(model =>
+    model.toLowerCase().includes(modelSearchQuery.toLowerCase())
+  );
 
   // Load API keys from localStorage on component mount
   useEffect(() => {
@@ -74,37 +81,52 @@ export const AIKeyManager: React.FC = () => {
     }
   }, [apiKeys]);
 
-  const fetchAvailableModels = async (provider: string, endpoint: string) => {
-    if (!endpoint || (provider !== 'lmstudio' && provider !== 'ollama')) return;
-    
+  const fetchAvailableModels = async (provider: string, endpoint?: string, apiKey?: string) => {
+    if (provider !== 'lmstudio' && provider !== 'ollama' && provider !== 'openrouter') return;
+    if ((provider === 'lmstudio' || provider === 'ollama') && !endpoint) return;
+    if (provider === 'openrouter' && !apiKey) return;
+
     setIsLoadingModels(true);
     try {
       let modelsUrl = '';
+      let headers: Record<string, string> = {};
+
       if (provider === 'lmstudio') {
         modelsUrl = `${endpoint}/v1/models`;
       } else if (provider === 'ollama') {
         modelsUrl = `${endpoint}/api/tags`;
+      } else if (provider === 'openrouter') {
+        modelsUrl = 'https://openrouter.ai/api/v1/models';
+        headers = {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${apiKey}`
+        };
       }
 
-      const response = await fetch(modelsUrl);
+      const response = await fetch(modelsUrl, { headers });
       if (response.ok) {
         const data = await response.json();
         let models: string[] = [];
-        
+
         if (provider === 'lmstudio') {
           models = data.data?.map((model: any) => model.id) || [];
         } else if (provider === 'ollama') {
           models = data.models?.map((model: any) => model.name) || [];
+        } else if (provider === 'openrouter') {
+          models = data.data?.map((model: any) => model.id) || [];
         }
-        
+
         setAvailableModels(models);
+        setModelSearchQuery(''); // Clear search when new models are loaded
       } else {
         setAvailableModels([]);
-        setErrors(prev => ({ ...prev, endpoint: 'Failed to connect to endpoint' }));
+        const errorField = provider === 'openrouter' ? 'key' : 'endpoint';
+        setErrors(prev => ({ ...prev, [errorField]: 'Failed to fetch models' }));
       }
     } catch (error) {
       setAvailableModels([]);
-      setErrors(prev => ({ ...prev, endpoint: 'Failed to connect to endpoint' }));
+      const errorField = provider === 'openrouter' ? 'key' : 'endpoint';
+      setErrors(prev => ({ ...prev, [errorField]: 'Failed to fetch models' }));
     } finally {
       setIsLoadingModels(false);
     }
@@ -117,10 +139,6 @@ export const AIKeyManager: React.FC = () => {
       newErrors.provider = 'Please select an AI provider';
     }
 
-    if (!newKey.name.trim()) {
-      newErrors.name = 'Please enter a name for this API key';
-    }
-
     // Validate based on provider type
     if (newKey.provider === 'lmstudio' || newKey.provider === 'ollama') {
       if (!localConfig.endpoint.trim()) {
@@ -128,7 +146,17 @@ export const AIKeyManager: React.FC = () => {
       } else if (!localConfig.endpoint.startsWith('http')) {
         newErrors.endpoint = 'Endpoint must start with http:// or https://';
       }
-      
+
+      if (!localConfig.model.trim()) {
+        newErrors.model = 'Please select a model';
+      }
+    } else if (newKey.provider === 'openrouter') {
+      if (!newKey.key.trim()) {
+        newErrors.key = 'Please enter your API key';
+      } else if (newKey.key.length < 10) {
+        newErrors.key = 'API key seems too short. Please check your key';
+      }
+
       if (!localConfig.model.trim()) {
         newErrors.model = 'Please select a model';
       }
@@ -162,20 +190,29 @@ export const AIKeyManager: React.FC = () => {
       }
 
       let keyValue = newKey.key.trim();
-      
-      // For local providers, store configuration as JSON
+
+      // For local providers and OpenRouter, store configuration as JSON
       if (newKey.provider === 'lmstudio' || newKey.provider === 'ollama') {
         keyValue = JSON.stringify({
           endpoint: localConfig.endpoint.trim(),
           model: localConfig.model.trim()
         });
+      } else if (newKey.provider === 'openrouter') {
+        keyValue = JSON.stringify({
+          apiKey: newKey.key.trim(),
+          model: localConfig.model.trim()
+        });
       }
+
+      // Generate default name if none provided
+      const defaultName = `${getProviderInfo(newKey.provider)?.name || newKey.provider} - ${new Date().toLocaleDateString()}`;
+      const finalName = newKey.name.trim() || defaultName;
 
       const key: APIKey = {
         id: Date.now().toString(),
         provider: newKey.provider.trim(),
         key: keyValue,
-        name: newKey.name.trim(),
+        name: finalName,
         enabled: true,
       };
 
@@ -185,6 +222,7 @@ export const AIKeyManager: React.FC = () => {
       setNewKey({ provider: '', key: '', name: '' });
       setLocalConfig({ endpoint: '', model: '' });
       setAvailableModels([]);
+      setModelSearchQuery('');
       setIsAdding(false);
       setErrors({});
 
@@ -228,6 +266,16 @@ export const AIKeyManager: React.FC = () => {
         return 'Invalid configuration';
       }
     }
+    if (provider === 'openrouter') {
+      try {
+        const config = JSON.parse(key);
+        const maskedKey = config.apiKey.length <= 8 ? '••••••••' :
+          config.apiKey.substring(0, 4) + '••••••••' + config.apiKey.substring(config.apiKey.length - 4);
+        return `${maskedKey} (${config.model})`;
+      } catch {
+        return 'Invalid configuration';
+      }
+    }
     if (key.length <= 8) return '••••••••';
     return key.substring(0, 4) + '••••••••' + key.substring(key.length - 4);
   };
@@ -237,6 +285,14 @@ export const AIKeyManager: React.FC = () => {
       try {
         const config = JSON.parse(key);
         return isVisible ? `${config.endpoint} (${config.model})` : maskKey(key, provider);
+      } catch {
+        return 'Invalid configuration';
+      }
+    }
+    if (provider === 'openrouter') {
+      try {
+        const config = JSON.parse(key);
+        return isVisible ? `${config.apiKey} (${config.model})` : maskKey(key, provider);
       } catch {
         return 'Invalid configuration';
       }
@@ -393,12 +449,15 @@ export const AIKeyManager: React.FC = () => {
                       <Select
                         value={newKey.provider}
                         onValueChange={(value) => {
-                          setNewKey({...newKey, provider: value});
+                          setNewKey({...newKey, provider: value, key: ''});
                           setLocalConfig({ endpoint: '', model: '' });
                           setAvailableModels([]);
+                          setModelSearchQuery('');
                           if (errors.provider) {
                             setErrors(prev => ({ ...prev, provider: '' }));
                           }
+                          // Clear any existing errors
+                          setErrors({});
                         }}
                       >
                         <SelectTrigger
@@ -425,7 +484,7 @@ export const AIKeyManager: React.FC = () => {
 
                     <div>
                       <Label htmlFor="key-name" className="text-sm">
-                        Configuration Name <span className="text-red-500">*</span>
+                        Configuration Name <span className="text-gray-500 text-xs">(optional)</span>
                       </Label>
                       <Input
                         id="key-name"
@@ -478,10 +537,24 @@ export const AIKeyManager: React.FC = () => {
                           )}
                         </div>
 
-                        <div>
+                        <div className="space-y-3">
                           <Label htmlFor="model-select" className="text-sm">
                             Model <span className="text-red-500">*</span>
                           </Label>
+
+                          {/* Search Input for Local Providers */}
+                          {availableModels.length > 0 && (
+                            <div className="relative">
+                              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                              <Input
+                                placeholder="Search models..."
+                                value={modelSearchQuery}
+                                onChange={(e) => setModelSearchQuery(e.target.value)}
+                                className="text-sm pl-10"
+                              />
+                            </div>
+                          )}
+
                           <div className="flex gap-2">
                             <Select
                               value={localConfig.model}
@@ -499,12 +572,17 @@ export const AIKeyManager: React.FC = () => {
                               >
                                 <SelectValue placeholder={isLoadingModels ? 'Loading...' : 'Select model'} />
                               </SelectTrigger>
-                              <SelectContent>
-                                {availableModels.map((model) => (
+                              <SelectContent className="max-h-60">
+                                {filteredModels.map((model) => (
                                   <SelectItem key={model} value={model}>
                                     {model}
                                   </SelectItem>
                                 ))}
+                                {filteredModels.length === 0 && availableModels.length > 0 && modelSearchQuery && (
+                                  <SelectItem value="no-search-results" disabled>
+                                    No models match your search
+                                  </SelectItem>
+                                )}
                                 {availableModels.length === 0 && !isLoadingModels && (
                                   <SelectItem value="no-models" disabled>
                                     No models found
@@ -530,6 +608,11 @@ export const AIKeyManager: React.FC = () => {
                           {errors.model && (
                             <p className="text-red-500 text-xs mt-1">{errors.model}</p>
                           )}
+                          {availableModels.length > 0 && (
+                            <div className="text-xs text-gray-600 dark:text-gray-400">
+                              <p>Found {availableModels.length} models • Showing {filteredModels.length} {modelSearchQuery && `matching "${modelSearchQuery}"`}</p>
+                            </div>
+                          )}
                         </div>
                       </div>
                       
@@ -550,23 +633,112 @@ export const AIKeyManager: React.FC = () => {
                       <Label htmlFor="api-key" className="text-sm">
                         API Key <span className="text-red-500">*</span>
                       </Label>
-                      <Input
-                        id="api-key"
-                        type="password"
-                        placeholder="sk-..."
-                        value={newKey.key}
-                        onChange={(e) => {
-                          setNewKey({...newKey, key: e.target.value});
-                          if (errors.key) {
-                            setErrors(prev => ({ ...prev, key: '' }));
-                          }
-                        }}
-                        className={`focus-ring ${errors.key ? 'border-red-500 focus:ring-red-500' : ''}`}
-                        aria-describedby={errors.key ? "key-error" : undefined}
-                      />
+                      <div className="flex gap-2">
+                        <Input
+                          id="api-key"
+                          type="password"
+                          placeholder="sk-..."
+                          value={newKey.key}
+                          onChange={(e) => {
+                            setNewKey({...newKey, key: e.target.value});
+                            if (errors.key) {
+                              setErrors(prev => ({ ...prev, key: '' }));
+                            }
+                          }}
+                          onBlur={() => {
+                            if (newKey.provider === 'openrouter' && newKey.key && newKey.key.length > 10) {
+                              fetchAvailableModels(newKey.provider, undefined, newKey.key);
+                            }
+                          }}
+                          className={`focus-ring ${errors.key ? 'border-red-500 focus:ring-red-500' : ''}`}
+                          aria-describedby={errors.key ? "key-error" : undefined}
+                        />
+                        {newKey.provider === 'openrouter' && (
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => fetchAvailableModels(newKey.provider, undefined, newKey.key)}
+                            disabled={!newKey.key || newKey.key.length < 10 || isLoadingModels}
+                            className="px-3"
+                          >
+                            {isLoadingModels ? (
+                              <div className="animate-spin rounded-full h-4 w-4 border-2 border-gray-400 border-t-transparent" />
+                            ) : (
+                              'Load Models'
+                            )}
+                          </Button>
+                        )}
+                      </div>
                       {errors.key && (
                         <p id="key-error" className="text-red-500 text-xs mt-1">{errors.key}</p>
                       )}
+                    </div>
+                  )}
+
+                  {/* OpenRouter Model Selection */}
+                  {newKey.provider === 'openrouter' && (
+                    <div className="space-y-3">
+                      <Label htmlFor="openrouter-model-select" className="text-sm">
+                        Model <span className="text-red-500">*</span>
+                      </Label>
+
+                      {/* Search Input */}
+                      {availableModels.length > 0 && (
+                        <div className="relative">
+                          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                          <Input
+                            placeholder="Search models..."
+                            value={modelSearchQuery}
+                            onChange={(e) => setModelSearchQuery(e.target.value)}
+                            className="text-sm pl-10"
+                          />
+                        </div>
+                      )}
+
+                      <Select
+                        value={localConfig.model}
+                        onValueChange={(value) => {
+                          setLocalConfig({...localConfig, model: value});
+                          if (errors.model) {
+                            setErrors(prev => ({ ...prev, model: '' }));
+                          }
+                        }}
+                        disabled={!newKey.key || isLoadingModels}
+                      >
+                        <SelectTrigger
+                          id="openrouter-model-select"
+                          className={`focus-ring ${errors.model ? 'border-red-500 focus:ring-red-500' : ''}`}
+                        >
+                          <SelectValue placeholder={isLoadingModels ? 'Loading models...' : 'Select model'} />
+                        </SelectTrigger>
+                        <SelectContent className="max-h-60">
+                          {filteredModels.map((model) => (
+                            <SelectItem key={model} value={model}>
+                              {model}
+                            </SelectItem>
+                          ))}
+                          {filteredModels.length === 0 && availableModels.length > 0 && modelSearchQuery && (
+                            <SelectItem value="no-search-results" disabled>
+                              No models match your search
+                            </SelectItem>
+                          )}
+                          {availableModels.length === 0 && !isLoadingModels && (
+                            <SelectItem value="no-models" disabled>
+                              {newKey.key ? 'No models found - check your API key' : 'Enter API key to load models'}
+                            </SelectItem>
+                          )}
+                        </SelectContent>
+                      </Select>
+                      {errors.model && (
+                        <p className="text-red-500 text-xs mt-1">{errors.model}</p>
+                      )}
+                      <div className="text-xs text-gray-600 dark:text-gray-400">
+                        <p>Enter your API key and click "Load Models" to see available models</p>
+                        {availableModels.length > 0 && (
+                          <p className="mt-1">Found {availableModels.length} models • Showing {filteredModels.length} {modelSearchQuery && `matching "${modelSearchQuery}"`}</p>
+                        )}
+                      </div>
                     </div>
                   )}
                 </div>

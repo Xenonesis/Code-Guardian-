@@ -456,6 +456,61 @@ export class AIService {
     }
   }
 
+  private async callOpenRouter(apiKey: string, messages: ChatMessage[], model?: string): Promise<string> {
+    console.log('Calling OpenRouter API...');
+
+    if (!apiKey) {
+      throw new Error('OpenRouter API key is required');
+    }
+
+    try {
+      const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${apiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: model || 'openai/gpt-4o-mini', // Use provided model or default
+          messages,
+          temperature: 0.7,
+          max_tokens: 2048,
+        }),
+      });
+
+      console.log('OpenRouter Response Status:', response.status);
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('OpenRouter API Error Response:', errorText);
+
+        let errorMessage = `OpenRouter API error (${response.status})`;
+        try {
+          const errorData = JSON.parse(errorText);
+          if (errorData.error?.message) {
+            errorMessage += `: ${errorData.error.message}`;
+          }
+        } catch {
+          errorMessage += `: ${errorText}`;
+        }
+
+        throw new Error(errorMessage);
+      }
+
+      const data = await response.json();
+      console.log('OpenRouter API Response:', data);
+
+      if (!data.choices?.[0]?.message?.content) {
+        throw new Error('Invalid response format from OpenRouter - no content found');
+      }
+
+      return data.choices[0].message.content;
+    } catch (error) {
+      console.error('OpenRouter API call failed:', error);
+      throw error;
+    }
+  }
+
   private async callOllama(endpoint: string, messages: ChatMessage[], model?: string): Promise<string> {
     console.log('Calling Ollama API...');
     
@@ -512,7 +567,7 @@ export class AIService {
     }
   }
 
-  async getAvailableModels(provider: string, endpoint?: string): Promise<string[]> {
+  async getAvailableModels(provider: string, endpoint?: string, apiKey?: string): Promise<string[]> {
     try {
       if (provider === 'lmstudio' && endpoint) {
         const response = await fetch(`${endpoint}/v1/models`);
@@ -525,6 +580,24 @@ export class AIService {
         if (response.ok) {
           const data = await response.json();
           return data.models?.map((model: any) => model.name) || [];
+        }
+      } else if (provider === 'openrouter') {
+        const headers: Record<string, string> = {
+          'Content-Type': 'application/json',
+        };
+
+        // Add authorization header if API key is provided
+        if (apiKey) {
+          headers['Authorization'] = `Bearer ${apiKey}`;
+        }
+
+        const response = await fetch('https://openrouter.ai/api/v1/models', {
+          headers
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          return data.data?.map((model: any) => model.id) || [];
         }
       }
       return [];
@@ -558,6 +631,15 @@ export class AIService {
             return await this.callClaude(provider.apiKey, messages);
           case 'mistral':
             return await this.callMistral(provider.apiKey, messages);
+          case 'openrouter': {
+            try {
+              const config = JSON.parse(provider.apiKey || '{}');
+              return await this.callOpenRouter(config.apiKey, messages, config.model);
+            } catch {
+              // Fallback for old format (just API key)
+              return await this.callOpenRouter(provider.apiKey, messages);
+            }
+          }
           case 'lmstudio': {
             const config = JSON.parse(provider.apiKey || '{}');
             return await this.callLMStudio(config.endpoint, messages, config.model);

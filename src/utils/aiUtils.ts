@@ -88,7 +88,8 @@ export function formatProviderName(providerId: string): string {
   const providerNames: Record<string, string> = {
     'openai': 'OpenAI GPT',
     'gemini': 'Google Gemini',
-    'claude': 'Anthropic Claude'
+    'claude': 'Anthropic Claude',
+    'openrouter': 'OpenRouter'
   };
   return providerNames[providerId] || providerId;
 }
@@ -120,6 +121,12 @@ export function validateApiKey(providerId: string, apiKey: string): { isValid: b
     case 'claude':
       if (apiKey.length < 20) {
         return { isValid: false, error: 'Claude API key appears to be too short' };
+      }
+      break;
+
+    case 'openrouter':
+      if (apiKey.length < 20) {
+        return { isValid: false, error: 'OpenRouter API key appears to be too short' };
       }
       break;
   }

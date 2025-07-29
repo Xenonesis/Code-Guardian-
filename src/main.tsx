@@ -5,6 +5,7 @@ import App from './App.tsx';
 import './styles/base.css';
 // Import other styles
 import './styles/background-effects.css';
+import './styles/animations.css';
 
 // Performance monitoring
 if ('performance' in window && 'mark' in window.performance) {
@@ -74,12 +75,26 @@ if ('performance' in window && 'measure' in window.performance) {
   window.addEventListener('load', () => {
     performance.mark('app-end');
     performance.measure('app-load-time', 'app-start', 'app-end');
-    
+
     // Log performance metrics in development
     if (import.meta.env.DEV) {
       const measure = performance.getEntriesByName('app-load-time')[0];
       console.log(`App load time: ${measure.duration.toFixed(2)}ms`);
     }
+  });
+}
+
+// Development utilities
+if (import.meta.env.DEV) {
+  import('./utils/historyTestUtils').then(({ HistoryTestUtils }) => {
+    (window as any).HistoryTestUtils = HistoryTestUtils;
+    console.log('🧪 History test utilities loaded.');
+    console.log('📝 Available commands:');
+    console.log('  - HistoryTestUtils.createSingleTestAnalysis() - Create one test analysis');
+    console.log('  - HistoryTestUtils.populateTestHistory(5) - Create multiple test analyses');
+    console.log('  - HistoryTestUtils.debugStorage() - Debug storage contents');
+    console.log('  - HistoryTestUtils.runTestSuite() - Run full test suite');
+    console.log('  - HistoryTestUtils.clearTestData() - Clear all test data');
   });
 }
 

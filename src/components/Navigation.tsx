@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { Link, useLocation } from 'react-router-dom';
-import { Shield, Home, Moon, Sun, Menu, X, Info, Lock, Award, Settings, BookOpen } from 'lucide-react';
+import { Shield, Home, Moon, Sun, Menu, X, Info, Lock, Award, Settings, BookOpen, History } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
@@ -47,6 +47,11 @@ export const Navigation: React.FC<NavigationProps> = ({ isDarkMode, toggleDarkMo
       path: '/documentation',
       label: 'Documentation',
       icon: <BookOpen className="h-4 w-4" />
+    },
+    {
+      path: '/history',
+      label: 'History',
+      icon: <History className="h-4 w-4" />
     },
     {
       path: '/settings',
