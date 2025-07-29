@@ -42,7 +42,7 @@ export class AnalysisStorageService {
   private static readonly STORAGE_KEY = 'codeGuardianAnalysis';
   private static readonly HISTORY_KEY = 'codeGuardianHistory';
   private static readonly VERSION = '2.0.0';
-  private static readonly MAX_HISTORY_SIZE = 5;
+  private static readonly MAX_HISTORY_SIZE = 10;
   private static readonly MAX_STORAGE_SIZE = 50 * 1024 * 1024; // 50MB
   private static readonly COMPRESSION_THRESHOLD = 100 * 1024; // 100KB
 
@@ -198,6 +198,130 @@ export class AnalysisStorageService {
     }
 
     return JSON.stringify(current, null, 2);
+  }
+
+  /**
+   * Export multiple analysis results
+   */
+  public exportMultipleAnalyses(analysisIds: string[], format: 'json' | 'compressed' = 'json'): string {
+    const history = this.getAnalysisHistory();
+    const allAnalyses = [history.currentAnalysis, ...history.previousAnalyses].filter(Boolean) as StoredAnalysisData[];
+
+    const selectedAnalyses = analysisIds.length > 0
+      ? allAnalyses.filter(analysis => analysisIds.includes(analysis.id))
+      : allAnalyses;
+
+    if (selectedAnalyses.length === 0) {
+      throw new Error('No analysis results found for export');
+    }
+
+    const exportData = {
+      exportedAt: new Date().toISOString(),
+      totalAnalyses: selectedAnalyses.length,
+      analyses: selectedAnalyses
+    };
+
+    if (format === 'compressed') {
+      return this.compressData(JSON.stringify(exportData));
+    }
+
+    return JSON.stringify(exportData, null, 2);
+  }
+
+  /**
+   * Export analysis history
+   */
+  public exportHistory(format: 'json' | 'compressed' = 'json'): string {
+    const history = this.getAnalysisHistory();
+
+    const exportData = {
+      exportedAt: new Date().toISOString(),
+      version: AnalysisStorageService.VERSION,
+      ...history
+    };
+
+    if (format === 'compressed') {
+      return this.compressData(JSON.stringify(exportData));
+    }
+
+    return JSON.stringify(exportData, null, 2);
+  }
+
+  /**
+   * Delete specific analysis from history
+   */
+  public async deleteAnalysis(analysisId: string): Promise<void> {
+    const history = this.getAnalysisHistory();
+
+    // Check if it's the current analysis
+    if (history.currentAnalysis?.id === analysisId) {
+      this.clearCurrentAnalysis();
+      return;
+    }
+
+    // Remove from previous analyses
+    const updatedPreviousAnalyses = history.previousAnalyses.filter(
+      analysis => analysis.id !== analysisId
+    );
+
+    if (updatedPreviousAnalyses.length === history.previousAnalyses.length) {
+      throw new Error('Analysis not found');
+    }
+
+    await this.saveHistory({
+      ...history,
+      previousAnalyses: updatedPreviousAnalyses
+    });
+
+    console.log(`🗑️ Analysis ${analysisId} deleted from history`);
+  }
+
+  /**
+   * Restore analysis as current
+   */
+  public async restoreAnalysis(analysisId: string): Promise<void> {
+    const history = this.getAnalysisHistory();
+    const analysisToRestore = history.previousAnalyses.find(
+      analysis => analysis.id === analysisId
+    );
+
+    if (!analysisToRestore) {
+      throw new Error('Analysis not found in history');
+    }
+
+    // Store current analysis in history if it exists
+    if (history.currentAnalysis) {
+      history.previousAnalyses.unshift(history.currentAnalysis);
+    }
+
+    // Remove the restored analysis from history
+    const updatedPreviousAnalyses = history.previousAnalyses.filter(
+      analysis => analysis.id !== analysisId
+    );
+
+    // Set as current analysis
+    setLocalStorageItem(AnalysisStorageService.STORAGE_KEY, JSON.stringify(analysisToRestore));
+
+    // Update history
+    await this.saveHistory({
+      ...history,
+      previousAnalyses: updatedPreviousAnalyses
+    });
+
+    this.notifyListeners(analysisToRestore);
+    console.log(`🔄 Analysis ${analysisId} restored as current`);
+  }
+
+  /**
+   * Clear analysis history (keep current analysis)
+   */
+  public async clearHistory(): Promise<void> {
+    const history = this.getAnalysisHistory();
+    await this.saveHistory({
+      ...history,
+      previousAnalyses: []
+    });
+    console.log('🗑️ Analysis history cleared');
   }
 
   /**

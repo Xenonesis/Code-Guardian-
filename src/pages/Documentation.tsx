@@ -46,6 +46,17 @@ const Documentation = () => {
       performance: 'Very Good'
     },
     {
+      id: 'openrouter',
+      name: 'OpenRouter',
+      icon: '🌐',
+      type: 'cloud',
+      description: 'Access to multiple AI models through a unified API',
+      features: ['Multiple Model Access', 'Model Routing', 'Fallback Support', 'Cost Optimization'],
+      pricing: 'Pay-per-use',
+      setupComplexity: 'Easy',
+      performance: 'Excellent'
+    },
+    {
       id: 'ollama',
       name: 'Ollama',
       icon: '🦙',

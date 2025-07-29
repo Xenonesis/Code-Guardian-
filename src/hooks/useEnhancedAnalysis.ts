@@ -66,12 +66,18 @@ export const useEnhancedAnalysis = () => {
   }, [updateStorageStats]);
 
   const handleFileSelect = useCallback(async (file: File) => {
+    console.log('📁 File selection started:', {
+      fileName: file.name,
+      fileSize: file.size,
+      fileType: file.type
+    });
+
     setSelectedFile(file);
-    
+
     // Check if this is a new file
     const isNewFileCheck = await analysisStorage.isNewFile(file);
     setIsNewFile(isNewFileCheck);
-    
+
     if (isNewFileCheck) {
       console.log('🆕 New file selected, will clear previous results');
       // Clear previous results when new file is selected
@@ -82,26 +88,47 @@ export const useEnhancedAnalysis = () => {
     } else {
       console.log('🔄 Same file selected, keeping existing results');
     }
-    
-    console.log('📁 File selected:', file.name, 'Size:', file.size, 'bytes');
+
+    console.log('✅ File selected and stored in state:', file.name);
   }, []);
 
   const handleAnalysisComplete = useCallback(async (results: AnalysisResults) => {
-    console.log('✅ Analysis complete, storing results:', results);
-    
+    console.log('✅ Analysis complete, storing results:', {
+      resultsReceived: !!results,
+      issueCount: results?.issues?.length || 0,
+      selectedFile: selectedFile ? selectedFile.name : 'NO FILE SELECTED',
+      fileSize: selectedFile?.size || 0
+    });
+
     setAnalysisResults(results);
     setIsAnalyzing(false);
-    
+
     // Store results with the selected file
     if (selectedFile) {
       try {
+        console.log('💾 Storing analysis results to history...');
         await analysisStorage.storeAnalysisResults(results, selectedFile);
         setHasStoredData(true);
         updateStorageStats();
-        
-        console.log('💾 Analysis results stored successfully');
+
+        console.log('✅ Analysis results stored successfully to history');
       } catch (error) {
         console.error('❌ Failed to store analysis results:', error);
+      }
+    } else {
+      console.warn('⚠️ Cannot store analysis results: No file selected');
+
+      // Create a temporary file object if none exists
+      const tempFile = new File([''], 'unknown-file.txt', { type: 'text/plain' });
+      try {
+        console.log('💾 Storing analysis results with temporary file...');
+        await analysisStorage.storeAnalysisResults(results, tempFile);
+        setHasStoredData(true);
+        updateStorageStats();
+
+        console.log('✅ Analysis results stored successfully with temporary file');
+      } catch (error) {
+        console.error('❌ Failed to store analysis results with temporary file:', error);
       }
     }
   }, [selectedFile, updateStorageStats]);
