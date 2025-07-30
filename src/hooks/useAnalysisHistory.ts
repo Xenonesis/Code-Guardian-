@@ -116,12 +116,14 @@ export const useAnalysisHistory = () => {
         storageStats
       });
 
+      // Include current analysis and previous analyses
       const allAnalyses = [
         ...(history.currentAnalysis ? [history.currentAnalysis] : []),
         ...history.previousAnalyses
       ];
 
       console.log('📊 Total analyses found:', allAnalyses.length);
+      console.log('📋 Previous analyses:', history.previousAnalyses.map(a => ({ id: a.id, fileName: a.fileName })));
 
       setState(prev => ({
         ...prev,
@@ -142,7 +144,7 @@ export const useAnalysisHistory = () => {
     }
   }, []);
 
-  // Filter analyses based on current filters
+  // Filter analyses based on current filters and limit to last 3
   const filteredAnalyses = useMemo(() => {
     let filtered = [...state.analyses];
 
@@ -205,7 +207,19 @@ export const useAnalysisHistory = () => {
       return score >= filters.scoreRange.min && score <= filters.scoreRange.max;
     });
 
-    return filtered.sort((a, b) => b.timestamp - a.timestamp);
+    // Sort by timestamp (newest first) and limit to last 3 analyses when no filters are applied
+    const sorted = filtered.sort((a, b) => b.timestamp - a.timestamp);
+    
+    // If no filters are applied (default state), show only last 3 analyses
+    const hasActiveFilters = filters.searchTerm || 
+                           filters.severityFilter !== 'all' || 
+                           filters.fileTypeFilter || 
+                           filters.scoreRange.min > 0 || 
+                           filters.scoreRange.max < 100 ||
+                           filters.dateRange.start || 
+                           filters.dateRange.end;
+    
+    return hasActiveFilters ? sorted : sorted.slice(0, 3);
   }, [state.analyses, filters]);
 
   // Update filtered analyses when filters change

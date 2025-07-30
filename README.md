@@ -1,11 +1,11 @@
 <div align="center">
 
-<<<<<<< HEAD
-# 🛡️ Code Guardian v1.15
+# 🛡️ Code Guardian v1.4.0
+### *AI-Powered Enterprise Security Analysis Platform*
 =======
 # 🛡️ Code Guardian
 ### *AI-Powered Enterprise Security Analysis Platform*
->>>>>>> 0fb2753d (Release v1.3.0)
+>>>>>>> 0fb2753d (Release v1.4.0)
 
 <p align="center">
   <img src="https://img.shields.io/badge/Version-1.1.5-ff6b6b?style=for-the-badge&logo=rocket&logoColor=white" alt="Version"/>

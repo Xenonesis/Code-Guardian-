@@ -84,19 +84,7 @@ if ('performance' in window && 'measure' in window.performance) {
   });
 }
 
-// Development utilities
-if (import.meta.env.DEV) {
-  import('./utils/historyTestUtils').then(({ HistoryTestUtils }) => {
-    (window as any).HistoryTestUtils = HistoryTestUtils;
-    console.log('🧪 History test utilities loaded.');
-    console.log('📝 Available commands:');
-    console.log('  - HistoryTestUtils.createSingleTestAnalysis() - Create one test analysis');
-    console.log('  - HistoryTestUtils.populateTestHistory(5) - Create multiple test analyses');
-    console.log('  - HistoryTestUtils.debugStorage() - Debug storage contents');
-    console.log('  - HistoryTestUtils.runTestSuite() - Run full test suite');
-    console.log('  - HistoryTestUtils.clearTestData() - Clear all test data');
-  });
-}
+
 
 // Web Vitals reporting (for production)
 if (import.meta.env.PROD) {
