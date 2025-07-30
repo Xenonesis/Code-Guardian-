@@ -118,8 +118,12 @@ export const useEnhancedAnalysis = () => {
     } else {
       console.warn('⚠️ Cannot store analysis results: No file selected');
 
-      // Create a temporary file object if none exists
-      const tempFile = new File([''], 'unknown-file.txt', { type: 'text/plain' });
+      // Create a temporary file object with a more descriptive name based on analysis content
+      const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+      const issueCount = results.issues?.length || 0;
+      const tempFileName = `analysis-${timestamp}-${issueCount}issues.zip`;
+      
+      const tempFile = new File([''], tempFileName, { type: 'application/zip' });
       try {
         console.log('💾 Storing analysis results with temporary file...');
         await analysisStorage.storeAnalysisResults(results, tempFile);

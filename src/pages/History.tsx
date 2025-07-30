@@ -22,12 +22,10 @@ import {
   ChevronUp,
   RefreshCw,
   Shield,
-  Bug,
   Zap,
   Info,
   Eye,
   EyeOff,
-  Star,
   TrendingUp,
   TrendingDown,
   Activity,
@@ -61,6 +59,7 @@ import { ExportFormat } from '@/services/exportService';
 import Navigation from '@/components/Navigation';
 import { useDarkMode } from '@/hooks/useDarkMode';
 
+
 const History: React.FC = () => {
   const { isDarkMode, toggleDarkMode } = useDarkMode();
   const { 
@@ -77,7 +76,6 @@ const History: React.FC = () => {
   const [selectedAnalyses, setSelectedAnalyses] = useState<string[]>([]);
   const [showFilters, setShowFilters] = useState(false);
   const [expandedAnalysis, setExpandedAnalysis] = useState<string | null>(null);
-  const [autoInitialized, setAutoInitialized] = useState(false);
 
   // Helper functions
   const formatDate = (timestamp: number) => {
@@ -107,7 +105,7 @@ const History: React.FC = () => {
       case 'high': return <Zap className="h-3 w-3" />;
       case 'medium': return <Info className="h-3 w-3" />;
       case 'low': return <CheckCircle className="h-3 w-3" />;
-      default: return <Bug className="h-3 w-3" />;
+      default: return <AlertTriangle className="h-3 w-3" />;
     }
   };
 
@@ -179,33 +177,6 @@ const History: React.FC = () => {
   const toggleAnalysisDetails = (analysisId: string) => {
     setExpandedAnalysis(expandedAnalysis === analysisId ? null : analysisId);
   };
-
-  const handleDebugStorage = () => {
-    // Import and use debug function
-    import('@/utils/historyTestUtils').then(({ HistoryTestUtils }) => {
-      HistoryTestUtils.debugStorage();
-    });
-  };
-
-  const handleCreateTestData = async () => {
-    // Create test data for demonstration
-    try {
-      const { HistoryTestUtils } = await import('@/utils/historyTestUtils');
-      await HistoryTestUtils.populateTestHistory(3);
-      actions.refreshHistory();
-    } catch (error) {
-      console.error('Failed to create test data:', error);
-    }
-  };
-
-  // Auto-initialize with test data in development mode if no data exists
-  React.useEffect(() => {
-    if (import.meta.env.DEV && !isLoading && totalCount === 0 && !autoInitialized) {
-      console.log('🧪 No analysis data found in development mode, creating test data...');
-      setAutoInitialized(true);
-      handleCreateTestData();
-    }
-  }, [isLoading, totalCount, autoInitialized]);
 
   if (isLoading) {
     return (
@@ -296,28 +267,8 @@ const History: React.FC = () => {
                     <RefreshCw className="h-4 w-4" />
                     Refresh
                   </Button>
-                  {import.meta.env.DEV && (
-                    <>
-                      <Button
-                        onClick={handleDebugStorage}
-                        variant="outline"
-                        size="sm"
-                        className="text-xs bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm border-slate-200 dark:border-slate-600"
-                      >
-                        <Bug className="h-3 w-3 mr-1" />
-                        Debug
-                      </Button>
-                      <Button
-                        onClick={handleCreateTestData}
-                        variant="outline"
-                        size="sm"
-                        className="text-xs bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm border-slate-200 dark:border-slate-600"
-                      >
-                        <Star className="h-3 w-3 mr-1" />
-                        Test Data
-                      </Button>
-                    </>
-                  )}
+
+
                 </div>
               </div>
             </div>
@@ -325,27 +276,7 @@ const History: React.FC = () => {
 
           {/* Stats */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-            {/* Debug info in development */}
-            {import.meta.env.DEV && (
-              <Card className="md:col-span-4 mb-4">
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <div className={isLoading ? 'w-2 h-2 rounded-full bg-yellow-500' : error ? 'w-2 h-2 rounded-full bg-red-500' : 'w-2 h-2 rounded-full bg-green-500'}></div>
-                      <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                        Status: {isLoading ? 'Loading...' : error ? 'Error' : 'Ready'}
-                      </span>
-                    </div>
-                    <div className="text-xs text-slate-500 dark:text-slate-400">
-                      Dev Mode - Storage: {typeof localStorage !== 'undefined' ? 'Available' : 'Unavailable'}
-                    </div>
-                  </div>
-                  {error && (
-                    <p className="text-sm text-red-600 dark:text-red-400 mt-2">{error}</p>
-                  )}
-                </CardContent>
-              </Card>
-            )}
+
             {/* Enhanced Statistics Cards */}
             <Card className="group hover:shadow-xl transition-all duration-300 border-0 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/50 dark:to-indigo-950/50 animate-scaleIn animate-delay-100">
               <CardContent className="p-6">
@@ -358,7 +289,10 @@ const History: React.FC = () => {
                       <p className="text-sm font-medium text-slate-600 dark:text-slate-400">Total Analyses</p>
                       <p className="text-3xl font-bold text-slate-900 dark:text-white">{totalCount}</p>
                       <p className="text-xs text-slate-500 dark:text-slate-500">
-                        {filteredAnalyses.length !== totalCount && `${filteredAnalyses.length} filtered`}
+                        {filteredAnalyses.length !== totalCount ? 
+                          `${filteredAnalyses.length} ${filters.searchTerm || filters.severityFilter !== 'all' || filters.fileTypeFilter || filters.scoreRange.min > 0 || filters.scoreRange.max < 100 || filters.dateRange.start || filters.dateRange.end ? 'filtered' : 'recent'}` : 
+                          'all analyses'
+                        }
                       </p>
                     </div>
                   </div>
@@ -521,13 +455,8 @@ const History: React.FC = () => {
                   </label>
                   <Select onValueChange={(value) => handleExport(value as ExportFormat)}>
                     <SelectTrigger className="w-48 py-3 px-4 rounded-xl border-2 border-slate-200 dark:border-slate-600 hover:border-blue-300 dark:hover:border-blue-500 transition-all duration-200 bg-white dark:bg-slate-800 shadow-lg hover:shadow-xl hover:scale-[1.02] group">
-                      <div className="flex items-center gap-3">
-                        <div className="p-1.5 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 shadow-sm group-hover:shadow-md group-hover:scale-110 transition-all duration-200">
-                          <Download className="h-3.5 w-3.5 text-white group-hover:animate-bounce" />
-                        </div>
-                        <SelectValue placeholder="Choose Format" className="font-medium" />
-                        <ChevronDown className="h-4 w-4 text-slate-400 group-hover:text-blue-500 transition-colors duration-200 ml-auto" />
-                      </div>
+                      <Download className="h-3.5 w-3.5 text-blue-600 mr-2" />
+                      <SelectValue placeholder="Choose Format" className="font-medium" />
                     </SelectTrigger>
                     <SelectContent className="w-64 p-2 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-600 rounded-xl shadow-2xl">
                       <div className="mb-2 px-2 py-1">
@@ -536,78 +465,32 @@ const History: React.FC = () => {
                         </div>
                       </div>
 
-                      <SelectItem value="json" className="rounded-lg p-3 mb-1 hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 dark:hover:from-blue-950/50 dark:hover:to-indigo-950/50 transition-all duration-200 cursor-pointer">
-                        <div className="flex items-center gap-3">
-                          <div className="p-2 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 shadow-sm">
-                            <FileJson className="h-4 w-4 text-white" />
-                          </div>
-                          <div className="flex-1">
-                            <div className="font-semibold text-slate-900 dark:text-white">JSON Format</div>
-                            <div className="text-xs text-slate-500 dark:text-slate-400">Structured data for developers</div>
-                          </div>
-                          <div className="text-xs bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 px-2 py-1 rounded-full font-medium">
-                            .json
-                          </div>
-                        </div>
+                      <SelectItem value="json">
+                        📄 JSON Format (.json)
                       </SelectItem>
 
-                      <SelectItem value="csv" className="rounded-lg p-3 mb-1 hover:bg-gradient-to-r hover:from-emerald-50 hover:to-green-50 dark:hover:from-emerald-950/50 dark:hover:to-green-950/50 transition-all duration-200 cursor-pointer">
-                        <div className="flex items-center gap-3">
-                          <div className="p-2 rounded-lg bg-gradient-to-br from-emerald-500 to-green-600 shadow-sm">
-                            <FileSpreadsheet className="h-4 w-4 text-white" />
-                          </div>
-                          <div className="flex-1">
-                            <div className="font-semibold text-slate-900 dark:text-white">CSV Format</div>
-                            <div className="text-xs text-slate-500 dark:text-slate-400">Spreadsheet compatible data</div>
-                          </div>
-                          <div className="text-xs bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300 px-2 py-1 rounded-full font-medium">
-                            .csv
-                          </div>
-                        </div>
+                      <SelectItem value="csv">
+                        📊 CSV Format (.csv)
                       </SelectItem>
 
-                      <SelectItem value="txt" className="rounded-lg p-3 mb-1 hover:bg-gradient-to-r hover:from-purple-50 hover:to-violet-50 dark:hover:from-purple-950/50 dark:hover:to-violet-950/50 transition-all duration-200 cursor-pointer">
-                        <div className="flex items-center gap-3">
-                          <div className="p-2 rounded-lg bg-gradient-to-br from-purple-500 to-violet-600 shadow-sm">
-                            <FileText className="h-4 w-4 text-white" />
-                          </div>
-                          <div className="flex-1">
-                            <div className="font-semibold text-slate-900 dark:text-white">Text Format</div>
-                            <div className="text-xs text-slate-500 dark:text-slate-400">Human-readable report</div>
-                          </div>
-                          <div className="text-xs bg-purple-100 dark:bg-purple-900/50 text-purple-700 dark:text-purple-300 px-2 py-1 rounded-full font-medium">
-                            .txt
-                          </div>
-                        </div>
+                      <SelectItem value="txt">
+                        📝 Text Format (.txt)
                       </SelectItem>
 
-                      <SelectItem value="pdf" className="rounded-lg p-3 hover:bg-gradient-to-r hover:from-orange-50 hover:to-red-50 dark:hover:from-orange-950/50 dark:hover:to-red-950/50 transition-all duration-200 cursor-pointer">
-                        <div className="flex items-center gap-3">
-                          <div className="p-2 rounded-lg bg-gradient-to-br from-orange-500 to-red-600 shadow-sm">
-                            <FileImage className="h-4 w-4 text-white" />
-                          </div>
-                          <div className="flex-1">
-                            <div className="font-semibold text-slate-900 dark:text-white">PDF Report</div>
-                            <div className="text-xs text-slate-500 dark:text-slate-400">Professional document</div>
-                          </div>
-                          <div className="text-xs bg-orange-100 dark:bg-orange-900/50 text-orange-700 dark:text-orange-300 px-2 py-1 rounded-full font-medium">
-                            .pdf
-                          </div>
-                        </div>
+                      <SelectItem value="pdf">
+                        📋 PDF Report (.pdf)
                       </SelectItem>
 
                       <div className="mt-3 pt-3 border-t border-slate-200 dark:border-slate-600">
                         <div className="px-2 py-2 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30 rounded-lg">
                           <div className="flex items-center justify-between">
-                            <p className="text-xs text-slate-600 dark:text-slate-400 flex items-center gap-1.5">
-                              <div className="p-1 rounded-full bg-blue-500/20">
-                                <Lightning className="h-2.5 w-2.5 text-blue-600 dark:text-blue-400" />
-                              </div>
+                            <div className="text-xs text-slate-600 dark:text-slate-400 flex items-center gap-1.5">
+                              <Lightning className="h-2.5 w-2.5 text-blue-600 dark:text-blue-400" />
                               {selectedAnalyses.length > 0
                                 ? `${selectedAnalyses.length} selected`
                                 : `${filteredAnalyses.length} total`
                               }
-                            </p>
+                            </div>
                             <div className="flex items-center gap-1">
                               <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></div>
                               <span className="text-xs text-green-600 dark:text-green-400 font-medium">Ready</span>
@@ -655,64 +538,24 @@ const History: React.FC = () => {
                           </p>
                         </div>
 
-                        <SelectItem value="all" className="rounded-lg p-3 mb-1 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-all duration-200 cursor-pointer">
-                          <div className="flex items-center gap-3">
-                            <div className="p-1.5 rounded-lg bg-gradient-to-r from-slate-400 to-slate-500 shadow-sm">
-                              <Shield className="h-3 w-3 text-white" />
-                            </div>
-                            <div className="flex-1">
-                              <div className="font-semibold text-slate-900 dark:text-white">All Severities</div>
-                              <div className="text-xs text-slate-500 dark:text-slate-400">Show all security issues</div>
-                            </div>
-                          </div>
+                        <SelectItem value="all">
+                          🛡️ All Severities
                         </SelectItem>
 
-                        <SelectItem value="critical" className="rounded-lg p-3 mb-1 hover:bg-red-50 dark:hover:bg-red-950/30 transition-all duration-200 cursor-pointer">
-                          <div className="flex items-center gap-3">
-                            <div className="p-1.5 rounded-lg bg-gradient-to-r from-red-500 to-red-600 shadow-sm animate-pulse">
-                              <AlertTriangle className="h-3 w-3 text-white" />
-                            </div>
-                            <div className="flex-1">
-                              <div className="font-semibold text-slate-900 dark:text-white">Critical Only</div>
-                              <div className="text-xs text-slate-500 dark:text-slate-400">Immediate attention required</div>
-                            </div>
-                          </div>
+                        <SelectItem value="critical">
+                          🚨 Critical Only
                         </SelectItem>
 
-                        <SelectItem value="high" className="rounded-lg p-3 mb-1 hover:bg-orange-50 dark:hover:bg-orange-950/30 transition-all duration-200 cursor-pointer">
-                          <div className="flex items-center gap-3">
-                            <div className="p-1.5 rounded-lg bg-gradient-to-r from-orange-500 to-orange-600 shadow-sm">
-                              <Zap className="h-3 w-3 text-white" />
-                            </div>
-                            <div className="flex-1">
-                              <div className="font-semibold text-slate-900 dark:text-white">High Priority</div>
-                              <div className="text-xs text-slate-500 dark:text-slate-400">Should be addressed soon</div>
-                            </div>
-                          </div>
+                        <SelectItem value="high">
+                          ⚡ High Priority
                         </SelectItem>
 
-                        <SelectItem value="medium" className="rounded-lg p-3 mb-1 hover:bg-yellow-50 dark:hover:bg-yellow-950/30 transition-all duration-200 cursor-pointer">
-                          <div className="flex items-center gap-3">
-                            <div className="p-1.5 rounded-lg bg-gradient-to-r from-yellow-500 to-yellow-600 shadow-sm">
-                              <Info className="h-3 w-3 text-white" />
-                            </div>
-                            <div className="flex-1">
-                              <div className="font-semibold text-slate-900 dark:text-white">Medium Risk</div>
-                              <div className="text-xs text-slate-500 dark:text-slate-400">Moderate security concern</div>
-                            </div>
-                          </div>
+                        <SelectItem value="medium">
+                          ⚠️ Medium Risk
                         </SelectItem>
 
-                        <SelectItem value="low" className="rounded-lg p-3 hover:bg-blue-50 dark:hover:bg-blue-950/30 transition-all duration-200 cursor-pointer">
-                          <div className="flex items-center gap-3">
-                            <div className="p-1.5 rounded-lg bg-gradient-to-r from-blue-500 to-blue-600 shadow-sm">
-                              <CheckCircle className="h-3 w-3 text-white" />
-                            </div>
-                            <div className="flex-1">
-                              <div className="font-semibold text-slate-900 dark:text-white">Low Impact</div>
-                              <div className="text-xs text-slate-500 dark:text-slate-400">Minor issues to review</div>
-                            </div>
-                          </div>
+                        <SelectItem value="low">
+                          ✅ Low Impact
                         </SelectItem>
                       </SelectContent>
                     </Select>
@@ -852,25 +695,16 @@ const History: React.FC = () => {
 
               {totalCount === 0 ? (
                 <div className="space-y-6">
-                  {import.meta.env.DEV && (
-                    <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30 rounded-xl p-6 border border-blue-200 dark:border-blue-800">
-                      <div className="flex items-center justify-center gap-2 mb-3">
-                        <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
-                        <span className="text-sm font-medium text-blue-800 dark:text-blue-200">Development Mode</span>
-                        <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse delay-500"></div>
-                      </div>
-                      <p className="text-sm text-blue-700 dark:text-blue-300 mb-4">
-                        Create sample analysis data to explore the history features
-                      </p>
-                      <Button
-                        onClick={handleCreateTestData}
-                        className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white shadow-lg hover:shadow-blue-500/25 transition-all duration-200"
-                      >
-                        <Star className="h-4 w-4 mr-2" />
-                        Generate Sample Data
-                      </Button>
-                    </div>
-                  )}
+                  <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                    <Button
+                      onClick={() => window.location.href = '/'}
+                      className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white shadow-lg hover:shadow-blue-500/25 transition-all duration-200"
+                    >
+                      <FileText className="h-4 w-4 mr-2" />
+                      Start First Analysis
+                    </Button>
+
+                  </div>
 
                   <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
                     <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
@@ -906,6 +740,35 @@ const History: React.FC = () => {
           </Card>
         ) : (
           <div className="space-y-4">
+            {/* Show indicator when displaying limited results */}
+            {filteredAnalyses.length < totalCount && !filters.searchTerm && filters.severityFilter === 'all' && !filters.fileTypeFilter && filters.scoreRange.min === 0 && filters.scoreRange.max === 100 && !filters.dateRange.start && !filters.dateRange.end && (
+              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30 rounded-xl p-4 border border-blue-200 dark:border-blue-800 mb-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="p-1.5 rounded-full bg-blue-500/20">
+                      <Clock className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-blue-800 dark:text-blue-200">
+                        Showing Last 3 Recent Analyses
+                      </p>
+                      <p className="text-xs text-blue-600 dark:text-blue-400">
+                        {totalCount - filteredAnalyses.length} older analyses are hidden. Use filters to see all results.
+                      </p>
+                    </div>
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => actions.updateFilters({ scoreRange: { min: 0, max: 99 } })}
+                    className="text-xs bg-white dark:bg-slate-800 border-blue-300 dark:border-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950/50"
+                  >
+                    Show All
+                  </Button>
+                </div>
+              </div>
+            )}
+            
             {/* Select All */}
             <div className="flex items-center gap-2 px-4">
               <Checkbox
@@ -1037,7 +900,7 @@ const History: React.FC = () => {
 
                           <div className="bg-white dark:bg-slate-800 rounded-xl p-3 shadow-sm border border-slate-200 dark:border-slate-700">
                             <div className="flex items-center gap-2 mb-1">
-                              <Bug className="h-4 w-4 text-slate-500" />
+                              <AlertTriangle className="h-4 w-4 text-slate-500" />
                               <span className="text-xs font-medium text-slate-500 dark:text-slate-400">Total Issues</span>
                             </div>
                             <div className="flex items-center gap-2">
@@ -1126,20 +989,7 @@ const History: React.FC = () => {
                   </div>
 
                 {/* Enhanced Expanded Details */}
-                {expandedAnalysis === analysis.id && (
-                  <div className="mt-4 p-4 bg-yellow-100 dark:bg-yellow-900/20 rounded-lg border border-yellow-300 dark:border-yellow-700">
-                    <p className="text-sm text-yellow-800 dark:text-yellow-200">
-                      🔍 Debug: Expanded analysis ID: {expandedAnalysis} | Analysis ID: {analysis.id} | Has results: {analysis.results ? 'Yes' : 'No'}
-                    </p>
-                    {analysis.results && (
-                      <p className="text-xs text-yellow-700 dark:text-yellow-300 mt-1">
-                        Summary exists: {analysis.results.summary ? 'Yes' : 'No'} | 
-                        Issues count: {analysis.results.issues?.length || 0} | 
-                        Security Score: {analysis.results.summary?.securityScore || 'N/A'}
-                      </p>
-                    )}
-                  </div>
-                )}
+
                 {expandedAnalysis === analysis.id && analysis.results && (
                   <div className="mt-6 border-t border-slate-200 dark:border-slate-700 pt-6">
                     <div className="space-y-6">
@@ -1194,7 +1044,7 @@ const History: React.FC = () => {
                           <div className="bg-white dark:bg-slate-800 rounded-lg p-4 shadow-sm border border-slate-200 dark:border-slate-700">
                             <div className="flex items-center justify-between mb-2">
                               <div className="flex items-center gap-2">
-                                <Bug className="h-4 w-4 text-red-600" />
+                                <AlertTriangle className="h-4 w-4 text-red-600" />
                                 <span className="text-sm font-medium text-slate-600 dark:text-slate-400">Total Issues</span>
                               </div>
                               <div className="text-2xl font-bold text-slate-900 dark:text-white">

@@ -17,7 +17,7 @@ const App = () => (
   <ErrorBoundary>
     <TooltipProvider>
       <Sonner />
-      <BrowserRouter>
+      <BrowserRouter future={{ v7_relativeSplatPath: true }}>
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/about" element={<About />} />
