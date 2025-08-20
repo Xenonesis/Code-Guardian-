@@ -5,7 +5,7 @@
 =======
 # 🛡️ Code Guardian
 ### *AI-Powered Enterprise Security Analysis Platform*
->>>>>>> 0fb2753d (Release v1.4.5)
+
 
 <p align="center">
   <img src="https://img.shields.io/badge/Version-1.1.5-ff6b6b?style=for-the-badge&logo=rocket&logoColor=white" alt="Version"/>
